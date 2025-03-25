@@ -17,9 +17,8 @@
 
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": {
-    "tsconfig.json": "tsconfig.*.json, env.d.ts",
-    "app.config.*": "jsconfig*, vitest.config.*, cypress.config.*, playwright.config.*",
-    "package.json": "package-lock.json, pnpm*, .yarnrc*, yarn*, .eslint*, eslint*, .prettier*, prettier*, .editorconfig, .gitattributes, bun.lock"
+    ".prettierrc": ".prettierignore, .prettierrc",
+    "app.config.ts": "app.config.ts, components.json, drizzle.config.ts, eslint.config.js, tsconfig.json, .gitignore, .gitattributes, .editorconfig"
   },
 
   // always choose typescript from node_modules

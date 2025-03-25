@@ -1,0 +1,1 @@
+ALTER TABLE "post" ALTER COLUMN "id" SET DATA TYPE serial;
