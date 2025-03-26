@@ -33,6 +33,11 @@ export const getUserProfile = createServerFn({ method: "GET" })
         posts: {
           with: {
             author: true,
+            likers: {
+              with: {
+                likerData: true,
+              },
+            },
           },
         },
       },

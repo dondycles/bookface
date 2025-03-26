@@ -2,7 +2,7 @@ import { QueryClient, useMutation } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Ellipsis, ThumbsUp } from "lucide-react";
 import { CurrentUser } from "../server/fn/auth";
-import { deletePost, Post } from "../server/fn/posts";
+import { deletePost, likePost, Post, unlikePost } from "../server/fn/posts";
 import UserAvatar from "./avatar";
 import { Button } from "./ui/button";
 import {
@@ -23,9 +23,38 @@ export default function PostCard({
   queryClient: QueryClient;
   deepView?: boolean;
 }) {
+  const isLiked = post.likers.some((l) => l.likerId === currentUser?.id);
   const removePost = useMutation({
     mutationFn: async (id: string) => deletePost({ data: { id } }),
     onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["posts"],
+      });
+    },
+  });
+  const handleLikePost = useMutation({
+    mutationFn: async (id: string) => {
+      await likePost({ data: { postId: id } });
+      return { id };
+    },
+    onSuccess: ({ id }) => {
+      queryClient.invalidateQueries({
+        queryKey: ["post", id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["posts"],
+      });
+    },
+  });
+  const handleUnlikePost = useMutation({
+    mutationFn: async (id: string) => {
+      await unlikePost({ data: { postId: id } });
+      return { id };
+    },
+    onSuccess: ({ id }) => {
+      queryClient.invalidateQueries({
+        queryKey: ["post", id],
+      });
       queryClient.invalidateQueries({
         queryKey: ["posts"],
       });
@@ -76,8 +105,14 @@ export default function PostCard({
         <p className="whitespace-pre-wrap">{post.message}</p>
       </div>
       <div className="p-2 sm:border-t">
-        <Button variant={"ghost"} size={"icon"} className="text-muted-foreground">
-          <ThumbsUp />
+        <Button
+          onClick={async () =>
+            isLiked ? handleUnlikePost.mutate(post.id) : handleLikePost.mutate(post.id)
+          }
+          variant={isLiked ? "secondary" : "ghost"}
+          className="text-muted-foreground"
+        >
+          <ThumbsUp /> {post.likers.length}
         </Button>
       </div>
     </div>

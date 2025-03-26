@@ -2,12 +2,17 @@ import { authMiddleware } from "@/lib/middleware/auth-guard";
 import { createServerFn } from "@tanstack/react-start";
 import { and, eq } from "drizzle-orm";
 import { db } from "../db";
-import { post } from "../schema";
+import { post, postLikes } from "../schema";
 
 export const getPosts = createServerFn({ method: "GET" }).handler(async () => {
   return await db.query.post.findMany({
     with: {
       author: true,
+      likers: {
+        with: {
+          likerData: true,
+        },
+      },
     },
     orderBy: (posts, { desc }) => [desc(posts.createdAt)],
   });
@@ -19,6 +24,11 @@ export const getPost = createServerFn({ method: "GET" })
     return await db.query.post.findFirst({
       with: {
         author: true,
+        likers: {
+          with: {
+            likerData: true,
+          },
+        },
       },
       orderBy: (posts, { desc }) => [desc(posts.createdAt)],
       where: (posts, { eq }) => eq(posts.id, data),
@@ -39,6 +49,30 @@ export const addPost = createServerFn({
       message: data.message,
       userId: user.id,
     });
+  });
+
+export const likePost = createServerFn({
+  method: "POST",
+})
+  .middleware([authMiddleware])
+  .validator((data: { postId: string }) => data)
+  .handler(async ({ data: { postId }, context: { user } }) => {
+    if (!user.id) throw Error("No User!");
+    await db.insert(postLikes).values({
+      likerId: user.id,
+      postId: postId,
+      id: user.id + postId,
+    });
+  });
+
+export const unlikePost = createServerFn({
+  method: "POST",
+})
+  .middleware([authMiddleware])
+  .validator((data: { postId: string }) => data)
+  .handler(async ({ data: { postId }, context: { user } }) => {
+    if (!user.id) throw Error("No User!");
+    await db.delete(postLikes).where(eq(postLikes.id, user.id + postId));
   });
 
 export const deletePost = createServerFn({
