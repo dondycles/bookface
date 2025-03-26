@@ -1,5 +1,3 @@
-import { QueryClient, useMutation } from "@tanstack/react-query";
-import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,7 +6,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "~/lib/components/ui/dialog";
+} from "@/lib/components/ui/dialog";
+import { QueryClient, useMutation } from "@tanstack/react-query";
+import { useState } from "react";
 import { addPost } from "../server/fn/posts";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";

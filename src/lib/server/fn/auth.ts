@@ -1,6 +1,6 @@
+import { authMiddleware } from "@/lib/middleware/auth-guard";
 import { createServerFn } from "@tanstack/react-start";
 import { getWebRequest } from "@tanstack/react-start/server";
-import { authMiddleware } from "~/lib/middleware/auth-guard";
 import { auth } from "../auth";
 import { db } from "../db";
 import { username } from "../schema";
@@ -21,6 +21,8 @@ export const getCurrentUser = createServerFn({ method: "GET" }).handler(async ()
 
   return session?.user || null;
 });
+
+export type CurrentUser = Awaited<ReturnType<typeof getCurrentUser>>;
 
 export const getUserProfile = createServerFn({ method: "GET" })
   .validator((data: { username: string }) => data)

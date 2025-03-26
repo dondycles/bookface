@@ -1,11 +1,8 @@
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { Ellipsis, ThumbsUp } from "lucide-react";
-import { useState } from "react";
-import authClient from "~/lib/auth-client";
-import AddPostDialog from "~/lib/components/add-post-dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "~/lib/components/ui/avatar";
-import { Button } from "~/lib/components/ui/button";
+import authClient from "@/lib/auth-client";
+import AddPostDialog from "@/lib/components/add-post-dialog";
+import PostCard from "@/lib/components/post-card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/lib/components/ui/avatar";
+import { Button } from "@/lib/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -13,47 +10,33 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "~/lib/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "~/lib/components/ui/dropdown-menu";
-import { Input } from "~/lib/components/ui/input";
-import { Separator } from "~/lib/components/ui/separator";
-import { postsQueryOptions } from "~/lib/queries/posts";
-import { updateUsername } from "~/lib/server/fn/auth";
-import { deletePost } from "~/lib/server/fn/posts";
+} from "@/lib/components/ui/dialog";
+import { Input } from "@/lib/components/ui/input";
+import { postsQueryOptions } from "@/lib/queries/posts";
+import { updateUsername } from "@/lib/server/fn/auth";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 export const Route = createFileRoute("/feed/")({
   component: FeedIndex,
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(postsQueryOptions());
-    return { user: context.user };
+    return { currentUser: context.currentUser };
   },
 });
 
 function FeedIndex() {
   const { queryClient } = Route.useRouteContext();
-  const { user } = Route.useLoaderData();
+  const { currentUser } = Route.useLoaderData();
   const posts = useSuspenseQuery(postsQueryOptions());
   const [username, setUsername] = useState("");
 
-  const removePost = useMutation({
-    mutationFn: async (id: string) => deletePost({ data: { id } }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["posts"],
-      });
-    },
-  });
-
   return (
-    <div className="flex flex-col gap-4 py-20 px-2 max-w-[512px] mx-auto">
-      <Dialog open={Boolean(user && !user?.username)}>
+    <div className="flex flex-col gap-4 py-20 sm:max-w-[512px] mx-auto">
+      <Dialog open={Boolean(currentUser && !currentUser?.username)}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Hello, {user?.name}</DialogTitle>
+            <DialogTitle>Hello, {currentUser?.name}</DialogTitle>
             <DialogDescription>Please input your desired username</DialogDescription>
           </DialogHeader>
           <Input
@@ -76,75 +59,30 @@ function FeedIndex() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <div hidden={!user}>
+      <div hidden={!currentUser}>
         <AddPostDialog queryClient={queryClient}>
-          <div className="flex flex-row gap-2 flex-1">
+          <div className="flex flex-row gap-2 flex-1 px-2">
             <Avatar className="size-9">
-              <AvatarImage src={user?.image ?? "/favicon.ico"} alt="@shadcn" />
+              <AvatarImage src={currentUser?.image ?? "/favicon.ico"} alt="@shadcn" />
               <AvatarFallback>BF</AvatarFallback>
             </Avatar>
             <Input
-              placeholder={`What's happening, ${user?.username ?? user?.name}?`}
+              placeholder={`What's happening, ${currentUser?.username ?? currentUser?.name}?`}
               className="rounded-full flex-1"
             />
           </div>
         </AddPostDialog>
       </div>
-      <div className="flex flex-col gap-4 h-full w-full">
+      <div className="flex flex-col sm:gap-2 h-full w-full sm:px-2 ">
         {posts.data?.map((post) => {
           return (
-            <div key={post.id} className="border rounded-lg">
-              <div className=" flex flex-col gap-4 p-4 ">
-                <div className="flex gap-4 justify-between">
-                  <div className="flex gap-2">
-                    <Avatar className="size-9">
-                      <AvatarImage
-                        src={post.author?.image ?? "/favicon.ico"}
-                        alt="@shadcn"
-                      />
-                      <AvatarFallback>BF</AvatarFallback>
-                    </Avatar>
-                    <div className="text-muted-foreground text-xs">
-                      <Link
-                        to="/$username"
-                        params={{ username: post.author.username ?? "" }}
-                      >
-                        {post.author.username ?? post.author.name}
-                      </Link>
-                      <p>{post.createdAt.toLocaleString()}</p>
-                    </div>
-                  </div>
-
-                  <DropdownMenu>
-                    <DropdownMenuTrigger>
-                      <Ellipsis className="text-muted-foreground size-5" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <Link draggable={false} to="/feed/$id" params={{ id: post.id }}>
-                        <DropdownMenuItem>View</DropdownMenuItem>
-                      </Link>
-
-                      <DropdownMenuItem
-                        hidden={user?.id !== post.userId}
-                        onClick={() => {
-                          removePost.mutate(post.id);
-                        }}
-                      >
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-
-                <p className="whitespace-pre-wrap">{post.message}</p>
-              </div>
-              <Separator />
-              <div className="p-2">
-                <Button variant={"ghost"} size={"icon"} className="text-muted-foreground">
-                  <ThumbsUp />
-                </Button>
-              </div>
-            </div>
+            <PostCard
+              post={post}
+              currentUser={currentUser}
+              queryClient={queryClient}
+              key={post.id}
+              deepView={false}
+            />
           );
         })}
       </div>

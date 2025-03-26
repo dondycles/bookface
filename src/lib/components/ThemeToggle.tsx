@@ -17,10 +17,15 @@ export default function ThemeToggle() {
   }
 
   return (
-    <Button variant="outline" size="icon" type="button" onClick={toggleTheme}>
-      <SunIcon className="size-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-      <MoonIcon className="absolute size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-      <span className="sr-only">Toggle theme</span>
+    <Button
+      className="flex justify-start gap-2 px-0 w-full has-[>svg]:px-2"
+      variant="ghost"
+      type="button"
+      onClick={toggleTheme}
+    >
+      <SunIcon className="size-4 dark:hidden" />
+      <MoonIcon className="size-4 hidden dark:block" />
+      <p className="font-normal">Theme Mode</p>
     </Button>
   );
 }

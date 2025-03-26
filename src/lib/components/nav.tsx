@@ -1,10 +1,7 @@
-import { QueryClient } from "@tanstack/react-query";
-import { Link, useRouter } from "@tanstack/react-router";
-import { LogIn, LogOut, Plus, Search, Settings } from "lucide-react";
-import authClient from "~/lib/auth-client";
-import AddPostDialog from "~/lib/components/add-post-dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "~/lib/components/ui/avatar";
-import { Button } from "~/lib/components/ui/button";
+import authClient from "@/lib/auth-client";
+import AddPostDialog from "@/lib/components/add-post-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/lib/components/ui/avatar";
+import { Button } from "@/lib/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,15 +10,20 @@ import {
   DropdownMenuSub,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "~/lib/components/ui/dropdown-menu";
+} from "@/lib/components/ui/dropdown-menu";
+import { QueryClient } from "@tanstack/react-query";
+import { Link, useRouter } from "@tanstack/react-router";
+import { LogIn, LogOut, Plus, Search, Settings } from "lucide-react";
 import { getCurrentUser } from "../server/fn/auth";
+import ThemeToggle from "./ThemeToggle";
+import UserAvatar from "./avatar";
 
 export default function Nav({
   queryClient,
-  user,
+  currentUser,
 }: {
   queryClient: QueryClient;
-  user: Awaited<ReturnType<typeof getCurrentUser>>;
+  currentUser: Awaited<ReturnType<typeof getCurrentUser>>;
 }) {
   const router = useRouter();
   return (
@@ -34,22 +36,23 @@ export default function Nav({
           <Search className="size-6" />
         </Button>
       </div>
-      {user ? (
+      {currentUser ? (
         <DropdownMenu>
           <DropdownMenuTrigger>
-            <Avatar className="size-12">
-              <AvatarImage src={user.image ?? "/favicon.ico"} alt="@shadcn" />
-              <AvatarFallback>BF</AvatarFallback>
-            </Avatar>
+            <UserAvatar
+              url={currentUser.image}
+              className="size-12"
+              alt={currentUser.username ?? currentUser.email}
+            />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
-              <Link to="/">
+              <Link to="/$username" params={{ username: currentUser.username as string }}>
                 <Avatar>
-                  <AvatarImage src={user.image ?? "/favicon.ico"} alt="@shadcn" />
+                  <AvatarImage src={currentUser.image ?? "/favicon.ico"} alt="@shadcn" />
                   <AvatarFallback>BF</AvatarFallback>
                 </Avatar>
-                <p>{user.name}</p>
+                <p>{currentUser.name}</p>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSub>
@@ -81,6 +84,8 @@ export default function Nav({
               <LogOut className="text-destructive" />
               <p>Log Out</p>
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <ThemeToggle />
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (

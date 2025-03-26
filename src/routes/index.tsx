@@ -1,18 +1,18 @@
+import authClient from "@/lib/auth-client";
+import ThemeToggle from "@/lib/components/ThemeToggle";
+import { Button } from "@/lib/components/ui/button";
 import { Link, Outlet, createFileRoute, useRouter } from "@tanstack/react-router";
-import authClient from "~/lib/auth-client";
-import ThemeToggle from "~/lib/components/ThemeToggle";
-import { Button } from "~/lib/components/ui/button";
 
 export const Route = createFileRoute("/")({
   component: Home,
   loader: ({ context }) => {
-    return { user: context.user };
+    return { currentUser: context.currentUser };
   },
 });
 
 function Home() {
   const { queryClient } = Route.useRouteContext();
-  const { user } = Route.useLoaderData();
+  const { currentUser } = Route.useLoaderData();
   const router = useRouter();
 
   return (
@@ -20,9 +20,9 @@ function Home() {
       <div className="m-auto flex flex-col gap-4 items-center">
         <h1 className="text-6xl font-bold">bookface</h1>
         <p className="text-center text-muted-foreground">See the books behind faces.</p>
-        {user ? (
+        {currentUser ? (
           <>
-            <p className="mt-4">Welcome back, {user.name}!</p>
+            <p className="mt-4">Welcome back, {currentUser.name}!</p>
             <Button type="button" asChild className="w-full">
               <Link to="/feed">Go to Feed</Link>
             </Button>

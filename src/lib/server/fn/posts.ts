@@ -1,6 +1,6 @@
+import { authMiddleware } from "@/lib/middleware/auth-guard";
 import { createServerFn } from "@tanstack/react-start";
 import { and, eq } from "drizzle-orm";
-import { authMiddleware } from "~/lib/middleware/auth-guard";
 import { db } from "../db";
 import { post } from "../schema";
 
@@ -24,6 +24,8 @@ export const getPost = createServerFn({ method: "GET" })
       where: (posts, { eq }) => eq(posts.id, data),
     });
   });
+
+export type Post = NonNullable<Awaited<ReturnType<typeof getPost>>>;
 
 export const addPost = createServerFn({
   method: "POST",

@@ -10,23 +10,23 @@ import {
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
-import Nav from "~/lib/components/nav";
-import { getCurrentUser } from "~/lib/server/fn/auth";
-import appCss from "~/lib/styles/app.css?url";
+import Nav from "@/lib/components/nav";
+import { CurrentUser, getCurrentUser } from "@/lib/server/fn/auth";
+import appCss from "@/lib/styles/app.css?url";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
-  user: Awaited<ReturnType<typeof getCurrentUser>>;
+  currentUser: CurrentUser;
 }>()({
   beforeLoad: async ({ context }) => {
-    const user = await context.queryClient.fetchQuery({
+    const currentUser = await context.queryClient.fetchQuery({
       queryKey: ["user"],
       queryFn: ({ signal }) => getCurrentUser({ signal }),
     }); // we're using react-query for caching, see router.tsx
-    return { user };
+    return { currentUser };
   },
   loader: ({ context }) => {
-    return { user: context.user };
+    return { currentUser: context.currentUser };
   },
   head: () => ({
     meta: [
@@ -56,7 +56,7 @@ function RootComponent() {
 
 function RootDocument({ children }: { readonly children: React.ReactNode }) {
   const { queryClient } = Route.useRouteContext();
-  const { user } = Route.useLoaderData();
+  const { currentUser } = Route.useLoaderData();
   return (
     // suppress since we're updating the "dark" class in a custom script below
     <html suppressHydrationWarning>
@@ -70,7 +70,7 @@ function RootDocument({ children }: { readonly children: React.ReactNode }) {
             localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
             )`}
         </ScriptOnce>
-        <Nav queryClient={queryClient} user={user} />
+        <Nav queryClient={queryClient} currentUser={currentUser} />
         {children}
         <ReactQueryDevtools buttonPosition="bottom-left" />
         <TanStackRouterDevtools position="bottom-right" />
