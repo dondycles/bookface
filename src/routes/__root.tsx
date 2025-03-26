@@ -6,32 +6,27 @@ import {
   ScriptOnce,
   Scripts,
 } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
-import { getWebRequest } from "@tanstack/react-start/server";
 
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
-import { auth } from "~/lib/server/auth";
+import Nav from "~/lib/components/nav";
+import { getCurrentUser } from "~/lib/server/fn/auth";
 import appCss from "~/lib/styles/app.css?url";
-
-const getUser = createServerFn({ method: "GET" }).handler(async () => {
-  const { headers } = getWebRequest()!;
-  const session = await auth.api.getSession({ headers });
-
-  return session?.user || null;
-});
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
-  user: Awaited<ReturnType<typeof getUser>>;
+  user: Awaited<ReturnType<typeof getCurrentUser>>;
 }>()({
   beforeLoad: async ({ context }) => {
     const user = await context.queryClient.fetchQuery({
       queryKey: ["user"],
-      queryFn: ({ signal }) => getUser({ signal }),
+      queryFn: ({ signal }) => getCurrentUser({ signal }),
     }); // we're using react-query for caching, see router.tsx
     return { user };
+  },
+  loader: ({ context }) => {
+    return { user: context.user };
   },
   head: () => ({
     meta: [
@@ -60,6 +55,8 @@ function RootComponent() {
 }
 
 function RootDocument({ children }: { readonly children: React.ReactNode }) {
+  const { queryClient } = Route.useRouteContext();
+  const { user } = Route.useLoaderData();
   return (
     // suppress since we're updating the "dark" class in a custom script below
     <html suppressHydrationWarning>
@@ -73,9 +70,8 @@ function RootDocument({ children }: { readonly children: React.ReactNode }) {
             localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
             )`}
         </ScriptOnce>
-
+        <Nav queryClient={queryClient} user={user} />
         {children}
-
         <ReactQueryDevtools buttonPosition="bottom-left" />
         <TanStackRouterDevtools position="bottom-right" />
 

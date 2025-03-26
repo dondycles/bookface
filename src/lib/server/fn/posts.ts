@@ -32,6 +32,7 @@ export const addPost = createServerFn({
   .validator((data: { message: typeof post.$inferInsert.message }) => data)
   .handler(async ({ data, context: { user } }) => {
     if (!user.id) throw Error("No User!");
+    if (data.message.length === 0) return "Post Cannot Be Empty.";
     await db.insert(post).values({
       message: data.message,
       userId: user.id,

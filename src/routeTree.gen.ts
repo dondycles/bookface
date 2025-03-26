@@ -11,16 +11,23 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as FeedRouteImport } from './routes/feed/route'
+import { Route as SettingsRouteImport } from './routes/settings/route'
+import { Route as UsernameRouteImport } from './routes/$username/route'
 import { Route as IndexImport } from './routes/index'
 import { Route as FeedIndexImport } from './routes/feed/index'
 import { Route as FeedIdImport } from './routes/feed/$id'
 
 // Create/Update Routes
 
-const FeedRouteRoute = FeedRouteImport.update({
-  id: '/feed',
-  path: '/feed',
+const SettingsRouteRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const UsernameRouteRoute = UsernameRouteImport.update({
+  id: '/$username',
+  path: '/$username',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -31,15 +38,15 @@ const IndexRoute = IndexImport.update({
 } as any)
 
 const FeedIndexRoute = FeedIndexImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => FeedRouteRoute,
+  id: '/feed/',
+  path: '/feed/',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const FeedIdRoute = FeedIdImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => FeedRouteRoute,
+  id: '/feed/$id',
+  path: '/feed/$id',
+  getParentRoute: () => rootRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -53,55 +60,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/feed': {
-      id: '/feed'
-      path: '/feed'
-      fullPath: '/feed'
-      preLoaderRoute: typeof FeedRouteImport
+    '/$username': {
+      id: '/$username'
+      path: '/$username'
+      fullPath: '/$username'
+      preLoaderRoute: typeof UsernameRouteImport
+      parentRoute: typeof rootRoute
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRoute
     }
     '/feed/$id': {
       id: '/feed/$id'
-      path: '/$id'
+      path: '/feed/$id'
       fullPath: '/feed/$id'
       preLoaderRoute: typeof FeedIdImport
-      parentRoute: typeof FeedRouteImport
+      parentRoute: typeof rootRoute
     }
     '/feed/': {
       id: '/feed/'
-      path: '/'
-      fullPath: '/feed/'
+      path: '/feed'
+      fullPath: '/feed'
       preLoaderRoute: typeof FeedIndexImport
-      parentRoute: typeof FeedRouteImport
+      parentRoute: typeof rootRoute
     }
   }
 }
 
 // Create and export the route tree
 
-interface FeedRouteRouteChildren {
-  FeedIdRoute: typeof FeedIdRoute
-  FeedIndexRoute: typeof FeedIndexRoute
-}
-
-const FeedRouteRouteChildren: FeedRouteRouteChildren = {
-  FeedIdRoute: FeedIdRoute,
-  FeedIndexRoute: FeedIndexRoute,
-}
-
-const FeedRouteRouteWithChildren = FeedRouteRoute._addFileChildren(
-  FeedRouteRouteChildren,
-)
-
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/feed': typeof FeedRouteRouteWithChildren
+  '/$username': typeof UsernameRouteRoute
+  '/settings': typeof SettingsRouteRoute
   '/feed/$id': typeof FeedIdRoute
-  '/feed/': typeof FeedIndexRoute
+  '/feed': typeof FeedIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$username': typeof UsernameRouteRoute
+  '/settings': typeof SettingsRouteRoute
   '/feed/$id': typeof FeedIdRoute
   '/feed': typeof FeedIndexRoute
 }
@@ -109,28 +112,35 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/feed': typeof FeedRouteRouteWithChildren
+  '/$username': typeof UsernameRouteRoute
+  '/settings': typeof SettingsRouteRoute
   '/feed/$id': typeof FeedIdRoute
   '/feed/': typeof FeedIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/feed' | '/feed/$id' | '/feed/'
+  fullPaths: '/' | '/$username' | '/settings' | '/feed/$id' | '/feed'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/feed/$id' | '/feed'
-  id: '__root__' | '/' | '/feed' | '/feed/$id' | '/feed/'
+  to: '/' | '/$username' | '/settings' | '/feed/$id' | '/feed'
+  id: '__root__' | '/' | '/$username' | '/settings' | '/feed/$id' | '/feed/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  FeedRouteRoute: typeof FeedRouteRouteWithChildren
+  UsernameRouteRoute: typeof UsernameRouteRoute
+  SettingsRouteRoute: typeof SettingsRouteRoute
+  FeedIdRoute: typeof FeedIdRoute
+  FeedIndexRoute: typeof FeedIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  FeedRouteRoute: FeedRouteRouteWithChildren,
+  UsernameRouteRoute: UsernameRouteRoute,
+  SettingsRouteRoute: SettingsRouteRoute,
+  FeedIdRoute: FeedIdRoute,
+  FeedIndexRoute: FeedIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -144,26 +154,26 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/feed"
+        "/$username",
+        "/settings",
+        "/feed/$id",
+        "/feed/"
       ]
     },
     "/": {
       "filePath": "index.tsx"
     },
-    "/feed": {
-      "filePath": "feed/route.tsx",
-      "children": [
-        "/feed/$id",
-        "/feed/"
-      ]
+    "/$username": {
+      "filePath": "$username/route.tsx"
+    },
+    "/settings": {
+      "filePath": "settings/route.tsx"
     },
     "/feed/$id": {
-      "filePath": "feed/$id.tsx",
-      "parent": "/feed"
+      "filePath": "feed/$id.tsx"
     },
     "/feed/": {
-      "filePath": "feed/index.tsx",
-      "parent": "/feed"
+      "filePath": "feed/index.tsx"
     }
   }
 }

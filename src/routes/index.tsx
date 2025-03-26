@@ -1,4 +1,4 @@
-import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
+import { Link, Outlet, createFileRoute, useRouter } from "@tanstack/react-router";
 import authClient from "~/lib/auth-client";
 import ThemeToggle from "~/lib/components/ThemeToggle";
 import { Button } from "~/lib/components/ui/button";
@@ -59,6 +59,7 @@ function Home() {
             <ThemeToggle />
           </div>
         )}
+        <Outlet />
       </div>
     </div>
   );

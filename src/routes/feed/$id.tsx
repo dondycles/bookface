@@ -1,6 +1,7 @@
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Ellipsis, ThumbsUp } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "~/lib/components/ui/avatar";
 import { Button } from "~/lib/components/ui/button";
 import {
   DropdownMenu,
@@ -44,13 +45,22 @@ function RouteComponent() {
 
   if (post.data)
     return (
-      <div>
-        <div key={post.data.id} className="border rounded-lg">
-          <div className=" flex flex-col gap-4 p-4 ">
+      <div key={post.data.id} className="py-20 max-w-[512px] mx-auto">
+        <div>
+          <div className=" flex flex-col gap-4 px-2 sm:px-4 ">
             <div className="flex gap-4 justify-between">
-              <div className="text-muted-foreground text-xs">
-                <p>{post.data.author.email}</p>
-                <p>{post.data.createdAt.toLocaleString()}</p>
+              <div className="flex gap-2">
+                <Avatar className="size-9">
+                  <AvatarImage
+                    src={post.data.author?.image ?? "/favicon.ico"}
+                    alt="@shadcn"
+                  />
+                  <AvatarFallback>BF</AvatarFallback>
+                </Avatar>
+                <div className="text-muted-foreground text-xs">
+                  <p>{post.data.author.username ?? post.data.author.name}</p>
+                  <p>{post.data.createdAt.toLocaleString()}</p>
+                </div>
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger>

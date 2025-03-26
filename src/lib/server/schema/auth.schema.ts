@@ -8,6 +8,20 @@ export const user = pgTable("user", {
   image: text("image"),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
+  username: text("username"),
+  displayUsername: text("displayUsername"),
+});
+
+export const username = pgTable("username", {
+  id: text("id")
+    .primaryKey()
+    .$default(() => crypto.randomUUID()),
+  userId: text("userId")
+    .references(() => user.id, { onDelete: "cascade" })
+    .notNull(),
+  username: text("userName")
+    .$default(() => crypto.randomUUID())
+    .unique(),
 });
 
 export const session = pgTable("session", {
