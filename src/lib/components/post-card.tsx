@@ -1,6 +1,6 @@
 import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { Ellipsis, ThumbsUp } from "lucide-react";
+import { Ellipsis, MessageCircle, ThumbsUp } from "lucide-react";
 import { postQueryOptions } from "../queries/posts";
 import { CurrentUser } from "../server/fn/auth";
 import { deletePost, likePost, Post, unlikePost } from "../server/fn/posts";
@@ -119,7 +119,7 @@ export default function PostCard({
 
         <p className="whitespace-pre-wrap">{post.message}</p>
       </div>
-      <div className="p-2 sm:border-t">
+      <div className="p-2 sm:border-t flex gap-2">
         <Button
           onClick={async () =>
             isLiked ? handleUnlikePost.mutate(post.id) : handleLikePost.mutate(post.id)
@@ -131,6 +131,9 @@ export default function PostCard({
             className={`${isLiked && "fill-accent-foreground stroke-background"}`}
           />{" "}
           {post.likers.length}
+        </Button>
+        <Button variant={"outline"} className="flex-1">
+          <MessageCircle />
         </Button>
       </div>
     </div>
