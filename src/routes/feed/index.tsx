@@ -77,7 +77,7 @@ function FeedIndex() {
         {posts.data?.map((post) => {
           return (
             <PostCard
-              post={post}
+              postId={post.id}
               currentUser={currentUser}
               queryClient={queryClient}
               key={post.id}

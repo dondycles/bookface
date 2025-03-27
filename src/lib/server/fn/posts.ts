@@ -6,14 +6,6 @@ import { post, postLikes } from "../schema";
 
 export const getPosts = createServerFn({ method: "GET" }).handler(async () => {
   return await db.query.post.findMany({
-    with: {
-      author: true,
-      likers: {
-        with: {
-          likerData: true,
-        },
-      },
-    },
     orderBy: (posts, { desc }) => [desc(posts.createdAt)],
   });
 });

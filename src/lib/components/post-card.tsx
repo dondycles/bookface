@@ -1,6 +1,7 @@
-import { QueryClient, useMutation } from "@tanstack/react-query";
+import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Ellipsis, ThumbsUp } from "lucide-react";
+import { postQueryOptions } from "../queries/posts";
 import { CurrentUser } from "../server/fn/auth";
 import { deletePost, likePost, Post, unlikePost } from "../server/fn/posts";
 import UserAvatar from "./avatar";
@@ -13,22 +14,26 @@ import {
 } from "./ui/dropdown-menu";
 
 export default function PostCard({
-  post,
+  postId,
   currentUser,
   queryClient,
   deepView = false,
 }: {
-  post: Post;
+  postId: Post["id"];
   currentUser: CurrentUser;
   queryClient: QueryClient;
   deepView?: boolean;
 }) {
-  const isLiked = post.likers.some((l) => l.likerId === currentUser?.id);
-  const removePost = useMutation({
-    mutationFn: async (id: string) => deletePost({ data: { id } }),
-    onSuccess: () => {
+  const { data: post } = useQuery(postQueryOptions(postId));
+  const isLiked = post?.likers.some((l) => l.likerId === currentUser?.id);
+  const handleRemovePost = useMutation({
+    mutationFn: async (id: string) => {
+      await deletePost({ data: { id } });
+      return { id };
+    },
+    onSuccess: ({ id }) => {
       queryClient.invalidateQueries({
-        queryKey: ["posts"],
+        queryKey: ["post", id],
       });
     },
   });
@@ -41,9 +46,6 @@ export default function PostCard({
       queryClient.invalidateQueries({
         queryKey: ["post", id],
       });
-      queryClient.invalidateQueries({
-        queryKey: ["posts"],
-      });
     },
   });
   const handleUnlikePost = useMutation({
@@ -55,14 +57,14 @@ export default function PostCard({
       queryClient.invalidateQueries({
         queryKey: ["post", id],
       });
-      queryClient.invalidateQueries({
-        queryKey: ["posts"],
-      });
     },
   });
+  if (!post) return null;
   return (
     <div key={post.id} className={`${!deepView && "border-t sm:border"} sm:rounded-lg`}>
-      <div className=" flex flex-col gap-4 py-4 px-2 sm:px-4">
+      <div
+        className={`flex flex-col gap-4 py-4 px-2 sm:px-4 ${handleRemovePost.isPending && "animate-pulse"}`}
+      >
         <div className="flex gap-4 justify-between">
           <div className="flex gap-2 items-stretch">
             <UserAvatar
@@ -93,7 +95,7 @@ export default function PostCard({
               <DropdownMenuItem
                 hidden={currentUser?.id !== post.userId}
                 onClick={() => {
-                  removePost.mutate(post.id);
+                  handleRemovePost.mutate(post.id);
                 }}
               >
                 Delete
@@ -109,10 +111,13 @@ export default function PostCard({
           onClick={async () =>
             isLiked ? handleUnlikePost.mutate(post.id) : handleLikePost.mutate(post.id)
           }
-          variant={isLiked ? "secondary" : "ghost"}
-          className="text-muted-foreground"
+          variant={"ghost"}
+          className={`text-muted-foreground ${handleUnlikePost.isPending || (handleLikePost.isPending && "animate-pulse")}`}
         >
-          <ThumbsUp /> {post.likers.length}
+          <ThumbsUp
+            className={`${isLiked && "fill-accent-foreground stroke-background"}`}
+          />{" "}
+          {post.likers.length}
         </Button>
       </div>
     </div>

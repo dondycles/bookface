@@ -18,7 +18,7 @@ export default function ThemeToggle() {
 
   return (
     <Button
-      className="flex justify-start gap-2 px-0 w-full has-[>svg]:px-2"
+      className="flex justify-start gap-2 px-0 has-[>svg]:px-2"
       variant="ghost"
       type="button"
       onClick={toggleTheme}
