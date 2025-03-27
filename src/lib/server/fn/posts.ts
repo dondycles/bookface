@@ -61,14 +61,17 @@ export const editPost = createServerFn({
       newMessage: typeof post.$inferInsert.message;
     }) => data,
   )
-  .handler(async ({ data, context: { user } }) => {
-    if (!data.lastPost.id) throw new Error("No  Post ID!");
+  .handler(async ({ data: { lastPost, newMessage }, context: { user } }) => {
+    if (!lastPost.id) throw new Error("No  Post ID!");
     if (!user.id) throw new Error("No  User ID!");
-    if (data.lastPost.message === data.newMessage) return;
-    await db.update(post).set({
-      message: data.newMessage,
-      updatedAt: new Date(),
-    });
+    if (lastPost.message === newMessage) return;
+    await db
+      .update(post)
+      .set({
+        message: newMessage,
+        updatedAt: new Date(),
+      })
+      .where(eq(post.id, lastPost.id));
   });
 
 export const deletePost = createServerFn({

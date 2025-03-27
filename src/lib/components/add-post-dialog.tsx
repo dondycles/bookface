@@ -32,7 +32,7 @@ export default function AddPostDialog({ children }: { children: React.ReactNode 
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>New post</DialogTitle>
+          <DialogTitle>New Post</DialogTitle>
           <DialogDescription>Tell 'em what's new.</DialogDescription>
         </DialogHeader>
         <Textarea value={message} onChange={(e) => setMessage(e.currentTarget.value)} />

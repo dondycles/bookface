@@ -9,25 +9,26 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import { useRouteContext } from "@tanstack/react-router";
 import { useState } from "react";
-import { editPost, Post } from "../server/fn/posts";
+import { Comment, editComment } from "../server/fn/comments";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
-export default function EditPostDialog({
+export default function EditCommentDialog({
   children,
-  post,
+  comment,
 }: {
   children: React.ReactNode;
-  post: Post;
+  comment: Comment;
 }) {
   const { queryClient } = useRouteContext({ from: "__root__" });
   const [openDialog, setOpenDialog] = useState(false);
-  const [message, setMessage] = useState(post.message);
+  const [message, setMessage] = useState(comment.message);
 
-  const handleEditPost = useMutation({
-    mutationFn: async () => editPost({ data: { lastPost: post, newMessage: message } }),
+  const handleEditComment = useMutation({
+    mutationFn: async () =>
+      editComment({ data: { lastComment: comment, newMessage: message } }),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["post", post.id],
+        queryKey: ["comment", comment.id],
       });
       setOpenDialog(false);
       setMessage("");
@@ -39,17 +40,17 @@ export default function EditPostDialog({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Edit Post</DialogTitle>
+          <DialogTitle>Edit Comment</DialogTitle>
           {/* <DialogDescription>Tell 'em what's new.</DialogDescription> */}
         </DialogHeader>
         <Textarea value={message} onChange={(e) => setMessage(e.currentTarget.value)} />
         <DialogFooter>
           <Button
             onClick={async () => {
-              handleEditPost.mutate();
+              handleEditComment.mutate();
             }}
           >
-            Edit Post
+            Edit Comment
           </Button>
         </DialogFooter>
       </DialogContent>

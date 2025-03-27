@@ -1,13 +1,16 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouteContext } from "@tanstack/react-router";
-import { Ellipsis } from "lucide-react";
+import { Delete, Edit, Ellipsis } from "lucide-react";
 import { commentQueryOptions } from "../queries/comments";
 import { Comment, removeComment } from "../server/fn/comments";
 import UserAvatar from "./avatar";
+import EditCommentDialog from "./edit-comment-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Skeleton } from "./ui/skeleton";
@@ -52,11 +55,25 @@ export default function CommentCard({ commentId }: { commentId: Comment["id"] })
               <Ellipsis className="text-muted-foreground size-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              <DropdownMenuSub>
+                <EditCommentDialog comment={comment}>
+                  <DropdownMenuSubTrigger
+                    showIcon={false}
+                    className="p-2 flex gap-2 cursor-pointer"
+                    hidden={currentUser?.id !== comment.commenterId}
+                  >
+                    <Edit className="size-4 text-muted-foreground" />
+                    <p>Edit</p>
+                  </DropdownMenuSubTrigger>
+                </EditCommentDialog>
+              </DropdownMenuSub>
+
               <DropdownMenuItem
                 hidden={currentUser?.id !== comment.commenterId}
                 onClick={() => handleRemoveComment.mutate()}
               >
-                Delete
+                <Delete className="text-destructive" />
+                <p className="text-destructive">Delete</p>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

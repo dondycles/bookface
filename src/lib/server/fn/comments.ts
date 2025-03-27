@@ -25,6 +25,27 @@ export const addComment = createServerFn({
     });
   });
 
+export const editComment = createServerFn({
+  method: "POST",
+})
+  .middleware([authMiddleware])
+  .validator(
+    (data: {
+      lastComment: Comment;
+      newMessage: typeof postComments.$inferInsert.message;
+    }) => data,
+  )
+  .handler(async ({ data: { lastComment, newMessage }, context: { user } }) => {
+    if (!user.id) throw new Error("No User!");
+    await db
+      .update(postComments)
+      .set({
+        message: newMessage,
+        updatedAt: new Date(),
+      })
+      .where(eq(postComments.id, lastComment.id));
+  });
+
 export const removeComment = createServerFn({
   method: "POST",
 })
