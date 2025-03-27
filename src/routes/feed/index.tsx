@@ -78,7 +78,6 @@ function FeedIndex() {
           return (
             <PostCard
               postId={post.id}
-              currentUser={currentUser}
               queryClient={queryClient}
               key={post.id}
               deepView={false}

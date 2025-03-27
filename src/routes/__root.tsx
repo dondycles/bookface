@@ -56,7 +56,6 @@ function RootComponent() {
 
 function RootDocument({ children }: { readonly children: React.ReactNode }) {
   const { queryClient } = Route.useRouteContext();
-  const { currentUser } = Route.useLoaderData();
   return (
     // suppress since we're updating the "dark" class in a custom script below
     <html suppressHydrationWarning>
@@ -70,7 +69,7 @@ function RootDocument({ children }: { readonly children: React.ReactNode }) {
             localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
             )`}
         </ScriptOnce>
-        <Nav queryClient={queryClient} currentUser={currentUser} />
+        <Nav queryClient={queryClient} />
         {children}
         <ReactQueryDevtools buttonPosition="bottom-left" />
         <TanStackRouterDevtools position="bottom-right" />

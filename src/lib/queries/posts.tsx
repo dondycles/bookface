@@ -4,12 +4,10 @@ import { getPost, getPosts } from "../server/fn/posts";
 export const postsQueryOptions = () =>
   queryOptions({
     queryKey: ["posts"],
-    queryFn: () => getPosts(),
-    staleTime: 0,
+    queryFn: ({ signal }) => getPosts({ signal }),
   });
 export const postQueryOptions = (id: string) =>
   queryOptions({
     queryKey: ["post", id],
-    queryFn: () => getPost({ data: id }),
-    staleTime: 0,
+    queryFn: ({ signal }) => getPost({ data: id, signal }),
   });

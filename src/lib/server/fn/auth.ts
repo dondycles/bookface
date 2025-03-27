@@ -31,13 +31,8 @@ export const getUserProfile = createServerFn({ method: "GET" })
       where: (user, { eq }) => eq(user.username, username),
       with: {
         posts: {
-          with: {
-            author: true,
-            likers: {
-              with: {
-                likerData: true,
-              },
-            },
+          columns: {
+            id: true,
           },
         },
       },

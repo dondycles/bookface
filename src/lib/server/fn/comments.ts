@@ -1,5 +1,6 @@
 import { authMiddleware } from "@/lib/middleware/auth-guard";
 import { createServerFn } from "@tanstack/react-start";
+import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { post, postComments } from "../schema";
 
@@ -24,6 +25,16 @@ export const addComment = createServerFn({
     });
   });
 
+export const removeComment = createServerFn({
+  method: "POST",
+})
+  .middleware([authMiddleware])
+  .validator((data: { commentId: typeof postComments.$inferSelect.id }) => data)
+  .handler(async ({ data: { commentId }, context: { user } }) => {
+    if (!user.id) throw Error("No User!");
+    await db.delete(postComments).where(eq(postComments.id, commentId));
+  });
+
 export const getComments = createServerFn({
   method: "GET",
 })
@@ -34,6 +45,7 @@ export const getComments = createServerFn({
       columns: {
         id: true,
       },
+      orderBy: (postComments, { desc }) => [desc(postComments.createdAt)],
     });
   });
 

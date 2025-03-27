@@ -4,13 +4,11 @@ import { getComment, getComments } from "../server/fn/comments";
 export const commentsQueryOptions = (postId: string) =>
   queryOptions({
     queryKey: ["comments", postId],
-    queryFn: () => getComments({ data: { postId } }),
-    staleTime: 0,
+    queryFn: ({ signal }) => getComments({ data: { postId }, signal }),
   });
 
 export const commentQueryOptions = (commentId: string) =>
   queryOptions({
     queryKey: ["comment", commentId],
-    queryFn: () => getComment({ data: { commentId } }),
-    staleTime: 0,
+    queryFn: ({ signal }) => getComment({ data: { commentId }, signal }),
   });

@@ -6,16 +6,15 @@ import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/$username")({
   component: RouteComponent,
-  loader: ({ params, context }) => {
+  loader: ({ params }) => {
     return {
       username: params.username,
-      currentUser: context.currentUser,
     };
   },
 });
 
 function RouteComponent() {
-  const { currentUser, username } = Route.useLoaderData();
+  const { username } = Route.useLoaderData();
   const { queryClient } = Route.useRouteContext();
   const profile = useSuspenseQuery(userQueryOptions(username));
 
@@ -46,8 +45,7 @@ function RouteComponent() {
             {profile.data.posts?.map((post) => {
               return (
                 <PostCard
-                  post={post}
-                  currentUser={currentUser}
+                  postId={post.id}
                   queryClient={queryClient}
                   key={post.id}
                   deepView={false}

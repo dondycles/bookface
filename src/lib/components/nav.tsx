@@ -12,19 +12,13 @@ import {
   DropdownMenuTrigger,
 } from "@/lib/components/ui/dropdown-menu";
 import { QueryClient } from "@tanstack/react-query";
-import { Link, useRouter } from "@tanstack/react-router";
+import { Link, useRouteContext, useRouter } from "@tanstack/react-router";
 import { LogIn, LogOut, Plus, Search, Settings } from "lucide-react";
-import { getCurrentUser } from "../server/fn/auth";
 import ThemeToggle from "./ThemeToggle";
 import UserAvatar from "./avatar";
 
-export default function Nav({
-  queryClient,
-  currentUser,
-}: {
-  queryClient: QueryClient;
-  currentUser: Awaited<ReturnType<typeof getCurrentUser>>;
-}) {
+export default function Nav({ queryClient }: { queryClient: QueryClient }) {
+  const { currentUser } = useRouteContext({ from: "__root__" });
   const router = useRouter();
   return (
     <nav className="gap-4 flex items-center justify-between fixed w-full bg-background px-2 sm:px-4 py-2 z-10 border-b">

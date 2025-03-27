@@ -1,9 +1,8 @@
 import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouteContext } from "@tanstack/react-router";
 import { Ellipsis, MessageCircle, Send, ThumbsUp, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { postQueryOptions } from "../queries/posts";
-import { CurrentUser } from "../server/fn/auth";
 import { addComment } from "../server/fn/comments";
 import { addLikePost, removeLikePost } from "../server/fn/likes";
 import { deletePost, Post } from "../server/fn/posts";
@@ -21,15 +20,14 @@ import { Skeleton } from "./ui/skeleton";
 import { Textarea } from "./ui/textarea";
 export default function PostCard({
   postId,
-  currentUser,
   queryClient,
   deepView = false,
 }: {
   postId: Post["id"];
-  currentUser: CurrentUser;
   queryClient: QueryClient;
   deepView?: boolean;
 }) {
+  const { currentUser } = useRouteContext({ from: "__root__" });
   const { data: post, isLoading: postLoading } = useQuery(postQueryOptions(postId));
   const [collapseComments, setCollapesComments] = useState(false);
   const [commentMessage, setCommentMessage] = useState("");
@@ -63,7 +61,7 @@ export default function PostCard({
       await addComment({ data: { message: commentMessage, postId } }),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["post", postId],
+        queryKey: ["comments", postId],
       });
       setCommentMessage("");
     },
