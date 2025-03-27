@@ -20,6 +20,13 @@ export const getPost = createServerFn({ method: "GET" })
           with: {
             likerData: true,
           },
+          orderBy: (likers, { desc }) => [desc(likers.createdAt)],
+        },
+        comments: {
+          with: {
+            commenter: true,
+          },
+          orderBy: (comments, { desc }) => [desc(comments.createdAt)],
         },
       },
       orderBy: (posts, { desc }) => [desc(posts.createdAt)],

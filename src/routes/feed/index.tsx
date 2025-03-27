@@ -73,7 +73,7 @@ function FeedIndex() {
           </div>
         </AddPostDialog>
       </div>
-      <div className="flex flex-col sm:gap-2 h-full w-full sm:px-2 ">
+      <div className="flex flex-col gap-4 h-full w-full sm:px-2 ">
         {posts.data?.map((post) => {
           return (
             <PostCard

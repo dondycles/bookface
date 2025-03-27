@@ -21,4 +21,21 @@ export const postLikes = pgTable("postLikes", {
   likerId: text("likerId")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const postComments = pgTable("postComments", {
+  id: text("id")
+    .primaryKey()
+    .$default(() => crypto.randomUUID()),
+  postId: text("postId")
+    .notNull()
+    .references(() => post.id, { onDelete: "cascade" }),
+  commenterId: text("commenterId")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  message: text("message").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
