@@ -5,8 +5,10 @@ import { useEffect, useState } from "react";
 import { postQueryOptions } from "../queries/posts";
 import { CurrentUser } from "../server/fn/auth";
 import { addComment } from "../server/fn/comments";
-import { deletePost, likePost, Post, unlikePost } from "../server/fn/posts";
+import { addLikePost, removeLikePost } from "../server/fn/likes";
+import { deletePost, Post } from "../server/fn/posts";
 import UserAvatar from "./avatar";
+import CommentsSection from "./comments-section";
 import { Button } from "./ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 import {
@@ -41,7 +43,7 @@ export default function PostCard({
     },
   });
   const handleLikePost = useMutation({
-    mutationFn: async () => await likePost({ data: { postId } }),
+    mutationFn: async () => await addLikePost({ data: { postId } }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["post", postId],
@@ -49,7 +51,7 @@ export default function PostCard({
     },
   });
   const handleUnlikePost = useMutation({
-    mutationFn: async () => await unlikePost({ data: { postId } }),
+    mutationFn: async () => await removeLikePost({ data: { postId } }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["post", postId],
@@ -89,7 +91,7 @@ export default function PostCard({
     );
   if (!post) return null;
   return (
-    <div key={post.id} className={`${!deepView && ""} sm:rounded-lg bg-muted/50`}>
+    <div key={post.id} className={`${!deepView && ""} sm:rounded-lg bg-muted/25`}>
       <div
         className={`flex flex-col gap-4 py-4 px-2 sm:px-4 ${handleRemovePost.isPending && "animate-pulse"}`}
       >
@@ -142,12 +144,12 @@ export default function PostCard({
               isLiked ? handleUnlikePost.mutate() : handleLikePost.mutate()
             }
             variant={"ghost"}
-            className={`sm:-ml-2 text-muted-foreground ${handleUnlikePost.isPending || (handleLikePost.isPending && "animate-pulse")}`}
+            className={`sm:-ml-2 w-10 text-muted-foreground  ${handleUnlikePost.isPending || (handleLikePost.isPending && "animate-pulse")}`}
           >
             <ThumbsUp
-              className={`${isLiked && "fill-accent-foreground stroke-background"}`}
+              className={`${isLiked && "fill-accent-foreground stroke-background "} size-4`}
             />{" "}
-            {post.likers.length}
+            <span className="text-xs">{post.likers.length}</span>
           </Button>
           {collapseComments ? (
             <div
@@ -156,7 +158,6 @@ export default function PostCard({
               <Textarea
                 value={commentMessage}
                 onChange={(e) => setCommentMessage(e.currentTarget.value)}
-                autoFocus={true}
                 placeholder="Give some of your thoughts"
               />
               <div className="flex flex-col gap-2 justify-end">
@@ -176,24 +177,14 @@ export default function PostCard({
             </div>
           ) : (
             <CollapsibleTrigger asChild>
-              <Button variant={"secondary"} className="flex-1 text-muted-foreground">
+              <Button variant={"ghost"} className="flex-1 text-muted-foreground bg-muted">
                 <MessageCircle /> {post.comments.length}
               </Button>
             </CollapsibleTrigger>
           )}
         </div>
-        <CollapsibleContent className="px-2 sm:px-3 flex flex-col gap-2">
-          {post.comments.map((c) => {
-            return (
-              <div key={c.id} className="last:mb-2 flex gap-2">
-                <UserAvatar url={c.commenter.image} alt={c.commenter.name} />
-                <div className="rounded-md bg-muted p-2">
-                  <p className="font-semibold">{c.commenter.username}</p>
-                  <p className="whitespace-pre-wrap">{c.message}</p>
-                </div>
-              </div>
-            );
-          })}
+        <CollapsibleContent className="px-2 sm:px-3">
+          <CommentsSection deepView={deepView} postId={postId} />
         </CollapsibleContent>
       </Collapsible>
     </div>

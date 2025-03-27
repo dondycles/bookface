@@ -23,3 +23,30 @@ export const addComment = createServerFn({
       postId: data.postId,
     });
   });
+
+export const getComments = createServerFn({
+  method: "GET",
+})
+  .validator((data: { postId: typeof post.$inferSelect.id }) => data)
+  .handler(async ({ data: { postId } }) => {
+    return await db.query.postComments.findMany({
+      where: (postComments, { eq }) => eq(postComments.postId, postId),
+      columns: {
+        id: true,
+      },
+    });
+  });
+
+export const getComment = createServerFn({
+  method: "GET",
+})
+  .validator((data: { commentId: typeof postComments.$inferSelect.id }) => data)
+  .handler(async ({ data: { commentId } }) => {
+    return await db.query.postComments.findFirst({
+      where: (postComments, { eq }) => eq(postComments.id, commentId),
+      with: {
+        commenter: true,
+      },
+    });
+  });
+export type Comment = NonNullable<Awaited<ReturnType<typeof getComment>>>;
