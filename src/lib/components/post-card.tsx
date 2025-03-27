@@ -28,13 +28,10 @@ export default function PostCard({
   const { data: post, isLoading: postLoading } = useQuery(postQueryOptions(postId));
   const isLiked = post?.likers.some((l) => l.likerId === currentUser?.id);
   const handleRemovePost = useMutation({
-    mutationFn: async (id: string) => {
-      await deletePost({ data: { id } });
-      return { id };
-    },
-    onSuccess: ({ id }) => {
+    mutationFn: async (id: string) => await deletePost({ data: { id } }),
+    onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["post", id],
+        queryKey: ["posts"],
       });
     },
   });
