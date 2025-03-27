@@ -60,7 +60,6 @@ export default function PostCard({
       });
     },
   });
-  if (!post) return null;
   if (postLoading)
     return (
       <div
@@ -76,6 +75,7 @@ export default function PostCard({
         <Skeleton className="w-full h-24" />
       </div>
     );
+  if (!post) return null;
   return (
     <div key={post.id} className={`${!deepView && "border-t sm:border"} sm:rounded-lg`}>
       <div
