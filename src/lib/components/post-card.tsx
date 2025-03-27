@@ -1,19 +1,31 @@
 import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { Link, useRouteContext } from "@tanstack/react-router";
-import { Ellipsis, MessageCircle, Send, ThumbsUp, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import {
+  Delete,
+  Edit,
+  Ellipsis,
+  ExternalLink,
+  MessageCircle,
+  Send,
+  ThumbsUp,
+  X,
+} from "lucide-react";
+import { useState } from "react";
 import { postQueryOptions } from "../queries/posts";
 import { addComment } from "../server/fn/comments";
 import { addLikePost, removeLikePost } from "../server/fn/likes";
 import { deletePost, Post } from "../server/fn/posts";
 import UserAvatar from "./avatar";
 import CommentsSection from "./comments-section";
+import EditPostDialog from "./edit-post-dialog";
 import { Button } from "./ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Skeleton } from "./ui/skeleton";
@@ -66,12 +78,12 @@ export default function PostCard({
       setCommentMessage("");
     },
   });
-  useEffect(() => {
-    if (post) {
-      // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
-      if (post.comments.length) setCollapesComments(true);
-    }
-  }, [post, post?.comments.length]);
+  // useEffect(() => {
+  //   if (post) {
+  //     // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
+  //     if (post.comments.length) setCollapesComments(true);
+  //   }
+  // }, [post, post?.comments.length]);
   if (postLoading)
     return (
       <div
@@ -106,7 +118,7 @@ export default function PostCard({
                 to="/$username"
                 params={{ username: post.author.username ?? "" }}
               >
-                {post.author.username ?? post.author.name}
+                @{post.author.username ?? post.author.name}
               </Link>
               <p className="font-mono text-xs">{post.createdAt.toLocaleString()}</p>
             </div>
@@ -117,8 +129,22 @@ export default function PostCard({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <Link draggable={false} to="/feed/$id" params={{ id: post.id }}>
-                <DropdownMenuItem>View</DropdownMenuItem>
+                <DropdownMenuItem>
+                  <ExternalLink /> View
+                </DropdownMenuItem>
               </Link>
+              <DropdownMenuSub>
+                <EditPostDialog post={post}>
+                  <DropdownMenuSubTrigger
+                    showIcon={false}
+                    className="p-2 flex gap-2 cursor-pointer"
+                    hidden={currentUser?.id !== post.userId}
+                  >
+                    <Edit className="size-4 text-muted-foreground" />
+                    <p>Edit</p>
+                  </DropdownMenuSubTrigger>
+                </EditPostDialog>
+              </DropdownMenuSub>
 
               <DropdownMenuItem
                 hidden={currentUser?.id !== post.userId}
@@ -126,7 +152,8 @@ export default function PostCard({
                   handleRemovePost.mutate(post.id);
                 }}
               >
-                Delete
+                <Delete className="text-destructive" />
+                <p className="text-destructive">Delete</p>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -10,7 +10,7 @@ export const addLikePost = createServerFn({
   .middleware([authMiddleware])
   .validator((data: { postId: string }) => data)
   .handler(async ({ data: { postId }, context: { user } }) => {
-    if (!user.id) throw Error("No User!");
+    if (!user.id) throw new Error("No User!");
     await db.insert(postLikes).values({
       likerId: user.id,
       postId: postId,
@@ -24,6 +24,6 @@ export const removeLikePost = createServerFn({
   .middleware([authMiddleware])
   .validator((data: { postId: string }) => data)
   .handler(async ({ data: { postId }, context: { user } }) => {
-    if (!user.id) throw Error("No User!");
+    if (!user.id) throw new Error("No User!");
     await db.delete(postLikes).where(eq(postLikes.id, user.id + postId));
   });

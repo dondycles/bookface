@@ -60,7 +60,7 @@ function FeedIndex() {
         </DialogContent>
       </Dialog>
       <div hidden={!currentUser}>
-        <AddPostDialog queryClient={queryClient}>
+        <AddPostDialog>
           <div className="flex flex-row gap-2 flex-1 px-2">
             <Avatar className="size-9">
               <AvatarImage src={currentUser?.image ?? "/favicon.ico"} alt="@shadcn" />

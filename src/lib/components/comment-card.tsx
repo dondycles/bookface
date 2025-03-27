@@ -48,7 +48,7 @@ export default function CommentCard({ commentId }: { commentId: Comment["id"] })
             <p className="font-semibold">{comment.commenter.username}</p>
           </div>
           <DropdownMenu>
-            <DropdownMenuTrigger>
+            <DropdownMenuTrigger hidden={currentUser?.id !== comment.commenterId}>
               <Ellipsis className="text-muted-foreground size-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">

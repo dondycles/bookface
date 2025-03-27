@@ -50,7 +50,7 @@ export default function Nav({ queryClient }: { queryClient: QueryClient }) {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSub>
-              <AddPostDialog queryClient={queryClient}>
+              <AddPostDialog>
                 <DropdownMenuSubTrigger
                   showIcon={false}
                   className="p-2 flex gap-2 cursor-pointer"

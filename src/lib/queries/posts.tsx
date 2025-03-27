@@ -6,6 +6,7 @@ export const postsQueryOptions = () =>
     queryKey: ["posts"],
     queryFn: ({ signal }) => getPosts({ signal }),
   });
+
 export const postQueryOptions = (id: string) =>
   queryOptions({
     queryKey: ["post", id],
