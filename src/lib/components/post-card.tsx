@@ -12,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { Skeleton } from "./ui/skeleton";
 
 export default function PostCard({
   postId,
@@ -24,7 +25,7 @@ export default function PostCard({
   queryClient: QueryClient;
   deepView?: boolean;
 }) {
-  const { data: post } = useQuery(postQueryOptions(postId));
+  const { data: post, isLoading: postLoading } = useQuery(postQueryOptions(postId));
   const isLiked = post?.likers.some((l) => l.likerId === currentUser?.id);
   const handleRemovePost = useMutation({
     mutationFn: async (id: string) => {
@@ -60,6 +61,21 @@ export default function PostCard({
     },
   });
   if (!post) return null;
+  if (postLoading)
+    return (
+      <div
+        className={`${!deepView && "border-t sm:border"} sm:rounded-lg w-full py-4 px-2 sm:px-4 flex flex-col gap-4`}
+      >
+        <div className="flex gap-2">
+          <Skeleton className="size-9 aspect-square rounded-full" />
+          <div className="flex gap-2 flex-col">
+            <Skeleton className="w-24 h-4" />
+            <Skeleton className="w-24 h-2" />
+          </div>
+        </div>
+        <Skeleton className="w-full h-24" />
+      </div>
+    );
   return (
     <div key={post.id} className={`${!deepView && "border-t sm:border"} sm:rounded-lg`}>
       <div
