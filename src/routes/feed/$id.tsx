@@ -20,7 +20,7 @@ function RouteComponent() {
   const { id } = Route.useParams();
 
   return (
-    <div className="py-24 max-w-[512px] mx-auto">
+    <div className="py-24 sm:max-w-[512px] mx-auto">
       <PostCard deepView={true} postId={id} />
     </div>
   );

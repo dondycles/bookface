@@ -7,9 +7,8 @@ export const userQueryOptions = (username: string) =>
     queryFn: ({ signal }) => getUserProfile({ data: { username }, signal }),
   });
 
-export const currentUserQueryOptions = () => {
+export const currentUserQueryOptions = () =>
   queryOptions({
     queryKey: ["currentUser"],
     queryFn: ({ signal }) => getCurrentUser({ signal }),
   });
-};

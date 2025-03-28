@@ -21,7 +21,7 @@ export default function Nav({ queryClient }: { queryClient: QueryClient }) {
   const { currentUser } = useRouteContext({ from: "__root__" });
   const router = useRouter();
   return (
-    <nav className="gap-4 flex items-center justify-between fixed w-full px-2 sm:px-4 py-4 z-[100] bg-muted">
+    <nav className="gap-4 flex items-center justify-between fixed w-full px-2 sm:px-4 py-4 z-10 bg-muted">
       <div className="flex gap-2">
         <Link to={"/feed"} className="text-4xl font-bold">
           bookface

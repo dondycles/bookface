@@ -48,10 +48,10 @@ export default function PostCard({
     mutationFn: async (id: string) => await deletePost({ data: { id } }),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["posts"],
+        queryKey: ["currentUser"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["user", post?.author.username],
+        queryKey: ["posts"],
       });
     },
   });
