@@ -45,6 +45,7 @@ export default function EditPostDialog({
         <Textarea value={message} onChange={(e) => setMessage(e.currentTarget.value)} />
         <DialogFooter>
           <Button
+            className={`${handleEditPost.isPending && "animate-pulse cursor-progress"}`}
             onClick={async () => {
               handleEditPost.mutate();
             }}

@@ -50,6 +50,9 @@ export default function PostCard({
       queryClient.invalidateQueries({
         queryKey: ["posts"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["user", post?.author.username],
+      });
     },
   });
   const handleLikePost = useMutation({
@@ -105,13 +108,20 @@ export default function PostCard({
       <div
         className={`flex flex-col gap-4 py-4 px-2 sm:px-4 ${handleRemovePost.isPending && "animate-pulse"}`}
       >
-        <div className="flex gap-4 justify-between">
+        <div className="flex gap-4 justify-between items-start">
           <div className="flex gap-2 items-stretch">
-            <UserAvatar
-              className=" size-9"
-              url={post.author.image}
-              alt={post.author.username ?? post.author.email}
-            />
+            <Link
+              className="font-semibold text-foreground"
+              to="/$username"
+              params={{ username: post.author.username ?? "" }}
+            >
+              <UserAvatar
+                className=" size-9"
+                url={post.author.image}
+                alt={post.author.username ?? post.author.email}
+              />
+            </Link>
+
             <div className="text-muted-foreground leading-tight">
               <Link
                 className="font-semibold text-foreground"

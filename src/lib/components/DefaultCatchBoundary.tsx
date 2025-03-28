@@ -1,5 +1,4 @@
 import {
-  ErrorComponent,
   type ErrorComponentProps,
   Link,
   rootRouteId,
@@ -15,12 +14,12 @@ export function DefaultCatchBoundary({ error }: Readonly<ErrorComponentProps>) {
     select: (state) => state.id === rootRouteId,
   });
 
-  console.error(error);
-
   return (
-    <div className="flex min-w-0 flex-1 flex-col items-center justify-center gap-6 px-4 py-20">
-      <ErrorComponent error={error} />
-      <div className="flex flex-wrap items-center gap-2">
+    <div className="py-24 px-2 sm:px-4 space-y-4">
+      <p className="italic text-sm text-muted-foreground text-center">
+        {error.name}: {error.message}
+      </p>
+      <div className="flex gap-4 justify-center">
         <Button
           type="button"
           onClick={() => {
@@ -29,6 +28,7 @@ export function DefaultCatchBoundary({ error }: Readonly<ErrorComponentProps>) {
         >
           Try Again
         </Button>
+
         {isRoot ? (
           <Button asChild variant="secondary">
             <Link to="/">Home</Link>

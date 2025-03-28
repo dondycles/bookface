@@ -1,5 +1,7 @@
 import UserAvatar from "@/lib/components/avatar";
+import EditBioDialog from "@/lib/components/edit-bio-dialog";
 import PostCard from "@/lib/components/post-card";
+import { Button } from "@/lib/components/ui/button";
 import { userQueryOptions } from "@/lib/queries/user";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
@@ -15,28 +17,55 @@ export const Route = createFileRoute("/$username")({
 
 function RouteComponent() {
   const { username } = Route.useLoaderData();
-  const { queryClient } = Route.useRouteContext();
+  const { queryClient, currentUser } = Route.useRouteContext();
   const profile = useSuspenseQuery(userQueryOptions(username));
+  const isMyProfile = currentUser?.dB?.id === profile.data?.id;
 
   return (
-    <div className="py-20 sm:max-w-[512px] mx-auto">
+    <div className="py-24 sm:max-w-[512px] mx-auto">
       {!profile.data ? (
         <>User not found!</>
       ) : (
-        <div className="px-2 sm:px-4 flex flex-col gap-4">
-          <div className="flex gap-4">
-            <UserAvatar
-              className="size-24"
-              url={profile.data.image}
-              alt={profile.data.username ?? profile.data.name}
-            />
-            <div className="flex flex-col ">
-              <p className="text-2xl font-bold">{profile.data.name}</p>
-              <div className="text-muted-foreground flex flex-col justify-between flex-1 text-sm">
-                <p>@{profile.data.username}</p>
-                <p className="font-mono">
-                  Joined {profile.data.createdAt.toLocaleString()}
-                </p>
+        <div className="sm:px-4 flex flex-col gap-4 ">
+          <div className="sm:px-2 text-muted-foreground">
+            <div className="flex flex-col gap-4 bg-muted/25 sm:rounded-md p-4">
+              <div className="flex gap-4">
+                <UserAvatar
+                  className="size-24"
+                  url={profile.data.image}
+                  alt={profile.data.username ?? profile.data.name}
+                />
+                <div className="flex flex-col ">
+                  <p className="text-2xl font-bold text-foreground">
+                    {profile.data.name}
+                  </p>
+                  <div className="flex flex-col justify-between flex-1 text-sm">
+                    <p>@{profile.data.username}</p>
+                    <p className="font-mono">
+                      Joined {profile.data.createdAt.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              {isMyProfile ? (
+                <EditBioDialog>
+                  <Button
+                    variant={"outline"}
+                    className="h-fit flex-1 whitespace-pre-wrap"
+                  >
+                    <p className="text-center italic ">
+                      {profile.data.bio ?? "Set your bio"}
+                    </p>
+                  </Button>
+                </EditBioDialog>
+              ) : (
+                <p className="text-center italic ">{profile.data.bio ?? "No bio yet."}</p>
+              )}
+
+              <div>
+                <span>{profile.data.posts.length} post(s)</span>
+                <span> | </span>
+                <span>2 friend(s)</span>
               </div>
             </div>
           </div>

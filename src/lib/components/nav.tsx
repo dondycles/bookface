@@ -21,7 +21,7 @@ export default function Nav({ queryClient }: { queryClient: QueryClient }) {
   const { currentUser } = useRouteContext({ from: "__root__" });
   const router = useRouter();
   return (
-    <nav className="gap-4 flex items-center justify-between fixed w-full bg-background px-2 sm:px-4 py-2 z-10 border-b">
+    <nav className="gap-4 flex items-center justify-between fixed w-full px-2 sm:px-4 py-4 z-[100] bg-muted/25">
       <div className="flex gap-2">
         <Link to={"/feed"} className="text-4xl font-bold">
           bookface
@@ -34,19 +34,25 @@ export default function Nav({ queryClient }: { queryClient: QueryClient }) {
         <DropdownMenu>
           <DropdownMenuTrigger>
             <UserAvatar
-              url={currentUser.image}
+              url={currentUser.dB.image}
               className="size-12"
-              alt={currentUser.username ?? currentUser.email}
+              alt={currentUser.dB.username ?? currentUser.dB.email}
             />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
-              <Link to="/$username" params={{ username: currentUser.username as string }}>
+              <Link
+                to="/$username"
+                params={{ username: currentUser.dB.username as string }}
+              >
                 <Avatar>
-                  <AvatarImage src={currentUser.image ?? "/favicon.ico"} alt="@shadcn" />
+                  <AvatarImage
+                    src={currentUser.dB.image ?? "/favicon.ico"}
+                    alt="@shadcn"
+                  />
                   <AvatarFallback>BF</AvatarFallback>
                 </Avatar>
-                <p>{currentUser.name}</p>
+                <p>{currentUser.dB.name}</p>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSub>

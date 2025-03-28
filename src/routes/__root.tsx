@@ -11,7 +11,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 import Nav from "@/lib/components/nav";
-import { CurrentUser, getCurrentUser } from "@/lib/server/fn/auth";
+import { CurrentUser, getCurrentUser } from "@/lib/server/fn/user";
 import appCss from "@/lib/styles/app.css?url";
 
 export const Route = createRootRouteWithContext<{
@@ -20,7 +20,7 @@ export const Route = createRootRouteWithContext<{
 }>()({
   beforeLoad: async ({ context }) => {
     const currentUser = await context.queryClient.fetchQuery({
-      queryKey: ["user"],
+      queryKey: ["currentUser"],
       queryFn: ({ signal }) => getCurrentUser({ signal }),
     }); // we're using react-query for caching, see router.tsx
     return { currentUser };

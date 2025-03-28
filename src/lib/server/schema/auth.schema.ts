@@ -10,6 +10,7 @@ export const user = pgTable("user", {
   updatedAt: timestamp("updated_at").notNull(),
   username: text("username"),
   displayUsername: text("displayUsername"),
+  bio: text("bio"),
 });
 
 export const username = pgTable("username", {

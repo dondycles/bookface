@@ -14,9 +14,9 @@ export const addComment = createServerFn({
       postId: typeof post.$inferSelect.id;
     }) => data,
   )
-  .handler(async ({ data, context: { user } }) => {
+  .handler(async ({ data, context: { dB: user } }) => {
     if (!user.id) throw new Error("No User!");
-    if (data.message.length === 0) return "Comment Cannot Be Empty.";
+    if (data.message.length === 0) throw new Error("Comment Cannot Be Empty.");
 
     await db.insert(postComments).values({
       commenterId: user.id,
@@ -35,7 +35,7 @@ export const editComment = createServerFn({
       newMessage: typeof postComments.$inferInsert.message;
     }) => data,
   )
-  .handler(async ({ data: { lastComment, newMessage }, context: { user } }) => {
+  .handler(async ({ data: { lastComment, newMessage }, context: { dB: user } }) => {
     if (!user.id) throw new Error("No User!");
     await db
       .update(postComments)
@@ -51,7 +51,7 @@ export const removeComment = createServerFn({
 })
   .middleware([authMiddleware])
   .validator((data: { commentId: typeof postComments.$inferSelect.id }) => data)
-  .handler(async ({ data: { commentId }, context: { user } }) => {
+  .handler(async ({ data: { commentId }, context: { dB: user } }) => {
     if (!user.id) throw new Error("No User!");
     await db.delete(postComments).where(eq(postComments.id, commentId));
   });

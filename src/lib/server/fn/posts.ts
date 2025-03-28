@@ -42,9 +42,9 @@ export const addPost = createServerFn({
 })
   .middleware([authMiddleware])
   .validator((data: { message: typeof post.$inferInsert.message }) => data)
-  .handler(async ({ data, context: { user } }) => {
+  .handler(async ({ data, context: { dB: user } }) => {
     if (!user.id) throw new Error("No User!");
-    if (data.message.length === 0) return "Post Cannot Be Empty.";
+    if (data.message.length === 0) throw new Error("Post Cannot Be Empty.");
     await db.insert(post).values({
       message: data.message,
       userId: user.id,
@@ -61,7 +61,7 @@ export const editPost = createServerFn({
       newMessage: typeof post.$inferInsert.message;
     }) => data,
   )
-  .handler(async ({ data: { lastPost, newMessage }, context: { user } }) => {
+  .handler(async ({ data: { lastPost, newMessage }, context: { dB: user } }) => {
     if (!lastPost.id) throw new Error("No  Post ID!");
     if (!user.id) throw new Error("No  User ID!");
     if (lastPost.message === newMessage) return;
@@ -79,7 +79,7 @@ export const deletePost = createServerFn({
 })
   .middleware([authMiddleware])
   .validator((data: { id: typeof post.$inferInsert.id }) => data)
-  .handler(async ({ data, context: { user } }) => {
+  .handler(async ({ data, context: { dB: user } }) => {
     if (!data.id) throw new Error("No  Post ID!");
     if (!user.id) throw new Error("No  User ID!");
     await db.delete(post).where(and(eq(post.userId, user.id), eq(post.id, data.id)));

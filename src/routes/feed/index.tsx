@@ -1,4 +1,3 @@
-import authClient from "@/lib/auth-client";
 import AddPostDialog from "@/lib/components/add-post-dialog";
 import PostCard from "@/lib/components/post-card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/lib/components/ui/avatar";
@@ -13,7 +12,7 @@ import {
 } from "@/lib/components/ui/dialog";
 import { Input } from "@/lib/components/ui/input";
 import { postsQueryOptions } from "@/lib/queries/posts";
-import { updateUsername } from "@/lib/server/fn/auth";
+import { updateUsername } from "@/lib/server/fn/user";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
@@ -32,11 +31,11 @@ function FeedIndex() {
   const [username, setUsername] = useState("");
 
   return (
-    <div className="flex flex-col gap-4 py-20 sm:max-w-[512px] mx-auto">
-      <Dialog open={Boolean(currentUser && !currentUser?.username)}>
+    <div className="flex flex-col gap-4 py-24 sm:max-w-[512px] mx-auto">
+      <Dialog open={Boolean(currentUser && !currentUser.dB?.username)}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Hello, {currentUser?.name}</DialogTitle>
+            <DialogTitle>Hello, {currentUser?.dB?.name}</DialogTitle>
             <DialogDescription>Please input your desired username</DialogDescription>
           </DialogHeader>
           <Input
@@ -48,9 +47,6 @@ function FeedIndex() {
             <Button
               onClick={async () => {
                 await updateUsername({ data: { username } });
-                await authClient.updateUser({
-                  username,
-                });
                 window.location.reload();
               }}
             >
@@ -61,15 +57,20 @@ function FeedIndex() {
       </Dialog>
       <div hidden={!currentUser}>
         <AddPostDialog>
-          <div className="flex flex-row gap-2 flex-1 px-2">
-            <Avatar className="size-9">
-              <AvatarImage src={currentUser?.image ?? "/favicon.ico"} alt="@shadcn" />
-              <AvatarFallback>BF</AvatarFallback>
-            </Avatar>
-            <Input
-              placeholder={`What's happening, ${currentUser?.username ?? currentUser?.name}?`}
-              className="rounded-full flex-1"
-            />
+          <div className="sm:px-2">
+            <div className="flex flex-row gap-2 flex-1 p-2 bg-muted/25 sm:rounded-md">
+              <Avatar className="size-9">
+                <AvatarImage
+                  src={currentUser?.dB?.image ?? "/favicon.ico"}
+                  alt="@shadcn"
+                />
+                <AvatarFallback>BF</AvatarFallback>
+              </Avatar>
+              <Input
+                placeholder={`What's happening, ${currentUser?.dB?.username ?? currentUser?.dB?.name}?`}
+                className="rounded-full flex-1"
+              />
+            </div>
           </div>
         </AddPostDialog>
       </div>

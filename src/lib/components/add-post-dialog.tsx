@@ -38,6 +38,7 @@ export default function AddPostDialog({ children }: { children: React.ReactNode 
         <Textarea value={message} onChange={(e) => setMessage(e.currentTarget.value)} />
         <DialogFooter>
           <Button
+            className={`${submitPost.isPending && "animate-pulse cursor-progress"}`}
             onClick={async () => {
               submitPost.mutate();
             }}

@@ -46,6 +46,7 @@ export default function EditCommentDialog({
         <Textarea value={message} onChange={(e) => setMessage(e.currentTarget.value)} />
         <DialogFooter>
           <Button
+            className={`${handleEditComment.isPending && "animate-pulse cursor-progress"}`}
             onClick={async () => {
               handleEditComment.mutate();
             }}

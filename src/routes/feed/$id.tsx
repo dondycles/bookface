@@ -21,7 +21,7 @@ function RouteComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
-    <div className="py-20 max-w-[512px] mx-auto">
+    <div className="py-24 max-w-[512px] mx-auto">
       <PostCard deepView={true} queryClient={queryClient} postId={id} />
     </div>
   );

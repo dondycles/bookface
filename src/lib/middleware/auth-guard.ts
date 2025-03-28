@@ -1,6 +1,7 @@
 import { auth } from "@/lib/server/auth";
 import { createMiddleware } from "@tanstack/react-start";
 import { getWebRequest, setResponseStatus } from "@tanstack/react-start/server";
+import { db } from "../server/db";
 
 // https://tanstack.com/start/latest/docs/framework/react/middleware
 // This is a sample middleware that you can use in your server functions.
@@ -25,5 +26,14 @@ export const authMiddleware = createMiddleware().server(async ({ next }) => {
     throw new Error("Unauthorized");
   }
 
-  return next({ context: { user: session.user } });
+  const dB = await db.query.user.findFirst({
+    where: (user, { eq }) => eq(user.id, session.user.id),
+  });
+
+  if (!dB) {
+    setResponseStatus(401);
+    throw new Error("Unauthorized");
+  }
+
+  return next({ context: { session, dB } });
 });
