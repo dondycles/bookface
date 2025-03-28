@@ -77,7 +77,10 @@ export default function Nav({ queryClient }: { queryClient: QueryClient }) {
             <DropdownMenuItem
               onClick={async () => {
                 await authClient.signOut();
-                await queryClient.invalidateQueries({ queryKey: ["user"] });
+                await queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+                await queryClient.invalidateQueries({
+                  queryKey: ["user", currentUser.dB.username],
+                });
                 await router.invalidate();
               }}
             >

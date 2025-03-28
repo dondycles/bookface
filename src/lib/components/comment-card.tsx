@@ -51,7 +51,7 @@ export default function CommentCard({ commentId }: { commentId: Comment["id"] })
             <p className="font-semibold">{comment.commenter.username}</p>
           </div>
           <DropdownMenu>
-            <DropdownMenuTrigger hidden={currentUser?.id !== comment.commenterId}>
+            <DropdownMenuTrigger hidden={currentUser?.dB.id !== comment.commenterId}>
               <Ellipsis className="text-muted-foreground size-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -60,7 +60,7 @@ export default function CommentCard({ commentId }: { commentId: Comment["id"] })
                   <DropdownMenuSubTrigger
                     showIcon={false}
                     className="p-2 flex gap-2 cursor-pointer"
-                    hidden={currentUser?.id !== comment.commenterId}
+                    hidden={currentUser?.dB.id !== comment.commenterId}
                   >
                     <Edit className="size-4 text-muted-foreground" />
                     <p>Edit</p>
@@ -69,7 +69,7 @@ export default function CommentCard({ commentId }: { commentId: Comment["id"] })
               </DropdownMenuSub>
 
               <DropdownMenuItem
-                hidden={currentUser?.id !== comment.commenterId}
+                hidden={currentUser?.dB.id !== comment.commenterId}
                 onClick={() => handleRemoveComment.mutate()}
               >
                 <Delete className="text-destructive" />

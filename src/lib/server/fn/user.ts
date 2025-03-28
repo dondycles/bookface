@@ -22,6 +22,13 @@ export const getCurrentUser = createServerFn({ method: "GET" }).handler(async ()
   if (!session) return null;
   const dB = await db.query.user.findFirst({
     where: (user, { eq }) => eq(user.id, session.user.id),
+    with: {
+      posts: {
+        columns: {
+          id: true,
+        },
+      },
+    },
   });
   if (!dB) return null;
   return { session, dB };

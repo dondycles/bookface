@@ -1,4 +1,4 @@
-import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, useRouteContext } from "@tanstack/react-router";
 import {
   Delete,
@@ -32,18 +32,18 @@ import { Skeleton } from "./ui/skeleton";
 import { Textarea } from "./ui/textarea";
 export default function PostCard({
   postId,
-  queryClient,
+
   deepView = false,
 }: {
   postId: Post["id"];
-  queryClient: QueryClient;
+
   deepView?: boolean;
 }) {
-  const { currentUser } = useRouteContext({ from: "__root__" });
+  const { currentUser, queryClient } = useRouteContext({ from: "__root__" });
   const { data: post, isLoading: postLoading } = useQuery(postQueryOptions(postId));
   const [collapseComments, setCollapesComments] = useState(false);
   const [commentMessage, setCommentMessage] = useState("");
-  const isLiked = post?.likers.some((l) => l.likerId === currentUser?.id);
+  const isLiked = post?.likers.some((l) => l.likerId === currentUser?.dB.id);
   const handleRemovePost = useMutation({
     mutationFn: async (id: string) => await deletePost({ data: { id } }),
     onSuccess: () => {
@@ -148,7 +148,7 @@ export default function PostCard({
                   <DropdownMenuSubTrigger
                     showIcon={false}
                     className="p-2 flex gap-2 cursor-pointer"
-                    hidden={currentUser?.id !== post.userId}
+                    hidden={currentUser?.dB.id !== post.userId}
                   >
                     <Edit className="size-4 text-muted-foreground" />
                     <p>Edit</p>
@@ -157,7 +157,7 @@ export default function PostCard({
               </DropdownMenuSub>
 
               <DropdownMenuItem
-                hidden={currentUser?.id !== post.userId}
+                hidden={currentUser?.dB.id !== post.userId}
                 onClick={() => {
                   handleRemovePost.mutate(post.id);
                 }}

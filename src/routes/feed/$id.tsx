@@ -18,11 +18,10 @@ export const Route = createFileRoute("/feed/$id")({
 
 function RouteComponent() {
   const { id } = Route.useParams();
-  const { queryClient } = Route.useRouteContext();
 
   return (
     <div className="py-24 max-w-[512px] mx-auto">
-      <PostCard deepView={true} queryClient={queryClient} postId={id} />
+      <PostCard deepView={true} postId={id} />
     </div>
   );
 }

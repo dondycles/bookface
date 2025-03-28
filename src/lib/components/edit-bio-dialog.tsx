@@ -7,20 +7,17 @@ import {
   DialogTrigger,
 } from "@/lib/components/ui/dialog";
 import { DialogDescription } from "@radix-ui/react-dialog";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useRouteContext } from "@tanstack/react-router";
 import { useState } from "react";
-import { userQueryOptions } from "../queries/user";
 import { editBio } from "../server/fn/user";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 export default function EditBioDialog({ children }: { children: React.ReactNode }) {
   const { queryClient, currentUser } = useRouteContext({ from: "__root__" });
-  const { data: currentUserProfile } = useQuery(
-    userQueryOptions(currentUser?.dB?.id ?? ""),
-  );
+
   const [openDialog, setOpenDialog] = useState(false);
-  const [bio, setBio] = useState(currentUserProfile?.bio ?? "");
+  const [bio, setBio] = useState(currentUser?.dB.bio ?? "wala");
 
   const handleEditBio = useMutation({
     mutationFn: async () => editBio({ data: { bio } }),

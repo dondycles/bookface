@@ -25,7 +25,6 @@ export const Route = createFileRoute("/feed/")({
 });
 
 function FeedIndex() {
-  const { queryClient } = Route.useRouteContext();
   const { currentUser } = Route.useLoaderData();
   const posts = useSuspenseQuery(postsQueryOptions());
   const [username, setUsername] = useState("");
@@ -76,14 +75,7 @@ function FeedIndex() {
       </div>
       <div className="flex flex-col gap-4 h-full w-full sm:px-2 ">
         {posts.data?.map((post) => {
-          return (
-            <PostCard
-              postId={post.id}
-              queryClient={queryClient}
-              key={post.id}
-              deepView={false}
-            />
-          );
+          return <PostCard postId={post.id} key={post.id} deepView={false} />;
         })}
       </div>
     </div>
