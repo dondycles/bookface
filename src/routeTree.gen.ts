@@ -12,6 +12,7 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as SettingsRouteImport } from './routes/settings/route'
+import { Route as SearchRouteImport } from './routes/search/route'
 import { Route as UsernameRouteImport } from './routes/$username/route'
 import { Route as IndexImport } from './routes/index'
 import { Route as FeedIndexImport } from './routes/feed/index'
@@ -22,6 +23,12 @@ import { Route as FeedIdImport } from './routes/feed/$id'
 const SettingsRouteRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SearchRouteRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -67,6 +74,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UsernameRouteImport
       parentRoute: typeof rootRoute
     }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRoute
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
@@ -96,6 +110,7 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$username': typeof UsernameRouteRoute
+  '/search': typeof SearchRouteRoute
   '/settings': typeof SettingsRouteRoute
   '/feed/$id': typeof FeedIdRoute
   '/feed': typeof FeedIndexRoute
@@ -104,6 +119,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$username': typeof UsernameRouteRoute
+  '/search': typeof SearchRouteRoute
   '/settings': typeof SettingsRouteRoute
   '/feed/$id': typeof FeedIdRoute
   '/feed': typeof FeedIndexRoute
@@ -113,6 +129,7 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/$username': typeof UsernameRouteRoute
+  '/search': typeof SearchRouteRoute
   '/settings': typeof SettingsRouteRoute
   '/feed/$id': typeof FeedIdRoute
   '/feed/': typeof FeedIndexRoute
@@ -120,16 +137,30 @@ export interface FileRoutesById {
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/$username' | '/settings' | '/feed/$id' | '/feed'
+  fullPaths:
+    | '/'
+    | '/$username'
+    | '/search'
+    | '/settings'
+    | '/feed/$id'
+    | '/feed'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/$username' | '/settings' | '/feed/$id' | '/feed'
-  id: '__root__' | '/' | '/$username' | '/settings' | '/feed/$id' | '/feed/'
+  to: '/' | '/$username' | '/search' | '/settings' | '/feed/$id' | '/feed'
+  id:
+    | '__root__'
+    | '/'
+    | '/$username'
+    | '/search'
+    | '/settings'
+    | '/feed/$id'
+    | '/feed/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   UsernameRouteRoute: typeof UsernameRouteRoute
+  SearchRouteRoute: typeof SearchRouteRoute
   SettingsRouteRoute: typeof SettingsRouteRoute
   FeedIdRoute: typeof FeedIdRoute
   FeedIndexRoute: typeof FeedIndexRoute
@@ -138,6 +169,7 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   UsernameRouteRoute: UsernameRouteRoute,
+  SearchRouteRoute: SearchRouteRoute,
   SettingsRouteRoute: SettingsRouteRoute,
   FeedIdRoute: FeedIdRoute,
   FeedIndexRoute: FeedIndexRoute,
@@ -155,6 +187,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/$username",
+        "/search",
         "/settings",
         "/feed/$id",
         "/feed/"
@@ -165,6 +198,9 @@ export const routeTree = rootRoute
     },
     "/$username": {
       "filePath": "$username/route.tsx"
+    },
+    "/search": {
+      "filePath": "search/route.tsx"
     },
     "/settings": {
       "filePath": "settings/route.tsx"

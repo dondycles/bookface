@@ -13,11 +13,14 @@ import {
 } from "@/lib/components/ui/dropdown-menu";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useRouter } from "@tanstack/react-router";
-import { LogIn, LogOut, Plus, Search, Settings } from "lucide-react";
+import { LogIn, LogOut, Plus, Search, Settings, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { currentUserQueryOptions } from "../queries/user";
 import { CurrentUser } from "../server/fn/user";
+import { useDebounce } from "../utils";
 import ThemeToggle from "./ThemeToggle";
 import UserAvatar from "./avatar";
+import { Input } from "./ui/input";
 
 export default function Nav({
   currentUser: currentUserInitialData,
@@ -25,20 +28,65 @@ export default function Nav({
   currentUser: CurrentUser;
 }) {
   const queryClient = useQueryClient();
+  const route = useRouter();
   const { data: currentUser } = useSuspenseQuery({
     ...currentUserQueryOptions(),
     initialData: currentUserInitialData,
   });
   const router = useRouter();
+  const [searching, setSearching] = useState(false);
+  const [q, setQ] = useState("");
+  const debouncedQ = useDebounce(q, 500);
+
+  useEffect(() => {
+    if (searching && debouncedQ !== "") {
+      route.navigate({
+        to: "/search",
+        search: { q: debouncedQ },
+      });
+    }
+  }, [searching, debouncedQ, route]);
   return (
     <nav className="gap-4 flex items-center justify-between fixed w-full px-2 sm:px-4 py-4 z-10 bg-muted">
-      <div className="flex gap-2">
-        <Link to={"/feed"} className="text-4xl font-bold">
-          bookface
-        </Link>
-        <Button variant={"ghost"} className="aspect-square h-fit">
-          <Search className="size-6" />
-        </Button>
+      <div className="flex gap-2 flex-1 justify-start">
+        {searching ? (
+          <>
+            <Input
+              value={q}
+              onChange={(e) => {
+                setQ(e.currentTarget.value);
+              }}
+              className="max-w-[256px]"
+              autoFocus={true}
+              placeholder="Search for somethin'"
+            />
+            <Button
+              className="bg-accent"
+              size={"icon"}
+              onClick={() => {
+                setSearching(false);
+                setQ("");
+              }}
+              variant={"ghost"}
+            >
+              <X />
+            </Button>
+          </>
+        ) : (
+          <>
+            <Link to={"/feed"} className="text-4xl font-bold leading-none">
+              bookface
+            </Link>
+            <Button
+              key={"Search"}
+              onClick={() => setSearching(true)}
+              variant={"ghost"}
+              className="aspect-square h-9"
+            >
+              <Search className="size-6" />
+            </Button>
+          </>
+        )}
       </div>
       {currentUser ? (
         <DropdownMenu>
