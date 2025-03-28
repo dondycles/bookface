@@ -1,8 +1,8 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useRouteContext } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Delete, Edit, Ellipsis } from "lucide-react";
 import { commentQueryOptions } from "../queries/comments";
 import { Comment, removeComment } from "../server/fn/comments";
+import { CurrentUser } from "../server/fn/user";
 import UserAvatar from "./avatar";
 import EditCommentDialog from "./edit-comment-dialog";
 import {
@@ -15,10 +15,14 @@ import {
 } from "./ui/dropdown-menu";
 import { Skeleton } from "./ui/skeleton";
 
-export default function CommentCard({ commentId }: { commentId: Comment["id"] }) {
-  const { currentUser, queryClient } = useRouteContext({
-    from: "__root__",
-  });
+export default function CommentCard({
+  commentId,
+  currentUser,
+}: {
+  commentId: Comment["id"];
+  currentUser: CurrentUser;
+}) {
+  const queryClient = useQueryClient();
   const { data: comment, isLoading: commentLoading } = useQuery(
     commentQueryOptions(commentId),
   );

@@ -18,14 +18,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 export const Route = createFileRoute("/feed/")({
   component: FeedIndex,
-  loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(postsQueryOptions());
-    return { currentUser: context.currentUser };
-  },
 });
 
 function FeedIndex() {
-  const { currentUser } = Route.useLoaderData();
+  const { currentUser } = Route.useRouteContext();
   const posts = useSuspenseQuery(postsQueryOptions());
   const [username, setUsername] = useState("");
 
@@ -70,7 +66,14 @@ function FeedIndex() {
       </div>
       <div className="flex flex-col gap-4 h-full w-full ">
         {posts.data?.map((post) => {
-          return <PostCard postId={post.id} key={post.id} deepView={false} />;
+          return (
+            <PostCard
+              currentUser={currentUser}
+              postId={post.id}
+              key={post.id}
+              deepView={false}
+            />
+          );
         })}
       </div>
     </div>

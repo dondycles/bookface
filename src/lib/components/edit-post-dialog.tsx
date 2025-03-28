@@ -6,8 +6,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/lib/components/ui/dialog";
-import { useMutation } from "@tanstack/react-query";
-import { useRouteContext } from "@tanstack/react-router";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { editPost, Post } from "../server/fn/posts";
 import { Button } from "./ui/button";
@@ -19,7 +18,7 @@ export default function EditPostDialog({
   children: React.ReactNode;
   post: Post;
 }) {
-  const { queryClient } = useRouteContext({ from: "__root__" });
+  const queryClient = useQueryClient();
   const [openDialog, setOpenDialog] = useState(false);
   const [message, setMessage] = useState(post.message);
 

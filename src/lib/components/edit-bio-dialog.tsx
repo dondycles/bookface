@@ -7,14 +7,19 @@ import {
   DialogTrigger,
 } from "@/lib/components/ui/dialog";
 import { DialogDescription } from "@radix-ui/react-dialog";
-import { useMutation } from "@tanstack/react-query";
-import { useRouteContext } from "@tanstack/react-router";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { editBio } from "../server/fn/user";
+import { CurrentUser, editBio } from "../server/fn/user";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
-export default function EditBioDialog({ children }: { children: React.ReactNode }) {
-  const { queryClient, currentUser } = useRouteContext({ from: "__root__" });
+export default function EditBioDialog({
+  children,
+  currentUser,
+}: {
+  children: React.ReactNode;
+  currentUser: CurrentUser;
+}) {
+  const queryClient = useQueryClient();
 
   const [openDialog, setOpenDialog] = useState(false);
   const [bio, setBio] = useState(currentUser?.dB.bio ?? "wala");

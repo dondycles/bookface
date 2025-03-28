@@ -23,9 +23,10 @@ export const Route = createRootRouteWithContext<{
     const currentUser = await context.queryClient.fetchQuery(currentUserQueryOptions()); // we're using react-query for caching, see router.tsx
     return { currentUser };
   },
-  loader: ({ context }) => {
-    return { currentUser: context.currentUser };
+  loader: ({ context: { currentUser } }) => {
+    return { currentUser };
   },
+
   head: () => ({
     meta: [
       {
@@ -53,7 +54,7 @@ function RootComponent() {
 }
 
 function RootDocument({ children }: { readonly children: React.ReactNode }) {
-  const { queryClient } = Route.useRouteContext();
+  const { currentUser } = Route.useLoaderData();
   return (
     // suppress since we're updating the "dark" class in a custom script below
     <html suppressHydrationWarning>
@@ -67,7 +68,7 @@ function RootDocument({ children }: { readonly children: React.ReactNode }) {
             localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
             )`}
         </ScriptOnce>
-        <Nav queryClient={queryClient} />
+        <Nav currentUser={currentUser} />
         {children}
         <ReactQueryDevtools buttonPosition="bottom-left" />
         <TanStackRouterDevtools position="bottom-right" />

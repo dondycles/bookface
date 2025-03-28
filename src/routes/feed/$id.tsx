@@ -9,6 +9,8 @@ export const Route = createFileRoute("/feed/$id")({
     if (!data) throw Error("Post Not Found!");
     return {
       title: data.message,
+      postId: id,
+      currentUser: context.currentUser,
     };
   },
   head: ({ loaderData }) => ({
@@ -17,11 +19,11 @@ export const Route = createFileRoute("/feed/$id")({
 });
 
 function RouteComponent() {
-  const { id } = Route.useParams();
+  const { currentUser, postId } = Route.useLoaderData();
 
   return (
     <div className="py-24 sm:max-w-[512px] mx-auto">
-      <PostCard deepView={true} postId={id} />
+      <PostCard currentUser={currentUser} deepView={true} postId={postId} />
     </div>
   );
 }

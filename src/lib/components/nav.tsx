@@ -11,14 +11,24 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/lib/components/ui/dropdown-menu";
-import { QueryClient } from "@tanstack/react-query";
-import { Link, useRouteContext, useRouter } from "@tanstack/react-router";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { Link, useRouter } from "@tanstack/react-router";
 import { LogIn, LogOut, Plus, Search, Settings } from "lucide-react";
+import { currentUserQueryOptions } from "../queries/user";
+import { CurrentUser } from "../server/fn/user";
 import ThemeToggle from "./ThemeToggle";
 import UserAvatar from "./avatar";
 
-export default function Nav({ queryClient }: { queryClient: QueryClient }) {
-  const { currentUser } = useRouteContext({ from: "__root__" });
+export default function Nav({
+  currentUser: currentUserInitialData,
+}: {
+  currentUser: CurrentUser;
+}) {
+  const queryClient = useQueryClient();
+  const { data: currentUser } = useSuspenseQuery({
+    ...currentUserQueryOptions(),
+    initialData: currentUserInitialData,
+  });
   const router = useRouter();
   return (
     <nav className="gap-4 flex items-center justify-between fixed w-full px-2 sm:px-4 py-4 z-10 bg-muted">

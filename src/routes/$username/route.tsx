@@ -3,6 +3,7 @@ import EditBioDialog from "@/lib/components/edit-bio-dialog";
 import PostCard from "@/lib/components/post-card";
 import { Button } from "@/lib/components/ui/button";
 import { currentUserQueryOptions, userQueryOptions } from "@/lib/queries/user";
+import { CurrentUser } from "@/lib/server/fn/user";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
@@ -27,7 +28,8 @@ function RouteComponent() {
     initialData: currentUser,
     ...currentUserQueryOptions(),
   });
-  if (!isMyProfile) return <OtherUserProfile username={username} />;
+  if (!isMyProfile)
+    return <OtherUserProfile currentUser={currentUser} username={username} />;
   return (
     <div className="py-24 sm:max-w-[512px] mx-auto">
       <div className="flex flex-col gap-4 ">
@@ -50,7 +52,7 @@ function RouteComponent() {
               </div>
             </div>
             {isMyProfile ? (
-              <EditBioDialog>
+              <EditBioDialog currentUser={currentUser}>
                 <Button variant={"outline"} className="h-fit flex-1 whitespace-pre-wrap">
                   <p className="text-center italic ">
                     {myProfile?.dB.bio ?? "Set your bio"}
@@ -68,14 +70,27 @@ function RouteComponent() {
 
         <div className="flex flex-col gap-4 h-full w-full">
           {myProfile?.dB.posts?.map((post) => {
-            return <PostCard postId={post.id} key={post.id} deepView={false} />;
+            return (
+              <PostCard
+                currentUser={currentUser}
+                postId={post.id}
+                key={post.id}
+                deepView={false}
+              />
+            );
           })}
         </div>
       </div>
     </div>
   );
 }
-function OtherUserProfile({ username }: { username: string }) {
+function OtherUserProfile({
+  username,
+  currentUser,
+}: {
+  username: string;
+  currentUser: CurrentUser;
+}) {
   const profile = useSuspenseQuery(userQueryOptions(username));
 
   return (
@@ -112,7 +127,14 @@ function OtherUserProfile({ username }: { username: string }) {
           </div>
           <div className="flex flex-col sm:gap-2 h-full w-full sm:px-2 ">
             {profile.data.posts?.map((post) => {
-              return <PostCard postId={post.id} key={post.id} deepView={false} />;
+              return (
+                <PostCard
+                  currentUser={currentUser}
+                  postId={post.id}
+                  key={post.id}
+                  deepView={false}
+                />
+              );
             })}
           </div>
         </div>

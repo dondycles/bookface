@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { Link, useRouteContext } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import {
   Delete,
   Edit,
@@ -15,6 +15,7 @@ import { postQueryOptions } from "../queries/posts";
 import { addComment } from "../server/fn/comments";
 import { addLikePost, removeLikePost } from "../server/fn/likes";
 import { deletePost, Post } from "../server/fn/posts";
+import { CurrentUser } from "../server/fn/user";
 import UserAvatar from "./avatar";
 import CommentsSection from "./comments-section";
 import EditPostDialog from "./edit-post-dialog";
@@ -32,14 +33,15 @@ import { Skeleton } from "./ui/skeleton";
 import { Textarea } from "./ui/textarea";
 export default function PostCard({
   postId,
-
+  currentUser,
   deepView = false,
 }: {
   postId: Post["id"];
 
   deepView?: boolean;
+  currentUser: CurrentUser;
 }) {
-  const { currentUser, queryClient } = useRouteContext({ from: "__root__" });
+  const queryClient = useQueryClient();
   const { data: post, isLoading: postLoading } = useQuery(postQueryOptions(postId));
   const [collapseComments, setCollapesComments] = useState(false);
   const [commentMessage, setCommentMessage] = useState("");
@@ -222,7 +224,11 @@ export default function PostCard({
           )}
         </div>
         <CollapsibleContent className="px-2 sm:px-3">
-          <CommentsSection deepView={deepView} postId={postId} />
+          <CommentsSection
+            currentUser={currentUser}
+            deepView={deepView}
+            postId={postId}
+          />
         </CollapsibleContent>
       </Collapsible>
     </div>

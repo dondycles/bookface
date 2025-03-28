@@ -8,8 +8,7 @@ import {
   DialogTrigger,
 } from "@/lib/components/ui/dialog";
 import { AnyFieldApi, useForm } from "@tanstack/react-form";
-import { useMutation } from "@tanstack/react-query";
-import { useRouteContext } from "@tanstack/react-router";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { z } from "zod";
 import { addPost } from "../server/fn/posts";
@@ -34,7 +33,7 @@ function FieldInfo({ field }: { field: AnyFieldApi }) {
 }
 
 export default function AddPostDialog({ children }: { children: React.ReactNode }) {
-  const { queryClient } = useRouteContext({ from: "__root__" });
+  const queryClient = useQueryClient();
   const [openDialog, setOpenDialog] = useState(false);
   // const [message, setMessage] = useState("");
 
