@@ -90,7 +90,7 @@ export default function PostCard({
   if (postLoading)
     return (
       <div
-        className={`${!deepView && "border-t sm:border"} sm:rounded-lg w-full py-4 px-2 sm:px-4 flex flex-col gap-4`}
+        className={`sm:rounded-lg w-full py-4 px-2 sm:px-4 flex flex-col gap-4 bg-muted`}
       >
         <div className="flex gap-2">
           <Skeleton className="size-9 aspect-square rounded-full" />
@@ -104,7 +104,7 @@ export default function PostCard({
     );
   if (!post) return null;
   return (
-    <div key={post.id} className={`${!deepView && ""} sm:rounded-lg bg-muted/25`}>
+    <div key={post.id} className={`${!deepView && ""} sm:rounded-lg bg-muted`}>
       <div
         className={`flex flex-col gap-4 py-4 px-2 sm:px-4 ${handleRemovePost.isPending && "animate-pulse"}`}
       >
@@ -212,7 +212,10 @@ export default function PostCard({
             </div>
           ) : (
             <CollapsibleTrigger asChild>
-              <Button variant={"ghost"} className="flex-1 text-muted-foreground bg-muted">
+              <Button
+                variant={"ghost"}
+                className="flex-1 text-muted-foreground bg-accent"
+              >
                 <MessageCircle /> {post.comments.length}
               </Button>
             </CollapsibleTrigger>

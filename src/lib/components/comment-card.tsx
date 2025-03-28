@@ -45,7 +45,7 @@ export default function CommentCard({ commentId }: { commentId: Comment["id"] })
       className={`${handleRemoveComment.isPending && "animate-pulse "} last:mb-2 flex gap-2`}
     >
       <UserAvatar url={comment.commenter.image} alt={comment.commenter.name} />
-      <div className="rounded-md bg-muted p-2">
+      <div className="rounded-md bg-accent p-2">
         <div className="flex flex-1 gap-2">
           <div className="flex-1">
             <p className="font-semibold">{comment.commenter.username}</p>

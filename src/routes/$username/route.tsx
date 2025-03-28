@@ -28,7 +28,7 @@ function RouteComponent() {
     <div className="py-24 sm:max-w-[512px] mx-auto">
       <div className="sm:px-4 flex flex-col gap-4 ">
         <div className="sm:px-2 text-muted-foreground">
-          <div className="flex flex-col gap-4 bg-muted/25 sm:rounded-md p-4">
+          <div className="flex flex-col gap-4 bg-muted sm:rounded-md p-4">
             <div className="flex gap-4">
               <UserAvatar
                 className="size-24"
@@ -83,7 +83,7 @@ function OtherUserProfile({ username }: { username: string }) {
       ) : (
         <div className="sm:px-4 flex flex-col gap-4 ">
           <div className="sm:px-2 text-muted-foreground">
-            <div className="flex flex-col gap-4 bg-muted/25 sm:rounded-md p-4">
+            <div className="flex flex-col gap-4 bg-muted sm:rounded-md p-4">
               <div className="flex gap-4">
                 <UserAvatar
                   className="size-24"

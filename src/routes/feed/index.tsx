@@ -57,7 +57,7 @@ function FeedIndex() {
       <div hidden={!currentUser}>
         <AddPostDialog>
           <div className="sm:px-2">
-            <div className="flex flex-row gap-2 flex-1 p-2 bg-muted/25 sm:rounded-md">
+            <div className="flex flex-row gap-2 flex-1 p-2 bg-muted sm:rounded-md">
               <Avatar className="size-9">
                 <AvatarImage
                   src={currentUser?.dB?.image ?? "/favicon.ico"}
