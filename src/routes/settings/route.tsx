@@ -1,3 +1,4 @@
+import UserAvatar from "@/lib/components/avatar";
 import FieldInfo from "@/lib/components/field-info";
 import { Button } from "@/lib/components/ui/button";
 import { Input } from "@/lib/components/ui/input";
@@ -53,8 +54,13 @@ function RouteComponent() {
         e.stopPropagation();
         form.handleSubmit();
       }}
-      className="flex flex-col gap-4 py-24 sm:max-w-[512px] mx-auto"
+      className="flex flex-col gap-4 py-24 sm:max-w-[512px] mx-auto px-2 sm:px-0"
     >
+      <UserAvatar
+        alt={currentUser?.dB.username ?? "User PFP"}
+        url={currentUser?.dB.image}
+        className="size-32 mx-auto"
+      />
       <div className="flex gap-2 items-center">
         <p>Name: </p>
         <form.Field
