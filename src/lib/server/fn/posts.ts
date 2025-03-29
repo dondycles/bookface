@@ -1,7 +1,9 @@
 import { postSchema } from "@/lib/components/add-post-dialog";
+import { editPostSchema } from "@/lib/components/edit-post-dialog";
 import { authMiddleware } from "@/lib/middleware/auth-guard";
 import { createServerFn } from "@tanstack/react-start";
 import { and, eq } from "drizzle-orm";
+import { z } from "zod";
 import { db } from "../db";
 import { post } from "../schema";
 export const getPosts = createServerFn({ method: "GET" }).handler(async () => {
@@ -57,13 +59,14 @@ export const editPost = createServerFn({
   .validator(
     (data: {
       lastPost: typeof post.$inferSelect;
-      newMessage: typeof post.$inferInsert.message;
+      newMessage: z.infer<typeof editPostSchema>["newMessage"];
     }) => data,
   )
   .handler(async ({ data: { lastPost, newMessage }, context: { dB: user } }) => {
     if (!lastPost.id) throw new Error("No  Post ID!");
     if (!user.id) throw new Error("No  User ID!");
     if (lastPost.message === newMessage) return;
+    editPostSchema.parse({ newMessage });
     await db
       .update(post)
       .set({

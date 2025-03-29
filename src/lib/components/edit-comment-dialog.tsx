@@ -6,11 +6,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/lib/components/ui/dialog";
+import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { z } from "zod";
 import { Comment, editComment } from "../server/fn/comments";
+import FieldInfo from "./field-info";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
+
+export const editCommentSchema = z.object({
+  newMessage: z
+    .string()
+    .min(1, "Comment cannot be empty.")
+    .max(512, "Max of 512 characters only."),
+});
 export default function EditCommentDialog({
   children,
   comment,
@@ -19,19 +29,25 @@ export default function EditCommentDialog({
   comment: Comment;
 }) {
   const queryClient = useQueryClient();
-
+  const form = useForm({
+    defaultValues: {
+      newMessage: comment.message,
+    },
+    validators: { onChange: editCommentSchema },
+    onSubmit: ({ value }) => handleEditComment.mutate({ ...value, lastComment: comment }),
+  });
   const [openDialog, setOpenDialog] = useState(false);
-  const [message, setMessage] = useState(comment.message);
 
   const handleEditComment = useMutation({
-    mutationFn: async () =>
-      editComment({ data: { lastComment: comment, newMessage: message } }),
+    mutationFn: async (data: {
+      lastComment: Comment;
+      newMessage: z.infer<typeof editCommentSchema>["newMessage"];
+    }) => editComment({ data }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["comment", comment.id],
       });
       setOpenDialog(false);
-      setMessage("");
     },
   });
 
@@ -43,12 +59,31 @@ export default function EditCommentDialog({
           <DialogTitle>Edit Comment</DialogTitle>
           {/* <DialogDescription>Tell 'em what's new.</DialogDescription> */}
         </DialogHeader>
-        <Textarea value={message} onChange={(e) => setMessage(e.currentTarget.value)} />
+        <form.Field
+          name="newMessage"
+          children={(field) => (
+            <>
+              <Textarea
+                name={field.name}
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(e) => field.handleChange(e.target.value)}
+                className="max-h-[35dvh] scrollbar scrollbar-thumb-muted"
+              />
+              <em className="text-muted-foreground text-xs">
+                {field.state.value.length}/512
+              </em>
+              <FieldInfo field={field} />
+            </>
+          )}
+        />
         <DialogFooter>
           <Button
             className={`${handleEditComment.isPending && "animate-pulse cursor-progress"}`}
-            onClick={async () => {
-              handleEditComment.mutate();
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              form.handleSubmit();
             }}
           >
             Edit Comment

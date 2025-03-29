@@ -1,6 +1,8 @@
+import { editCommentSchema } from "@/lib/components/edit-comment-dialog";
 import { authMiddleware } from "@/lib/middleware/auth-guard";
 import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
+import { z } from "zod";
 import { db } from "../db";
 import { post, postComments } from "../schema";
 
@@ -32,11 +34,14 @@ export const editComment = createServerFn({
   .validator(
     (data: {
       lastComment: Comment;
-      newMessage: typeof postComments.$inferInsert.message;
+      newMessage: z.infer<typeof editCommentSchema>["newMessage"];
     }) => data,
   )
   .handler(async ({ data: { lastComment, newMessage }, context: { dB: user } }) => {
-    if (!user.id) throw new Error("No User!");
+    if (!user.id) throw new Error("No User ID!");
+    if (!lastComment.id) throw new Error("No  Post ID!");
+    if (lastComment.message === newMessage) return;
+    editCommentSchema.parse({ newMessage });
     await db
       .update(postComments)
       .set({
