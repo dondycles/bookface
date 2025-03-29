@@ -1,7 +1,5 @@
-import { bioSchema } from "@/lib/components/edit-bio-dialog";
-import { usernameSchema } from "@/lib/components/set-username-dialog";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { authMiddleware } from "@/lib/middleware/auth-guard";
-import { settingsSchema } from "@/routes/settings/route";
 import { createServerFn } from "@tanstack/react-start";
 import { getWebRequest } from "@tanstack/react-start/server";
 import { eq } from "drizzle-orm";
@@ -11,7 +9,7 @@ import { user } from "../schema";
 
 export const updateUsername = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .validator(usernameSchema)
+  .validator((data: any) => data)
   .handler(async ({ data, context: { dB } }) => {
     await db
       .update(user)
@@ -58,7 +56,7 @@ export const getUserProfile = createServerFn({ method: "GET" })
 
 export const editBio = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .validator(bioSchema)
+  .validator((data: any) => data)
   .handler(async ({ data, context: { dB } }) => {
     if (!dB.id) throw new Error("No User!");
     if (data.bio.length === 0) throw new Error("Bio Cannot Be Empty.");
@@ -73,7 +71,8 @@ export const editBio = createServerFn({ method: "POST" })
 
 export const editProfile = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .validator(settingsSchema)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  .validator((data: any) => data)
   .handler(async ({ data, context: { dB } }) => {
     if (!dB.id) throw new Error("No User!");
     await db.update(user).set(data).where(eq(user.id, dB.id));

@@ -1,4 +1,4 @@
-import { postSchema } from "@/lib/components/add-post-dialog";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { editPostSchema } from "@/lib/components/edit-post-dialog";
 import { authMiddleware } from "@/lib/middleware/auth-guard";
 import { createServerFn } from "@tanstack/react-start";
@@ -43,7 +43,7 @@ export const addPost = createServerFn({
   method: "POST",
 })
   .middleware([authMiddleware])
-  .validator(postSchema)
+  .validator((data: any) => data)
   .handler(async ({ data, context: { dB: user } }) => {
     if (!user.id) throw new Error("No User!");
     await db.insert(post).values({
