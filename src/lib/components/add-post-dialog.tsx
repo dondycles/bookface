@@ -10,18 +10,10 @@ import {
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { z } from "zod";
-import { addPost } from "../server/fn/posts";
+import { addPost, postSchema } from "../server/fn/posts";
 import FieldInfo from "./field-info";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
-
-export const postSchema = z.object({
-  message: z
-    .string()
-    .min(1, "Post cannot be empty.")
-    .max(512, "Max of 256 characters only."),
-});
 
 export default function AddPostDialog({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
