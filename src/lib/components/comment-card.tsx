@@ -34,6 +34,9 @@ export default function CommentCard({
         queryKey: ["comments", comment?.postId],
       });
     },
+    onError: (e: Error) => {
+      alert(JSON.parse(e.message)[0].message as string);
+    },
   });
   if (!comment) return null;
   if (commentLoading)

@@ -54,6 +54,9 @@ export default function SetUsernameDialog({
       form.reset();
       setOpenDialog(false);
     },
+    onError: (e: Error) => {
+      alert(JSON.parse(e.message)[0].message as string);
+    },
   });
 
   return (
