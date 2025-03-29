@@ -7,35 +7,25 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/lib/components/ui/dialog";
-import { AnyFieldApi, useForm } from "@tanstack/react-form";
+import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { z } from "zod";
 import { addPost } from "../server/fn/posts";
+import FieldInfo from "./field-info";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 
-const postSchema = z.object({
+export const postSchema = z.object({
   message: z
     .string()
     .min(1, "Post cannot be empty.")
     .max(512, "Max of 256 characters only."),
 });
 
-function FieldInfo({ field }: { field: AnyFieldApi }) {
-  return (
-    <>
-      {field.state.meta.isTouched && field.state.meta.errors.length ? (
-        <em>{field.state.meta.errors[0].message}</em>
-      ) : null}
-    </>
-  );
-}
-
 export default function AddPostDialog({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
   const [openDialog, setOpenDialog] = useState(false);
-  // const [message, setMessage] = useState("");
 
   const form = useForm({
     defaultValues: {
@@ -53,7 +43,6 @@ export default function AddPostDialog({ children }: { children: React.ReactNode 
       });
       form.reset();
       setOpenDialog(false);
-      // setMessage("");
     },
   });
 

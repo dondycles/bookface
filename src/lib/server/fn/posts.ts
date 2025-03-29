@@ -1,9 +1,9 @@
+import { postSchema } from "@/lib/components/add-post-dialog";
 import { authMiddleware } from "@/lib/middleware/auth-guard";
 import { createServerFn } from "@tanstack/react-start";
 import { and, eq } from "drizzle-orm";
 import { db } from "../db";
 import { post } from "../schema";
-
 export const getPosts = createServerFn({ method: "GET" }).handler(async () => {
   return await db.query.post.findMany({
     orderBy: (posts, { desc }) => [desc(posts.createdAt)],
@@ -41,10 +41,9 @@ export const addPost = createServerFn({
   method: "POST",
 })
   .middleware([authMiddleware])
-  .validator((data: { message: typeof post.$inferInsert.message }) => data)
+  .validator(postSchema)
   .handler(async ({ data, context: { dB: user } }) => {
     if (!user.id) throw new Error("No User!");
-    if (data.message.length === 0) throw new Error("Post Cannot Be Empty.");
     await db.insert(post).values({
       message: data.message,
       userId: user.id,

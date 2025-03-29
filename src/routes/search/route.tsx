@@ -31,7 +31,7 @@ function RouteComponent() {
   return (
     <div className="flex flex-col gap-4 py-24 sm:max-w-[512px] mx-auto">
       <p className="px-2 sm:px-0">
-        Results for <em>{q}</em>{" "}
+        Results for <em>`{q}`</em>{" "}
       </p>
       {searchResults.posts.length > 0 ? (
         <div className="border-t pt-2 px-2 sm:px-0 text-muted-foreground text-sm">

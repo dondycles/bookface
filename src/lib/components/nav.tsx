@@ -20,6 +20,7 @@ import { CurrentUser } from "../server/fn/user";
 import { useDebounce } from "../utils";
 import ThemeToggle from "./ThemeToggle";
 import UserAvatar from "./avatar";
+import SetUsernameDialog from "./set-username-dialog";
 import { Input } from "./ui/input";
 
 export default function Nav({
@@ -82,6 +83,7 @@ export default function Nav({
               onClick={() => setSearching(true)}
               variant={"ghost"}
               className="aspect-square h-9"
+              size={"icon"}
             >
               <Search className="size-6" />
             </Button>
@@ -162,6 +164,7 @@ export default function Nav({
           <LogIn />
         </Button>
       )}
+      <SetUsernameDialog currentUser={currentUser} />
     </nav>
   );
 }
