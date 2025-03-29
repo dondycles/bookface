@@ -66,7 +66,6 @@ export const editPost = createServerFn({
     if (!lastPost.id) throw new Error("No  Post ID!");
     if (!user.id) throw new Error("No  User ID!");
     if (lastPost.message === newMessage) return;
-    editPostSchema.parse({ newMessage });
     await db
       .update(post)
       .set({

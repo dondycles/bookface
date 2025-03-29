@@ -41,7 +41,6 @@ export const editComment = createServerFn({
     if (!user.id) throw new Error("No User ID!");
     if (!lastComment.id) throw new Error("No  Post ID!");
     if (lastComment.message === newMessage) return;
-    editCommentSchema.parse({ newMessage });
     await db
       .update(postComments)
       .set({
