@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { editPostSchema } from "@/lib/components/edit-post-dialog";
 import { authMiddleware } from "@/lib/middleware/auth-guard";
 import { createServerFn } from "@tanstack/react-start";
 import { and, eq } from "drizzle-orm";
@@ -11,8 +10,9 @@ export const postSchema = z.object({
   message: z
     .string()
     .min(1, "Post cannot be empty.")
-    .max(512, "Max of 256 characters only."),
+    .max(512, "Max of 512 characters only."),
 });
+
 export const getPosts = createServerFn({ method: "GET" }).handler(async () => {
   return await db.query.post.findMany({
     orderBy: (posts, { desc }) => [desc(posts.createdAt)],
@@ -66,14 +66,14 @@ export const editPost = createServerFn({
   .validator(
     (data: {
       lastPost: typeof post.$inferSelect;
-      newMessage: z.infer<typeof editPostSchema>["newMessage"];
+      newMessage: z.infer<typeof postSchema>["message"];
     }) => data,
   )
   .handler(async ({ data: { lastPost, newMessage }, context: { dB: user } }) => {
     if (!lastPost.id) throw new Error("No  Post ID!");
     if (!user.id) throw new Error("No  User ID!");
     if (lastPost.message === newMessage) return;
-    editPostSchema.parse({ newMessage });
+    postSchema.parse({ newMessage });
     await db
       .update(post)
       .set({

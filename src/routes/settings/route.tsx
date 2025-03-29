@@ -2,19 +2,11 @@ import FieldInfo from "@/lib/components/field-info";
 import { Button } from "@/lib/components/ui/button";
 import { Input } from "@/lib/components/ui/input";
 import { currentUserQueryOptions } from "@/lib/queries/user";
-import { editProfile } from "@/lib/server/fn/user";
+import { editProfile, settingsSchema } from "@/lib/server/fn/user";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { z } from "zod";
-
-export const settingsSchema = z.object({
-  name: z.string().min(1, "Name cannot be empty.").max(72, "Max of 256 characters only."),
-  username: z
-    .string()
-    .min(1, "Username cannot be empty.")
-    .max(32, "Max of 32 characters only."),
-});
 
 export const Route = createFileRoute("/settings")({
   component: RouteComponent,

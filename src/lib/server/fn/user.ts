@@ -3,9 +3,22 @@ import { authMiddleware } from "@/lib/middleware/auth-guard";
 import { createServerFn } from "@tanstack/react-start";
 import { getWebRequest } from "@tanstack/react-start/server";
 import { eq } from "drizzle-orm";
+import { z } from "zod";
 import { auth } from "../auth";
 import { db } from "../db";
 import { user } from "../schema";
+
+export const bioSchema = z.object({
+  bio: z.string().max(72, "Max of 72 characters only."),
+});
+
+export const settingsSchema = z.object({
+  name: z.string().min(1, "Name cannot be empty.").max(72, "Max of 256 characters only."),
+  username: z
+    .string()
+    .min(1, "Username cannot be empty.")
+    .max(32, "Max of 32 characters only."),
+});
 
 export const updateUsername = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
@@ -56,7 +69,7 @@ export const getUserProfile = createServerFn({ method: "GET" })
 
 export const editBio = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .validator((data: any) => data)
+  .validator(bioSchema)
   .handler(async ({ data, context: { dB } }) => {
     if (!dB.id) throw new Error("No User!");
     if (data.bio.length === 0) throw new Error("Bio Cannot Be Empty.");
@@ -72,7 +85,7 @@ export const editBio = createServerFn({ method: "POST" })
 export const editProfile = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  .validator((data: any) => data)
+  .validator(settingsSchema)
   .handler(async ({ data, context: { dB } }) => {
     if (!dB.id) throw new Error("No User!");
     await db.update(user).set(data).where(eq(user.id, dB.id));

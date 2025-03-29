@@ -11,14 +11,10 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { z } from "zod";
-import { CurrentUser, editBio } from "../server/fn/user";
+import { bioSchema, CurrentUser, editBio } from "../server/fn/user";
 import FieldInfo from "./field-info";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
-
-export const bioSchema = z.object({
-  bio: z.string().max(72, "Max of 72 characters only."),
-});
 
 export default function EditBioDialog({
   children,
@@ -75,16 +71,22 @@ export default function EditBioDialog({
           )}
         />
         <DialogFooter>
-          <Button
-            className={`${handleEditBio.isPending && "animate-pulse cursor-progress"}`}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              form.handleSubmit();
-            }}
-          >
-            Edit Bio
-          </Button>
+          <form.Subscribe
+            selector={(state) => [state.canSubmit, state.isSubmitting]}
+            children={([canSubmit, isSubmitting]) => (
+              <Button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  form.handleSubmit();
+                }}
+                disabled={!canSubmit}
+                className={`${isSubmitting && "animate-pulse cursor-progress"}`}
+              >
+                {isSubmitting ? "Editing..." : " Edit Bio"}
+              </Button>
+            )}
+          />
         </DialogFooter>
       </DialogContent>
     </Dialog>

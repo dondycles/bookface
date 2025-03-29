@@ -10,17 +10,11 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { z } from "zod";
-import { Comment, editComment } from "../server/fn/comments";
+import { Comment, commentSchema, editComment } from "../server/fn/comments";
 import FieldInfo from "./field-info";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 
-export const editCommentSchema = z.object({
-  newMessage: z
-    .string()
-    .min(1, "Comment cannot be empty.")
-    .max(512, "Max of 512 characters only."),
-});
 export default function EditCommentDialog({
   children,
   comment,
@@ -31,17 +25,18 @@ export default function EditCommentDialog({
   const queryClient = useQueryClient();
   const form = useForm({
     defaultValues: {
-      newMessage: comment.message,
+      message: comment.message,
     },
-    validators: { onChange: editCommentSchema },
-    onSubmit: ({ value }) => handleEditComment.mutate({ ...value, lastComment: comment }),
+    validators: { onChange: commentSchema },
+    onSubmit: ({ value }) =>
+      handleEditComment.mutate({ newMessage: value.message, lastComment: comment }),
   });
   const [openDialog, setOpenDialog] = useState(false);
 
   const handleEditComment = useMutation({
     mutationFn: async (data: {
       lastComment: Comment;
-      newMessage: z.infer<typeof editCommentSchema>["newMessage"];
+      newMessage: z.infer<typeof commentSchema>["message"];
     }) => editComment({ data }),
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -60,7 +55,7 @@ export default function EditCommentDialog({
           {/* <DialogDescription>Tell 'em what's new.</DialogDescription> */}
         </DialogHeader>
         <form.Field
-          name="newMessage"
+          name="message"
           children={(field) => (
             <>
               <Textarea
@@ -78,16 +73,22 @@ export default function EditCommentDialog({
           )}
         />
         <DialogFooter>
-          <Button
-            className={`${handleEditComment.isPending && "animate-pulse cursor-progress"}`}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              form.handleSubmit();
-            }}
-          >
-            Edit Comment
-          </Button>
+          <form.Subscribe
+            selector={(state) => [state.canSubmit, state.isSubmitting]}
+            children={([canSubmit, isSubmitting]) => (
+              <Button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  form.handleSubmit();
+                }}
+                disabled={!canSubmit}
+                className={`${isSubmitting && "animate-pulse cursor-progress"}`}
+              >
+                {isSubmitting ? "Editing..." : " Edit Comment"}
+              </Button>
+            )}
+          />
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -6,16 +6,15 @@ import {
   Ellipsis,
   ExternalLink,
   MessageCircle,
-  Send,
   ThumbsUp,
   X,
 } from "lucide-react";
 import { useState } from "react";
 import { postQueryOptions } from "../queries/posts";
-import { addComment } from "../server/fn/comments";
 import { addLikePost, removeLikePost } from "../server/fn/likes";
 import { deletePost, Post } from "../server/fn/posts";
 import { CurrentUser } from "../server/fn/user";
+import AddCommentForm from "./add-comment-form";
 import UserAvatar from "./avatar";
 import CommentsSection from "./comments-section";
 import EditPostDialog from "./edit-post-dialog";
@@ -30,7 +29,6 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Skeleton } from "./ui/skeleton";
-import { Textarea } from "./ui/textarea";
 export default function PostCard({
   postId,
   currentUser,
@@ -44,7 +42,6 @@ export default function PostCard({
   const queryClient = useQueryClient();
   const { data: post, isLoading: postLoading } = useQuery(postQueryOptions(postId));
   const [collapseComments, setCollapesComments] = useState(false);
-  const [commentMessage, setCommentMessage] = useState("");
   const isLiked = post?.likers.some((l) => l.likerId === currentUser?.dB.id);
   const handleRemovePost = useMutation({
     mutationFn: async (id: string) => await deletePost({ data: { id } }),
@@ -73,16 +70,7 @@ export default function PostCard({
       });
     },
   });
-  const handleAddCommentToPost = useMutation({
-    mutationFn: async () =>
-      await addComment({ data: { message: commentMessage, postId } }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["comments", postId],
-      });
-      setCommentMessage("");
-    },
-  });
+
   // useEffect(() => {
   //   if (post) {
   //     // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
@@ -189,29 +177,16 @@ export default function PostCard({
             <span className="text-xs">{post.likers.length}</span>
           </Button>
           {collapseComments ? (
-            <div
-              className={`flex-1 flex gap-2 ${handleAddCommentToPost.isPaused && "animate-pulse"}`}
-            >
-              <Textarea
-                value={commentMessage}
-                onChange={(e) => setCommentMessage(e.currentTarget.value)}
-                placeholder="Give some of your thoughts"
-              />
-              <div className="flex flex-col gap-2 justify-end">
-                <Button
-                  onClick={() => handleAddCommentToPost.mutate()}
-                  variant={"secondary"}
-                  size={"icon"}
-                >
-                  <Send />
-                </Button>
+            <AddCommentForm
+              postId={postId}
+              children={
                 <CollapsibleTrigger asChild>
                   <Button variant={"secondary"} size={"icon"}>
                     <X className="text-destructive" />
                   </Button>
                 </CollapsibleTrigger>
-              </div>
-            </div>
+              }
+            />
           ) : (
             <CollapsibleTrigger asChild>
               <Button

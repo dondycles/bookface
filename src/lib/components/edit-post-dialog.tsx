@@ -10,17 +10,10 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { z } from "zod";
-import { editPost, Post } from "../server/fn/posts";
+import { editPost, Post, postSchema } from "../server/fn/posts";
 import FieldInfo from "./field-info";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
-
-export const editPostSchema = z.object({
-  newMessage: z
-    .string()
-    .min(1, "Post cannot be empty.")
-    .max(512, "Max of 512 characters only."),
-});
 
 export default function EditPostDialog({
   children,
@@ -33,17 +26,18 @@ export default function EditPostDialog({
 
   const form = useForm({
     defaultValues: {
-      newMessage: post.message,
+      message: post.message,
     },
-    validators: { onChange: editPostSchema },
-    onSubmit: ({ value }) => handleEditPost.mutate({ ...value, lastPost: post }),
+    validators: { onChange: postSchema },
+    onSubmit: ({ value }) =>
+      handleEditPost.mutate({ newMessage: value.message, lastPost: post }),
   });
   const [openDialog, setOpenDialog] = useState(false);
 
   const handleEditPost = useMutation({
     mutationFn: async (data: {
       lastPost: Post;
-      newMessage: z.infer<typeof editPostSchema>["newMessage"];
+      newMessage: z.infer<typeof postSchema>["message"];
     }) => editPost({ data }),
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -62,7 +56,7 @@ export default function EditPostDialog({
           {/* <DialogDescription>Tell 'em what's new.</DialogDescription> */}
         </DialogHeader>
         <form.Field
-          name="newMessage"
+          name="message"
           children={(field) => (
             <>
               <Textarea
@@ -80,16 +74,22 @@ export default function EditPostDialog({
           )}
         />
         <DialogFooter>
-          <Button
-            className={`${handleEditPost.isPending && "animate-pulse cursor-progress"}`}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              form.handleSubmit();
-            }}
-          >
-            Edit Post
-          </Button>
+          <form.Subscribe
+            selector={(state) => [state.canSubmit, state.isSubmitting]}
+            children={([canSubmit, isSubmitting]) => (
+              <Button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  form.handleSubmit();
+                }}
+                disabled={!canSubmit}
+                className={`${isSubmitting && "animate-pulse cursor-progress"}`}
+              >
+                {isSubmitting ? "Editing..." : " Edit Post"}
+              </Button>
+            )}
+          />
         </DialogFooter>
       </DialogContent>
     </Dialog>

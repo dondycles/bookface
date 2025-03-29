@@ -1,11 +1,15 @@
-import { editCommentSchema } from "@/lib/components/edit-comment-dialog";
 import { authMiddleware } from "@/lib/middleware/auth-guard";
 import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db";
 import { post, postComments } from "../schema";
-
+export const commentSchema = z.object({
+  message: z
+    .string()
+    .min(1, "Comment cannot be empty.")
+    .max(512, "Max of 512 characters only."),
+});
 export const addComment = createServerFn({
   method: "POST",
 })
@@ -34,13 +38,14 @@ export const editComment = createServerFn({
   .validator(
     (data: {
       lastComment: Comment;
-      newMessage: z.infer<typeof editCommentSchema>["newMessage"];
+      newMessage: z.infer<typeof commentSchema>["message"];
     }) => data,
   )
   .handler(async ({ data: { lastComment, newMessage }, context: { dB: user } }) => {
     if (!user.id) throw new Error("No User ID!");
     if (!lastComment.id) throw new Error("No  Post ID!");
     if (lastComment.message === newMessage) return;
+    commentSchema.parse({ message: newMessage });
     await db
       .update(postComments)
       .set({
