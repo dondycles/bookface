@@ -8,16 +8,13 @@ import { auth } from "../auth";
 import { db } from "../db";
 import { user } from "../schema";
 
-export const bioSchema = z.object({
-  bio: z.string().max(72, "Max of 72 characters only."),
-});
-
 export const settingsSchema = z.object({
-  name: z.string().min(1, "Name cannot be empty.").max(72, "Max of 256 characters only."),
+  name: z.string().min(1, "Name cannot be empty.").max(72, "Max of 72 characters only."),
   username: z
     .string()
     .min(1, "Username cannot be empty.")
     .max(32, "Max of 32 characters only."),
+  bio: z.string().max(72, "Max of 72 characters only."),
 });
 
 export const updateUsername = createServerFn({ method: "POST" })
@@ -65,21 +62,6 @@ export const getUserProfile = createServerFn({ method: "GET" })
         },
       },
     });
-  });
-
-export const editBio = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
-  .validator(bioSchema)
-  .handler(async ({ data, context: { dB } }) => {
-    if (!dB.id) throw new Error("No User!");
-    if (data.bio.length === 0) throw new Error("Bio Cannot Be Empty.");
-    if (data.bio === dB.bio) return;
-    await db
-      .update(user)
-      .set({
-        bio: data.bio,
-      })
-      .where(eq(user.id, dB.id));
   });
 
 export const editProfile = createServerFn({ method: "POST" })

@@ -1,11 +1,11 @@
 import UserAvatar from "@/lib/components/avatar";
-import EditBioDialog from "@/lib/components/edit-bio-dialog";
 import PostCard from "@/lib/components/post-card";
 import { Button } from "@/lib/components/ui/button";
 import { currentUserQueryOptions, userQueryOptions } from "@/lib/queries/user";
 import { CurrentUser } from "@/lib/server/fn/user";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ExternalLink } from "lucide-react";
 
 export const Route = createFileRoute("/$username")({
   component: RouteComponent,
@@ -51,14 +51,13 @@ function RouteComponent() {
                 </div>
               </div>
             </div>
+            <p className="text-center italic ">{myProfile?.dB.bio ?? "No bio yet."}</p>
             {isMyProfile ? (
-              <EditBioDialog currentUser={currentUser}>
-                <Button variant={"outline"} className="h-fit flex-1 whitespace-pre-wrap">
-                  <p className="text-center italic ">
-                    {myProfile?.dB.bio ?? "Set your bio"}
-                  </p>
+              <Link to={"/settings"} className="flex-1">
+                <Button variant={"outline"} className="h-fit w-full">
+                  Edit Profile <ExternalLink />
                 </Button>
-              </EditBioDialog>
+              </Link>
             ) : (
               <p className="text-center italic ">{myProfile?.dB.bio ?? "No bio yet."}</p>
             )}
