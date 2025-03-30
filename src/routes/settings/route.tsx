@@ -2,14 +2,20 @@ import UserAvatar from "@/lib/components/avatar";
 import FieldInfo from "@/lib/components/field-info";
 import { Button } from "@/lib/components/ui/button";
 import { Input } from "@/lib/components/ui/input";
+import { Label } from "@/lib/components/ui/label";
 import { Textarea } from "@/lib/components/ui/textarea";
 import { currentUserQueryOptions } from "@/lib/queries/user";
 import { editProfile, settingsSchema } from "@/lib/server/fn/user";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { z } from "zod";
-
+// const settingsSchema = z.object({
+//   name: z.string(),
+//   username: z.string(),
+//   bio: z.string(),
+// });
 export const Route = createFileRoute("/settings")({
   component: RouteComponent,
   loader: ({ context }) => {
@@ -19,6 +25,10 @@ export const Route = createFileRoute("/settings")({
       });
   },
 });
+
+function isArray(data: unknown): data is Array<unknown> {
+  return Array.isArray(data);
+}
 
 function RouteComponent() {
   const { currentUser: currentUserData } = Route.useRouteContext();
@@ -34,8 +44,11 @@ function RouteComponent() {
       username: currentUser?.dB.username ?? "",
       bio: currentUser?.dB.bio ?? "",
     },
-    validators: { onChange: settingsSchema, onSubmit: settingsSchema },
+    validators: { onChange: settingsSchema },
     onSubmit: async ({ value }) => submitPost.mutate(value),
+    onSubmitInvalid: (e) => {
+      toast.error(JSON.stringify(e));
+    },
   });
 
   const submitPost = useMutation({
@@ -44,9 +57,17 @@ function RouteComponent() {
       queryClient.invalidateQueries({
         queryKey: ["currentUser"],
       });
+      toast.success("Successfully Updated");
     },
-    onError: () => {
+    onError: (e: Error) => {
       form.reset();
+      console.error(JSON.stringify(e));
+      // const parsedError: [{ message: string }] = JSON.parse(e.message);
+      // if (Array.isArray(parsedError)) {
+      //   toast.error(parsedError[0].message as string);
+      // } else {
+      //   toast.error(e.message);
+      // }
     },
   });
   return (
@@ -63,70 +84,78 @@ function RouteComponent() {
         url={currentUser?.dB.image}
         className="size-32 mx-auto"
       />
-      <div className="flex gap-2  items-start">
-        <p>Name: </p>
-        <form.Field
-          name="name"
-          children={(field) => (
-            <>
-              <Input
-                name={field.name}
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-                className="max-h-[35dvh] scrollbar scrollbar-thumb-muted"
-              />
-              <em className="text-muted-foreground text-xs">
+      <form.Field
+        name="name"
+        children={(field) => (
+          <div className="flex flex-col gap-2 flex-1">
+            <Label htmlFor={field.name}>Name</Label>
+            <Input
+              name={field.name}
+              value={field.state.value}
+              onBlur={field.handleBlur}
+              onChange={(e) => field.handleChange(e.target.value)}
+              className="max-h-[35dvh] scrollbar scrollbar-thumb-muted"
+            />
+            <div className="flex gap-2 items-baseline">
+              <div className="flex-1">
+                <FieldInfo field={field} />
+              </div>
+              <em className="text-muted-foreground text-xs text-right">
                 {field.state.value.length}/72
               </em>
-              <FieldInfo field={field} />
-            </>
-          )}
-        />
-      </div>
-      <div className="flex gap-2  items-start">
-        <p>Username: </p>
-        <form.Field
-          name="username"
-          children={(field) => (
-            <>
-              <Input
-                name={field.name}
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-                className="max-h-[35dvh] scrollbar scrollbar-thumb-muted"
-              />
-              <em className="text-muted-foreground text-xs">
+            </div>
+          </div>
+        )}
+      />
+
+      <form.Field
+        name="username"
+        children={(field) => (
+          <div className="flex flex-col gap-2 flex-1">
+            <Label htmlFor={field.name}>Username</Label>
+            <Input
+              name={field.name}
+              value={field.state.value}
+              onBlur={field.handleBlur}
+              onChange={(e) => field.handleChange(e.target.value)}
+              className="max-h-[35dvh] scrollbar scrollbar-thumb-muted"
+            />
+            <div className="flex gap-2 items-baseline">
+              <div className="flex-1">
+                <FieldInfo field={field} />
+              </div>
+              <em className="text-muted-foreground text-xs text-right">
                 {field.state.value.length}/32
               </em>
-              <FieldInfo field={field} />
-            </>
-          )}
-        />
-      </div>
-      <div className="flex gap-2 items-start">
-        <p>Bio: </p>
-        <form.Field
-          name="bio"
-          children={(field) => (
-            <>
-              <Textarea
-                placeholder="Tell us about yourself"
-                name={field.name}
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-                className="max-h-[35dvh] scrollbar scrollbar-thumb-muted"
-              />
-              <em className="text-muted-foreground text-xs">
-                {field.state.value.length}/72
+            </div>
+          </div>
+        )}
+      />
+
+      <form.Field
+        name="bio"
+        children={(field) => (
+          <div className="flex-1 flex flex-col gap-2">
+            <Label htmlFor={field.name}>Bio</Label>
+            <Textarea
+              placeholder="Tell us about yourself"
+              name={field.name}
+              value={field.state.value}
+              onBlur={field.handleBlur}
+              onChange={(e) => field.handleChange(e.target.value)}
+              className="max-h-[35dvh] scrollbar scrollbar-thumb-muted"
+            />
+            <div className="flex gap-2 items-baseline">
+              <div className="flex-1">
+                <FieldInfo field={field} />
+              </div>
+              <em className="text-muted-foreground text-xs text-right">
+                {field.state.value.length}/512
               </em>
-              <FieldInfo field={field} />
-            </>
-          )}
-        />
-      </div>
+            </div>
+          </div>
+        )}
+      />
       <Button type="submit">Update</Button>
       <Button variant={"destructive"}>Delete Account</Button>
     </form>

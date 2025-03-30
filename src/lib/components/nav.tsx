@@ -48,7 +48,7 @@ export default function Nav({
     }
   }, [searching, debouncedQ, route]);
   return (
-    <nav className="gap-4  fixed w-full z-10 bg-muted">
+    <nav className="gap-4  fixed w-full z-10 bg-muted shadow-xl shadow-black/5">
       <div className="sm:max-w-[512px] mx-auto flex items-center justify-between w-full  px-2 sm:px-0  py-4">
         <div className="flex gap-2 flex-1 justify-start">
           {searching ? (

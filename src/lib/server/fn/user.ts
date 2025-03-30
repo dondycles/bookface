@@ -66,9 +66,15 @@ export const getUserProfile = createServerFn({ method: "GET" })
 
 export const editProfile = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   .validator(settingsSchema)
   .handler(async ({ data, context: { dB } }) => {
-    if (!dB.id) throw new Error("No User!");
+    if (!dB.id) throw new Error("User not found");
+    if (dB.bio === data.bio && dB.name === data.name && dB.username === data.username)
+      throw new Error("No changes made");
     await db.update(user).set(data).where(eq(user.id, dB.id));
   });
+
+//  onError: (e: Error) => {
+//       form.reset();
+//       toast.error(JSON.parse(e.message)[0].message as string, {});
+//     },

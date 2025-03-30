@@ -12,7 +12,7 @@ export default function UserAvatar({
 }) {
   return (
     <Avatar className={cn("", className)}>
-      <AvatarImage src={url ?? "/favicon.ico"} alt={alt} />
+      <AvatarImage src={url ?? "favicon.ico"} alt={alt} />
       <AvatarFallback>BF</AvatarFallback>
     </Avatar>
   );
