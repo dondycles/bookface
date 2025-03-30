@@ -5,15 +5,15 @@ import { CurrentUser } from "../server/fn/user";
 import CommentCard from "./comment-card";
 
 export default function CommentsSection({
-  postId,
+  post,
   deepView,
   currentUser,
 }: {
-  postId: Post["id"];
+  post: Post;
   deepView: boolean;
   currentUser: CurrentUser;
 }) {
-  const { data: comments } = useQuery(commentsQueryOptions(postId));
+  const { data: comments } = useQuery(commentsQueryOptions(post.id));
   if (!comments) return null;
   return (
     <div
@@ -21,7 +21,14 @@ export default function CommentsSection({
     >
       <div className=" flex flex-col gap-2">
         {comments.map((c) => {
-          return <CommentCard currentUser={currentUser} key={c.id} commentId={c.id} />;
+          return (
+            <CommentCard
+              currentUser={currentUser}
+              key={c.id}
+              commentId={c.id}
+              post={post}
+            />
+          );
         })}
       </div>
     </div>

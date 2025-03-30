@@ -44,7 +44,7 @@ export default function PostCard({
   const [collapseComments, setCollapesComments] = useState(false);
   const isLiked = post?.likers.some((l) => l.likerId === currentUser?.dB.id);
   const handleRemovePost = useMutation({
-    mutationFn: async (id: string) => await deletePost({ data: { id } }),
+    mutationFn: async () => await deletePost({ data: { post: post! } }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["currentUser"],
@@ -149,7 +149,7 @@ export default function PostCard({
               <DropdownMenuItem
                 hidden={currentUser?.dB.id !== post.userId}
                 onClick={() => {
-                  handleRemovePost.mutate(post.id);
+                  handleRemovePost.mutate();
                 }}
               >
                 <Delete className="text-destructive" />
@@ -199,11 +199,7 @@ export default function PostCard({
           )}
         </div>
         <CollapsibleContent className="px-2 sm:px-3">
-          <CommentsSection
-            currentUser={currentUser}
-            deepView={deepView}
-            postId={postId}
-          />
+          <CommentsSection currentUser={currentUser} deepView={deepView} post={post} />
         </CollapsibleContent>
       </Collapsible>
     </div>

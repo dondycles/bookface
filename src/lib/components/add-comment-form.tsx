@@ -1,12 +1,15 @@
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Send } from "lucide-react";
+import { toast } from "sonner";
 import { z } from "zod";
-import { addComment, commentSchema } from "../server/fn/comments";
+import { addComment } from "../server/fn/comments";
 import FieldInfo from "./field-info";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
-
+export const commentSchema = z.object({
+  message: z.string(),
+});
 export default function AddCommentForm({
   postId,
   children,
@@ -31,9 +34,10 @@ export default function AddCommentForm({
         queryKey: ["comments", postId],
       });
       form.reset();
+      toast.success("Comment added");
     },
     onError: (e: Error) => {
-      alert(JSON.parse(e.message)[0].message as string);
+      toast.error(JSON.parse(e.message)[0].message as string);
     },
   });
   return (

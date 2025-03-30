@@ -68,9 +68,9 @@ export const editProfile = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator(settingsSchema)
   .handler(async ({ data, context: { dB } }) => {
-    if (!dB.id) throw new Error("User not found");
+    if (!dB.id) throw new Error(`[{ "message": "No User ID." }]`);
     if (dB.bio === data.bio && dB.name === data.name && dB.username === data.username)
-      throw new Error("No changes made");
+      throw new Error(`[{ "message": "No changes made." }]`);
     await db.update(user).set(data).where(eq(user.id, dB.id));
   });
 

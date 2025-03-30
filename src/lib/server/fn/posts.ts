@@ -52,7 +52,7 @@ export const addPost = createServerFn({
   .middleware([authMiddleware])
   .validator(postSchema)
   .handler(async ({ data, context: { dB: user } }) => {
-    if (!user.id) throw new Error("No User!");
+    if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
     await db.insert(post).values({
       message: data.message,
       userId: user.id,
@@ -64,15 +64,17 @@ export const editPost = createServerFn({
 })
   .middleware([authMiddleware])
   .validator(
-    (data: {
-      lastPost: typeof post.$inferSelect;
-      newMessage: z.infer<typeof postSchema>["message"];
-    }) => data,
+    (data: { lastPost: Post; newMessage: z.infer<typeof postSchema>["message"] }) => data,
   )
   .handler(async ({ data: { lastPost, newMessage }, context: { dB: user } }) => {
-    if (!lastPost.id) throw new Error("No  Post ID!");
-    if (!user.id) throw new Error("No  User ID!");
-    if (lastPost.message === newMessage) return;
+    if (!lastPost.id) throw new Error(`[{ "message": "No Post ID." }]`);
+    if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
+    if (lastPost.message === newMessage)
+      throw new Error(`[{ "message": "No changes made." }]`);
+    if (lastPost.userId !== user.id)
+      throw new Error(`[{ "message": "You are not the author." }]`);
+    if (lastPost.message === newMessage)
+      throw new Error(`[{ "message": "No changes made." }]`);
     postSchema.parse({ newMessage });
     await db
       .update(post)
@@ -87,9 +89,11 @@ export const deletePost = createServerFn({
   method: "POST",
 })
   .middleware([authMiddleware])
-  .validator((data: { id: typeof post.$inferInsert.id }) => data)
+  .validator((data: { post: Post }) => data)
   .handler(async ({ data, context: { dB: user } }) => {
-    if (!data.id) throw new Error("No  Post ID!");
-    if (!user.id) throw new Error("No  User ID!");
-    await db.delete(post).where(and(eq(post.userId, user.id), eq(post.id, data.id)));
+    if (!data.post.id) throw new Error(`[{ "message": "No Post ID." }]`);
+    if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
+    if (data.post.userId !== user.id)
+      throw new Error(`[{ "message": "You are not the author." }]`);
+    await db.delete(post).where(and(eq(post.userId, user.id), eq(post.id, data.post.id)));
   });

@@ -5,17 +5,17 @@ import { Input } from "@/lib/components/ui/input";
 import { Label } from "@/lib/components/ui/label";
 import { Textarea } from "@/lib/components/ui/textarea";
 import { currentUserQueryOptions } from "@/lib/queries/user";
-import { editProfile, settingsSchema } from "@/lib/server/fn/user";
+import { editProfile } from "@/lib/server/fn/user";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { z } from "zod";
-// const settingsSchema = z.object({
-//   name: z.string(),
-//   username: z.string(),
-//   bio: z.string(),
-// });
+const settingsSchema = z.object({
+  name: z.string(),
+  username: z.string(),
+  bio: z.string(),
+});
 export const Route = createFileRoute("/settings")({
   component: RouteComponent,
   loader: ({ context }) => {
@@ -25,10 +25,6 @@ export const Route = createFileRoute("/settings")({
       });
   },
 });
-
-function isArray(data: unknown): data is Array<unknown> {
-  return Array.isArray(data);
-}
 
 function RouteComponent() {
   const { currentUser: currentUserData } = Route.useRouteContext();
@@ -61,13 +57,7 @@ function RouteComponent() {
     },
     onError: (e: Error) => {
       form.reset();
-      console.error(JSON.stringify(e));
-      // const parsedError: [{ message: string }] = JSON.parse(e.message);
-      // if (Array.isArray(parsedError)) {
-      //   toast.error(parsedError[0].message as string);
-      // } else {
-      //   toast.error(e.message);
-      // }
+      toast.error(JSON.parse(e.message)[0].message as string);
     },
   });
   return (

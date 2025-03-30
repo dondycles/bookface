@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db";
 import { post, postComments } from "../schema";
+import { Post } from "./posts";
 export const commentSchema = z.object({
   message: z
     .string()
@@ -21,8 +22,9 @@ export const addComment = createServerFn({
     }) => data,
   )
   .handler(async ({ data, context: { dB: user } }) => {
-    if (!user.id) throw new Error("No User!");
-    if (data.message.length === 0) throw new Error("Comment Cannot Be Empty.");
+    if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
+    if (data.message.length === 0)
+      throw new Error(`[{ "message": "Comment cannot be empty" }]`);
 
     await db.insert(postComments).values({
       commenterId: user.id,
@@ -42,9 +44,13 @@ export const editComment = createServerFn({
     }) => data,
   )
   .handler(async ({ data: { lastComment, newMessage }, context: { dB: user } }) => {
-    if (!user.id) throw new Error("No User ID!");
-    if (!lastComment.id) throw new Error("No  Post ID!");
-    if (lastComment.message === newMessage) return;
+    if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
+    if (!lastComment.id) throw new Error(`[{ "message": "No Post ID." }]`);
+    if (lastComment.message === newMessage)
+      throw new Error(`[{ "message": "No changes made." }]`);
+    if (newMessage.length === 0) throw new Error(`[{ "message": "No Comment ID." }]`);
+    if (lastComment.commenterId !== user.id)
+      throw new Error(`[{ "message": "Not your comment." }]`);
     commentSchema.parse({ message: newMessage });
     await db
       .update(postComments)
@@ -59,10 +65,13 @@ export const removeComment = createServerFn({
   method: "POST",
 })
   .middleware([authMiddleware])
-  .validator((data: { commentId: typeof postComments.$inferSelect.id }) => data)
-  .handler(async ({ data: { commentId }, context: { dB: user } }) => {
-    if (!user.id) throw new Error("No User!");
-    await db.delete(postComments).where(eq(postComments.id, commentId));
+  .validator((data: { comment: Comment; post: Post }) => data)
+  .handler(async ({ data: { comment, post }, context: { dB: user } }) => {
+    if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
+    if (!comment.id) throw new Error(`[{ "message": "No Comment ID." }]`);
+    if (comment.commenterId !== user.id && post.userId !== user.id)
+      throw new Error(`[{ "message": "Not Authorized for Deletion." }]`);
+    await db.delete(postComments).where(eq(postComments.id, comment.id));
   });
 
 export const getComments = createServerFn({
