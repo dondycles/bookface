@@ -44,7 +44,7 @@ export default function EditPostDialog({
       queryClient.invalidateQueries({
         queryKey: ["post", post.id],
       });
-      toast.success("Post edited");
+      toast.info("Post edited");
       setOpenDialog(false);
     },
     onError: (e: Error) => {

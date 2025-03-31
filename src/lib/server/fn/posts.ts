@@ -47,16 +47,20 @@ export const getPost = createServerFn({ method: "GET" })
 export type Post = NonNullable<Awaited<ReturnType<typeof getPost>>>;
 
 export const addPost = createServerFn({
-  method: "POST",
+  method: "GET",
 })
   .middleware([authMiddleware])
   .validator(postSchema)
   .handler(async ({ data, context: { dB: user } }) => {
     if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
-    await db.insert(post).values({
-      message: data.message,
-      userId: user.id,
-    });
+    const postData = await db
+      .insert(post)
+      .values({
+        message: data.message,
+        userId: user.id,
+      })
+      .returning();
+    return postData[0];
   });
 
 export const editPost = createServerFn({
@@ -75,7 +79,8 @@ export const editPost = createServerFn({
       throw new Error(`[{ "message": "You are not the author." }]`);
     if (lastPost.message === newMessage)
       throw new Error(`[{ "message": "No changes made." }]`);
-    postSchema.parse({ newMessage });
+    const message = newMessage;
+    postSchema.parse({ message });
     await db
       .update(post)
       .set({

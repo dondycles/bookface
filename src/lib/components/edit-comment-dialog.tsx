@@ -43,7 +43,7 @@ export default function EditCommentDialog({
       queryClient.invalidateQueries({
         queryKey: ["comment", comment.id],
       });
-      toast.success("Comment edited");
+      toast.info("Comment edited");
       setOpenDialog(false);
     },
     onError: (e: Error) => {

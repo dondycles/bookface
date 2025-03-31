@@ -10,6 +10,7 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { postQueryOptions } from "../queries/posts";
 import { addLikePost, removeLikePost } from "../server/fn/likes";
 import { deletePost, Post } from "../server/fn/posts";
@@ -52,6 +53,11 @@ export default function PostCard({
       queryClient.invalidateQueries({
         queryKey: ["posts"],
       });
+      toast.info("Post removed");
+    },
+
+    onError: (e: Error) => {
+      toast.error(JSON.parse(e.message)[0].message as string);
     },
   });
   const handleLikePost = useMutation({
@@ -60,6 +66,11 @@ export default function PostCard({
       queryClient.invalidateQueries({
         queryKey: ["post", postId],
       });
+      toast.info("Post liked");
+    },
+
+    onError: (e: Error) => {
+      toast.error(JSON.parse(e.message)[0].message as string);
     },
   });
   const handleUnlikePost = useMutation({
@@ -68,6 +79,11 @@ export default function PostCard({
       queryClient.invalidateQueries({
         queryKey: ["post", postId],
       });
+      toast.info("Post unliked");
+    },
+
+    onError: (e: Error) => {
+      toast.error(JSON.parse(e.message)[0].message as string);
     },
   });
 

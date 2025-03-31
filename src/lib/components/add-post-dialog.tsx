@@ -9,6 +9,7 @@ import {
 } from "@/lib/components/ui/dialog";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { addPost, postSchema } from "../server/fn/posts";
@@ -19,7 +20,7 @@ import { Textarea } from "./ui/textarea";
 export default function AddPostDialog({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
   const [openDialog, setOpenDialog] = useState(false);
-
+  const route = useRouter();
   const form = useForm({
     defaultValues: {
       message: "",
@@ -29,13 +30,26 @@ export default function AddPostDialog({ children }: { children: React.ReactNode 
   });
 
   const submitPost = useMutation({
-    mutationFn: async (message: string) => addPost({ data: { message } }),
-    onSuccess: () => {
+    mutationFn: async (message: string) => {
+      return await addPost({ data: { message } });
+    },
+    onSuccess: (res) => {
       queryClient.invalidateQueries({
         queryKey: ["posts"],
       });
       form.reset();
-      toast.success("Post added");
+      toast.success("Post added", {
+        action: {
+          label: "View",
+          onClick: () => {
+            route.navigate({
+              to: "/feed/$id",
+              params: { id: res.id },
+            });
+          },
+        },
+      });
+      console.log(res);
       setOpenDialog(false);
     },
     onError: (e: Error) => {
