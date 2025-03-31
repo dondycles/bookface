@@ -12,24 +12,34 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { addPost, postSchema } from "../server/fn/posts";
+import { z } from "zod";
+import { addPost, editPost, Post, postSchema } from "../server/fn/posts";
 import FieldInfo from "./field-info";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 
-export default function AddPostDialog({ children }: { children: React.ReactNode }) {
+export default function UpsertPostDialog({
+  children,
+  post,
+}: {
+  children: React.ReactNode;
+  post?: Post;
+}) {
   const queryClient = useQueryClient();
   const [openDialog, setOpenDialog] = useState(false);
   const route = useRouter();
   const form = useForm({
     defaultValues: {
-      message: "",
+      message: post ? post.message : "",
     },
     validators: { onChange: postSchema },
-    onSubmit: async ({ value: { message } }) => submitPost.mutate(message),
+    onSubmit: async ({ value: { message } }) =>
+      post
+        ? handleEditPost.mutate({ newMessage: message, lastPost: post })
+        : handleSubmitPost.mutate(message),
   });
 
-  const submitPost = useMutation({
+  const handleSubmitPost = useMutation({
     mutationFn: async (message: string) => {
       return await addPost({ data: { message } });
     },
@@ -63,14 +73,39 @@ export default function AddPostDialog({ children }: { children: React.ReactNode 
     },
   });
 
+  const handleEditPost = useMutation({
+    mutationFn: async (data: {
+      lastPost: Post;
+      newMessage: z.infer<typeof postSchema>["message"];
+    }) => editPost({ data }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["post", post?.id],
+      });
+      toast.info("Post edited");
+      setOpenDialog(false);
+    },
+    onError: (e: Error) => {
+      console.log("Error Name: ", e.name);
+      console.log("Error Message: ", e.message);
+      if (e.name === "PostgresError") {
+        toast.error(e.message);
+      }
+      if (e.name === "Error") {
+        toast.error(JSON.parse(e.message)[0].message as string);
+      }
+    },
+  });
+
   return (
     <Dialog open={openDialog} onOpenChange={setOpenDialog}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>New Post</DialogTitle>
-          <DialogDescription>Tell 'em what's new.</DialogDescription>
+          <DialogTitle>{post ? "Edit" : "New"} Post</DialogTitle>
+          <DialogDescription hidden={Boolean(post)}>
+            Tell 'em what's new.
+          </DialogDescription>
         </DialogHeader>
         <form.Field
           name="message"

@@ -18,7 +18,6 @@ import { CurrentUser } from "../server/fn/user";
 import AddCommentForm from "./add-comment-form";
 import UserAvatar from "./avatar";
 import CommentsSection from "./comments-section";
-import EditPostDialog from "./edit-post-dialog";
 import { Button } from "./ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 import {
@@ -30,6 +29,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Skeleton } from "./ui/skeleton";
+import UpsertPostDialog from "./upsert-post-dialog";
 export default function PostCard({
   postId,
   currentUser,
@@ -179,7 +179,7 @@ export default function PostCard({
                 </DropdownMenuItem>
               </Link>
               <DropdownMenuSub>
-                <EditPostDialog post={post}>
+                <UpsertPostDialog post={post}>
                   <DropdownMenuSubTrigger
                     showIcon={false}
                     className="p-2 flex gap-2 cursor-pointer"
@@ -188,7 +188,7 @@ export default function PostCard({
                     <Edit className="size-4 text-muted-foreground" />
                     <p>Edit</p>
                   </DropdownMenuSubTrigger>
-                </EditPostDialog>
+                </UpsertPostDialog>
               </DropdownMenuSub>
 
               <DropdownMenuItem

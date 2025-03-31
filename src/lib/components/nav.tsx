@@ -1,5 +1,4 @@
 import authClient from "@/lib/auth-client";
-import AddPostDialog from "@/lib/components/add-post-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/lib/components/ui/avatar";
 import { Button } from "@/lib/components/ui/button";
 import {
@@ -22,6 +21,7 @@ import ThemeToggle from "./ThemeToggle";
 import UserAvatar from "./avatar";
 import SetUsernameDialog from "./set-username-dialog";
 import { Input } from "./ui/input";
+import UpsertPostDialog from "./upsert-post-dialog";
 
 export default function Nav({
   currentUser: currentUserInitialData,
@@ -117,7 +117,7 @@ export default function Nav({
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSub>
-                <AddPostDialog>
+                <UpsertPostDialog>
                   <DropdownMenuSubTrigger
                     showIcon={false}
                     className="p-2 flex gap-2 cursor-pointer"
@@ -125,7 +125,7 @@ export default function Nav({
                     <Plus className="size-4" />
                     <p>New Post</p>
                   </DropdownMenuSubTrigger>
-                </AddPostDialog>
+                </UpsertPostDialog>
               </DropdownMenuSub>
 
               <DropdownMenuSeparator />
