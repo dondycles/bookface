@@ -9,7 +9,8 @@ export const commentSchema = z.object({
   message: z
     .string()
     .min(1, "Comment cannot be empty.")
-    .max(512, "Max of 512 characters only."),
+    .max(512, "Max of 512 characters only.")
+    .trim(),
 });
 export const addComment = createServerFn({
   method: "POST",
@@ -77,14 +78,16 @@ export const removeComment = createServerFn({
 export const getComments = createServerFn({
   method: "GET",
 })
-  .validator((data: { postId: typeof post.$inferSelect.id }) => data)
-  .handler(async ({ data: { postId } }) => {
+  .validator((data: { postId: typeof post.$inferSelect.id; pageParam: number }) => data)
+  .handler(async ({ data: { postId, pageParam } }) => {
     return await db.query.postComments.findMany({
       where: (postComments, { eq }) => eq(postComments.postId, postId),
       columns: {
         id: true,
       },
       orderBy: (postComments, { desc }) => [desc(postComments.createdAt)],
+      limit: 2,
+      offset: pageParam * 2,
     });
   });
 

@@ -5,17 +5,13 @@ import { Input } from "@/lib/components/ui/input";
 import { Label } from "@/lib/components/ui/label";
 import { Textarea } from "@/lib/components/ui/textarea";
 import { currentUserQueryOptions } from "@/lib/queries/user";
-import { editProfile } from "@/lib/server/fn/user";
+import { editProfile, settingsSchema } from "@/lib/server/fn/user";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { z } from "zod";
-const settingsSchema = z.object({
-  name: z.string(),
-  username: z.string(),
-  bio: z.string(),
-});
+
 export const Route = createFileRoute("/settings")({
   component: RouteComponent,
   loader: ({ context }) => {
@@ -56,8 +52,14 @@ function RouteComponent() {
       toast.success("Successfully Updated");
     },
     onError: (e: Error) => {
-      form.reset();
-      toast.error(JSON.parse(e.message)[0].message as string);
+      console.log("Error Name: ", e.name);
+      console.log("Error Message: ", e.message);
+      if (e.name === "PostgresError") {
+        toast.error(e.message);
+      }
+      if (e.name === "Error") {
+        toast.error(JSON.parse(e.message)[0].message as string);
+      }
     },
   });
   return (

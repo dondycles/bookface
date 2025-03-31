@@ -10,15 +10,21 @@ export const postSchema = z.object({
   message: z
     .string()
     .min(1, "Post cannot be empty.")
-    .max(512, "Max of 512 characters only."),
+    .max(512, "Max of 512 characters only.")
+    .trim(),
 });
 
-export const getPosts = createServerFn({ method: "GET" }).handler(async () => {
-  return await db.query.post.findMany({
-    orderBy: (posts, { desc }) => [desc(posts.createdAt)],
-    columns: { id: true },
+export const getPosts = createServerFn({ method: "GET" })
+  .validator((pageParam: number) => pageParam)
+  .handler(async ({ data }) => {
+    console.log("pageParam", data);
+    return await db.query.post.findMany({
+      orderBy: (posts, { desc }) => [desc(posts.createdAt)],
+      columns: { id: true },
+      limit: 10,
+      offset: data * 10,
+    });
   });
-});
 
 export const getPost = createServerFn({ method: "GET" })
   .validator((id: string) => id)

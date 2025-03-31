@@ -49,11 +49,17 @@ export default function AddPostDialog({ children }: { children: React.ReactNode 
           },
         },
       });
-      console.log(res);
       setOpenDialog(false);
     },
     onError: (e: Error) => {
-      toast.error(JSON.parse(e.message)[0].message as string);
+      console.log("Error Name: ", e.name);
+      console.log("Error Message: ", e.message);
+      if (e.name === "PostgresError") {
+        toast.error(e.message);
+      }
+      if (e.name === "Error") {
+        toast.error(JSON.parse(e.message)[0].message as string);
+      }
     },
   });
 

@@ -57,7 +57,14 @@ export default function PostCard({
     },
 
     onError: (e: Error) => {
-      toast.error(JSON.parse(e.message)[0].message as string);
+      console.log("Error Name: ", e.name);
+      console.log("Error Message: ", e.message);
+      if (e.name === "PostgresError") {
+        toast.error(e.message);
+      }
+      if (e.name === "Error") {
+        toast.error(JSON.parse(e.message)[0].message as string);
+      }
     },
   });
   const handleLikePost = useMutation({
@@ -66,11 +73,25 @@ export default function PostCard({
       queryClient.invalidateQueries({
         queryKey: ["post", postId],
       });
-      toast.info("Post liked");
+      toast.info("Post liked", {
+        action: {
+          label: "Unlike",
+          onClick: () => {
+            handleUnlikePost.mutate();
+          },
+        },
+      });
     },
 
     onError: (e: Error) => {
-      toast.error(JSON.parse(e.message)[0].message as string);
+      console.log("Error Name: ", e.name);
+      console.log("Error Message: ", e.message);
+      if (e.name === "PostgresError") {
+        toast.error(e.message);
+      }
+      if (e.name === "Error") {
+        toast.error(JSON.parse(e.message)[0].message as string);
+      }
     },
   });
   const handleUnlikePost = useMutation({
@@ -79,20 +100,28 @@ export default function PostCard({
       queryClient.invalidateQueries({
         queryKey: ["post", postId],
       });
-      toast.info("Post unliked");
+      toast.info("Post unliked", {
+        action: {
+          label: "Like",
+          onClick: () => {
+            handleLikePost.mutate();
+          },
+        },
+      });
     },
 
     onError: (e: Error) => {
-      toast.error(JSON.parse(e.message)[0].message as string);
+      console.log("Error Name: ", e.name);
+      console.log("Error Message: ", e.message);
+      if (e.name === "PostgresError") {
+        toast.error(e.message);
+      }
+      if (e.name === "Error") {
+        toast.error(JSON.parse(e.message)[0].message as string);
+      }
     },
   });
 
-  // useEffect(() => {
-  //   if (post) {
-  //     // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
-  //     if (post.comments.length) setCollapesComments(true);
-  //   }
-  // }, [post, post?.comments.length]);
   if (postLoading)
     return (
       <div

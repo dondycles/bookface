@@ -46,7 +46,14 @@ export default function CommentCard({
     },
 
     onError: (e: Error) => {
-      toast.error(JSON.parse(e.message)[0].message as string);
+      console.log("Error Name: ", e.name);
+      console.log("Error Message: ", e.message);
+      if (e.name === "PostgresError") {
+        toast.error(e.message);
+      }
+      if (e.name === "Error") {
+        toast.error(JSON.parse(e.message)[0].message as string);
+      }
     },
   });
   if (!comment) return null;

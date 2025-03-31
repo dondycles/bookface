@@ -2,9 +2,8 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { z } from "zod";
 import { currentUserQueryOptions } from "../queries/user";
-import { CurrentUser, updateUsername } from "../server/fn/user";
+import { CurrentUser, updateUsername, usernameSchema } from "../server/fn/user";
 import FieldInfo from "./field-info";
 import { Button } from "./ui/button";
 import {
@@ -16,13 +15,6 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 import { Input } from "./ui/input";
-
-export const usernameSchema = z.object({
-  username: z
-    .string()
-    .min(1, "Username cannot be empty.")
-    .max(32, "Max of 32 characters only."),
-});
 
 export default function SetUsernameDialog({
   currentUser: currentUserData,
@@ -57,7 +49,14 @@ export default function SetUsernameDialog({
       setOpenDialog(false);
     },
     onError: (e: Error) => {
-      toast.error(JSON.parse(e.message)[0].message as string);
+      console.log("Error Name: ", e.name);
+      console.log("Error Message: ", e.message);
+      if (e.name === "PostgresError") {
+        toast.error(e.message);
+      }
+      if (e.name === "Error") {
+        toast.error(JSON.parse(e.message)[0].message as string);
+      }
     },
   });
 

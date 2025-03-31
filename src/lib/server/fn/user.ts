@@ -9,12 +9,24 @@ import { db } from "../db";
 import { user } from "../schema";
 
 export const settingsSchema = z.object({
-  name: z.string().min(1, "Name cannot be empty.").max(72, "Max of 72 characters only."),
+  name: z
+    .string()
+    .min(1, "Name cannot be empty.")
+    .max(72, "Max of 72 characters only.")
+    .trim(),
+  username: z
+    .string()
+    .min(1, "Username cannot be empty.")
+    .max(32, "Max of 32 characters only.")
+    .trim(),
+  bio: z.string().max(72, "Max of 72 characters only.").trim(),
+});
+
+export const usernameSchema = z.object({
   username: z
     .string()
     .min(1, "Username cannot be empty.")
     .max(32, "Max of 32 characters only."),
-  bio: z.string().max(72, "Max of 72 characters only."),
 });
 
 export const updateUsername = createServerFn({ method: "POST" })
