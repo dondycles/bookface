@@ -10,6 +10,7 @@ import {
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { toast } from "sonner";
 import { addPost, postSchema } from "../server/fn/posts";
 import FieldInfo from "./field-info";
 import { Button } from "./ui/button";
@@ -34,10 +35,11 @@ export default function AddPostDialog({ children }: { children: React.ReactNode 
         queryKey: ["posts"],
       });
       form.reset();
+      toast.success("Post added");
       setOpenDialog(false);
     },
     onError: (e: Error) => {
-      alert(JSON.parse(e.message)[0].message as string);
+      toast.error(JSON.parse(e.message)[0].message as string);
     },
   });
 

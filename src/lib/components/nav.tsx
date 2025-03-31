@@ -149,7 +149,7 @@ export default function Nav({
                 <p>Log Out</p>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <ThemeToggle />
+              <ThemeToggle className="w-full" />
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (

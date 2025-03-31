@@ -1,6 +1,7 @@
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { toast } from "sonner";
 import { z } from "zod";
 import { currentUserQueryOptions } from "../queries/user";
 import { CurrentUser, updateUsername } from "../server/fn/user";
@@ -52,10 +53,11 @@ export default function SetUsernameDialog({
         queryKey: ["currentUser"],
       });
       form.reset();
+      toast.success("Username set");
       setOpenDialog(false);
     },
     onError: (e: Error) => {
-      alert(JSON.parse(e.message)[0].message as string);
+      toast.error(JSON.parse(e.message)[0].message as string);
     },
   });
 

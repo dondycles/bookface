@@ -9,6 +9,7 @@ import {
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { toast } from "sonner";
 import { z } from "zod";
 import { editPost, Post, postSchema } from "../server/fn/posts";
 import FieldInfo from "./field-info";
@@ -43,10 +44,11 @@ export default function EditPostDialog({
       queryClient.invalidateQueries({
         queryKey: ["post", post.id],
       });
+      toast.success("Post edited");
       setOpenDialog(false);
     },
     onError: (e: Error) => {
-      alert(JSON.parse(e.message)[0].message as string);
+      toast.error(JSON.parse(e.message)[0].message as string);
     },
   });
 

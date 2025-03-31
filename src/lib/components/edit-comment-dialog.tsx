@@ -9,6 +9,7 @@ import {
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { toast } from "sonner";
 import { z } from "zod";
 import { Comment, commentSchema, editComment } from "../server/fn/comments";
 import FieldInfo from "./field-info";
@@ -42,10 +43,11 @@ export default function EditCommentDialog({
       queryClient.invalidateQueries({
         queryKey: ["comment", comment.id],
       });
+      toast.success("Comment edited");
       setOpenDialog(false);
     },
     onError: (e: Error) => {
-      alert(JSON.parse(e.message)[0].message as string);
+      toast.error(JSON.parse(e.message)[0].message as string);
     },
   });
 

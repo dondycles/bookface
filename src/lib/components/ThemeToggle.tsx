@@ -1,7 +1,8 @@
 import { MoonIcon, SunIcon } from "lucide-react";
+import { cn } from "../utils";
 import { Button } from "./ui/button";
 
-export default function ThemeToggle() {
+export default function ThemeToggle({ className }: { className?: string }) {
   function toggleTheme() {
     if (
       document.documentElement.classList.contains("dark") ||
@@ -18,7 +19,7 @@ export default function ThemeToggle() {
 
   return (
     <Button
-      className="flex justify-start gap-2 px-0 has-[>svg]:px-2"
+      className={cn("flex justify-start gap-2 px-0 has-[>svg]:px-2", className)}
       variant="ghost"
       type="button"
       onClick={toggleTheme}
