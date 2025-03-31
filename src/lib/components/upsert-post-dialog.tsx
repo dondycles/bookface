@@ -11,8 +11,11 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import { useState } from "react";
-import { toast } from "sonner";
 import { z } from "zod";
+import {
+  errorHandlerWithToast,
+  successHandlerWithToast,
+} from "../hooks/fnResHandlerWithToast";
 import { addPost, editPost, Post, postSchema } from "../server/fn/posts";
 import FieldInfo from "./field-info";
 import { Button } from "./ui/button";
@@ -48,29 +51,20 @@ export default function UpsertPostDialog({
         queryKey: ["posts"],
       });
       form.reset();
-      toast.success("Post added", {
-        action: {
-          label: "View",
-          onClick: () => {
-            route.navigate({
-              to: "/feed/$id",
-              params: { id: res.id },
-            });
-          },
+
+      successHandlerWithToast("info", "Post added", {
+        label: "View",
+        onClick: () => {
+          route.navigate({
+            to: "/feed/$id",
+            params: { id: res.id },
+          });
         },
       });
+
       setOpenDialog(false);
     },
-    onError: (e: Error) => {
-      console.log("Error Name: ", e.name);
-      console.log("Error Message: ", e.message);
-      if (e.name === "PostgresError") {
-        toast.error(e.message);
-      }
-      if (e.name === "Error") {
-        toast.error(JSON.parse(e.message)[0].message as string);
-      }
-    },
+    onError: (e: Error) => errorHandlerWithToast(e),
   });
 
   const handleEditPost = useMutation({
@@ -82,19 +76,10 @@ export default function UpsertPostDialog({
       queryClient.invalidateQueries({
         queryKey: ["post", post?.id],
       });
-      toast.info("Post edited");
+      successHandlerWithToast("info", "Post edited");
       setOpenDialog(false);
     },
-    onError: (e: Error) => {
-      console.log("Error Name: ", e.name);
-      console.log("Error Message: ", e.message);
-      if (e.name === "PostgresError") {
-        toast.error(e.message);
-      }
-      if (e.name === "Error") {
-        toast.error(JSON.parse(e.message)[0].message as string);
-      }
-    },
+    onError: (e: Error) => errorHandlerWithToast(e),
   });
 
   return (

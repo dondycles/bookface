@@ -1,6 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Delete, Edit, Ellipsis } from "lucide-react";
-import { toast } from "sonner";
+import {
+  errorHandlerWithToast,
+  successHandlerWithToast,
+} from "../hooks/fnResHandlerWithToast";
 import { commentQueryOptions } from "../queries/comments";
 import { Comment, removeComment } from "../server/fn/comments";
 import { Post } from "../server/fn/posts";
@@ -42,19 +45,10 @@ export default function CommentCard({
       queryClient.invalidateQueries({
         queryKey: ["comments", comment?.postId],
       });
-      toast.info("Comment removed");
+      successHandlerWithToast("success", "Comment removed");
     },
 
-    onError: (e: Error) => {
-      console.log("Error Name: ", e.name);
-      console.log("Error Message: ", e.message);
-      if (e.name === "PostgresError") {
-        toast.error(e.message);
-      }
-      if (e.name === "Error") {
-        toast.error(JSON.parse(e.message)[0].message as string);
-      }
-    },
+    onError: (e: Error) => errorHandlerWithToast(e),
   });
   if (!comment) return null;
   if (commentLoading)

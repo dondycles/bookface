@@ -9,8 +9,11 @@ import {
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { toast } from "sonner";
 import { z } from "zod";
+import {
+  errorHandlerWithToast,
+  successHandlerWithToast,
+} from "../hooks/fnResHandlerWithToast";
 import { Comment, commentSchema, editComment } from "../server/fn/comments";
 import FieldInfo from "./field-info";
 import { Button } from "./ui/button";
@@ -43,19 +46,10 @@ export default function EditCommentDialog({
       queryClient.invalidateQueries({
         queryKey: ["comment", comment.id],
       });
-      toast.info("Comment edited");
+      successHandlerWithToast("success", "Comment edited");
       setOpenDialog(false);
     },
-    onError: (e: Error) => {
-      console.log("Error Name: ", e.name);
-      console.log("Error Message: ", e.message);
-      if (e.name === "PostgresError") {
-        toast.error(e.message);
-      }
-      if (e.name === "Error") {
-        toast.error(JSON.parse(e.message)[0].message as string);
-      }
-    },
+    onError: (e: Error) => errorHandlerWithToast(e),
   });
 
   return (

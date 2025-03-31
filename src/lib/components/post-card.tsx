@@ -11,6 +11,10 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import {
+  errorHandlerWithToast,
+  successHandlerWithToast,
+} from "../hooks/fnResHandlerWithToast";
 import { postQueryOptions } from "../queries/posts";
 import { addLikePost, removeLikePost } from "../server/fn/likes";
 import { deletePost, Post } from "../server/fn/posts";
@@ -53,19 +57,10 @@ export default function PostCard({
       queryClient.invalidateQueries({
         queryKey: ["posts"],
       });
-      toast.info("Post removed");
+      successHandlerWithToast("info", "Post removed");
     },
 
-    onError: (e: Error) => {
-      console.log("Error Name: ", e.name);
-      console.log("Error Message: ", e.message);
-      if (e.name === "PostgresError") {
-        toast.error(e.message);
-      }
-      if (e.name === "Error") {
-        toast.error(JSON.parse(e.message)[0].message as string);
-      }
-    },
+    onError: (e: Error) => errorHandlerWithToast(e),
   });
   const handleLikePost = useMutation({
     mutationFn: async () => await addLikePost({ data: { postId } }),
@@ -73,12 +68,11 @@ export default function PostCard({
       queryClient.invalidateQueries({
         queryKey: ["post", postId],
       });
-      toast.info("Post liked", {
-        action: {
-          label: "Unlike",
-          onClick: () => {
-            handleUnlikePost.mutate();
-          },
+
+      successHandlerWithToast("info", "Post liked", {
+        label: "Unlike",
+        onClick: () => {
+          handleUnlikePost.mutate();
         },
       });
     },
@@ -100,26 +94,16 @@ export default function PostCard({
       queryClient.invalidateQueries({
         queryKey: ["post", postId],
       });
-      toast.info("Post unliked", {
-        action: {
-          label: "Like",
-          onClick: () => {
-            handleLikePost.mutate();
-          },
+
+      successHandlerWithToast("info", "Post unliked", {
+        label: "Like",
+        onClick: () => {
+          handleLikePost.mutate();
         },
       });
     },
 
-    onError: (e: Error) => {
-      console.log("Error Name: ", e.name);
-      console.log("Error Message: ", e.message);
-      if (e.name === "PostgresError") {
-        toast.error(e.message);
-      }
-      if (e.name === "Error") {
-        toast.error(JSON.parse(e.message)[0].message as string);
-      }
-    },
+    onError: (e: Error) => errorHandlerWithToast(e),
   });
 
   if (postLoading)

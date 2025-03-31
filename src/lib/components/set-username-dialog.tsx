@@ -1,7 +1,10 @@
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { toast } from "sonner";
+import {
+  errorHandlerWithToast,
+  successHandlerWithToast,
+} from "../hooks/fnResHandlerWithToast";
 import { currentUserQueryOptions } from "../queries/user";
 import { CurrentUser, updateUsername, usernameSchema } from "../server/fn/user";
 import FieldInfo from "./field-info";
@@ -45,19 +48,10 @@ export default function SetUsernameDialog({
         queryKey: ["currentUser"],
       });
       form.reset();
-      toast.success("Username set");
+      successHandlerWithToast("success", "Username set");
       setOpenDialog(false);
     },
-    onError: (e: Error) => {
-      console.log("Error Name: ", e.name);
-      console.log("Error Message: ", e.message);
-      if (e.name === "PostgresError") {
-        toast.error(e.message);
-      }
-      if (e.name === "Error") {
-        toast.error(JSON.parse(e.message)[0].message as string);
-      }
-    },
+    onError: (e: Error) => errorHandlerWithToast(e),
   });
 
   return (

@@ -4,12 +4,15 @@ import { Button } from "@/lib/components/ui/button";
 import { Input } from "@/lib/components/ui/input";
 import { Label } from "@/lib/components/ui/label";
 import { Textarea } from "@/lib/components/ui/textarea";
+import {
+  errorHandlerWithToast,
+  successHandlerWithToast,
+} from "@/lib/hooks/fnResHandlerWithToast";
 import { currentUserQueryOptions } from "@/lib/queries/user";
 import { editProfile, settingsSchema } from "@/lib/server/fn/user";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { toast } from "sonner";
 import { z } from "zod";
 
 export const Route = createFileRoute("/settings")({
@@ -38,9 +41,6 @@ function RouteComponent() {
     },
     validators: { onChange: settingsSchema },
     onSubmit: async ({ value }) => submitPost.mutate(value),
-    onSubmitInvalid: (e) => {
-      toast.error(JSON.stringify(e));
-    },
   });
 
   const submitPost = useMutation({
@@ -49,18 +49,9 @@ function RouteComponent() {
       queryClient.invalidateQueries({
         queryKey: ["currentUser"],
       });
-      toast.success("Successfully Updated");
+      successHandlerWithToast("success", "Profile updated");
     },
-    onError: (e: Error) => {
-      console.log("Error Name: ", e.name);
-      console.log("Error Message: ", e.message);
-      if (e.name === "PostgresError") {
-        toast.error(e.message);
-      }
-      if (e.name === "Error") {
-        toast.error(JSON.parse(e.message)[0].message as string);
-      }
-    },
+    onError: (e: Error) => errorHandlerWithToast(e),
   });
   return (
     <form
