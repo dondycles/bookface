@@ -1,7 +1,6 @@
 @import "tailwindcss" source("../../");
 @plugin 'tailwind-scrollbar';
 @import "tw-animate-css";
-@config "../../../tailwind.config.ts";
 
 :root {
   --background: oklch(0.95 0 0);
@@ -236,4 +235,10 @@
   font-weight: 400;
   font-style: normal;
   font-variation-settings: "wdth" 100;
+}
+
+@media (hover: hover) {
+  .hover\:underline:hover {
+    text-decoration: underline;
+  }
 }
