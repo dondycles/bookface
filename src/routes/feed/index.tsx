@@ -1,20 +1,41 @@
 import PostCard from "@/lib/components/post-card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/lib/components/ui/avatar";
 import { Button } from "@/lib/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/lib/components/ui/dropdown-menu";
 import { Input } from "@/lib/components/ui/input";
 import UpsertPostDialog from "@/lib/components/upsert-post-dialog";
 import useAutoLoadNextPage from "@/lib/hooks/useAutoLoadNextPage";
 import { postsQueryOptions } from "@/lib/queries/posts";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { ChevronDown, ThumbsUp, Timer } from "lucide-react";
+
+export type SortBy = "recent" | "likes";
 export const Route = createFileRoute("/feed/")({
   component: FeedIndex,
+  validateSearch: (search: Record<string, unknown>): { sortBy: SortBy } => {
+    // validate and parse the search params into a typed state
+    return {
+      sortBy: search.sortBy as SortBy,
+    };
+  },
+  beforeLoad: ({ search }) => {
+    return { search };
+  },
+  loader: async ({ context }) => {
+    return { sortBy: context.search.sortBy, currentUser: context.currentUser };
+  },
 });
 
 function FeedIndex() {
-  const { currentUser } = Route.useRouteContext();
-
-  const posts = useInfiniteQuery(postsQueryOptions());
+  const { currentUser, sortBy } = Route.useLoaderData();
+  const route = useRouter();
+  const posts = useInfiniteQuery(postsQueryOptions(sortBy));
   const _posts = posts.data?.pages.flatMap((page) => page);
 
   const { ref, loaderRef } = useAutoLoadNextPage({
@@ -39,6 +60,43 @@ function FeedIndex() {
           </div>
         </UpsertPostDialog>
       </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button className="text-sm text-muted-foreground w-fit" variant={"ghost"}>
+            <p>Sort By: {sortBy}</p>
+            <ChevronDown />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem
+            onClick={() => {
+              route.navigate({
+                to: "/feed",
+                search: {
+                  sortBy: "recent",
+                },
+              });
+            }}
+          >
+            <Timer />
+            <p>Most Recent</p>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              route.navigate({
+                to: "/feed",
+                search: {
+                  sortBy: "likes",
+                },
+              });
+            }}
+          >
+            <ThumbsUp />
+            <p>Most Liked</p>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
       <div className="flex flex-col gap-4 h-full w-full ">
         {_posts?.map((post, i) => {
           if (i === _posts.length - 1)

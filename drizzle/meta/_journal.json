@@ -43,6 +43,13 @@
       "when": 1743144742014,
       "tag": "0005_yellow_stepford_cuckoos",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1743443225999,
+      "tag": "0006_public_vance_astro",
+      "breakpoints": true
     }
   ]
 }

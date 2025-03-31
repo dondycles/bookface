@@ -1,10 +1,11 @@
+import { SortBy } from "@/routes/feed";
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { getPost, getPosts } from "../server/fn/posts";
 
-export const postsQueryOptions = () =>
+export const postsQueryOptions = (sortBy: SortBy) =>
   infiniteQueryOptions({
-    queryKey: ["posts"],
-    queryFn: ({ signal, pageParam }) => getPosts({ signal, data: pageParam }),
+    queryKey: ["posts", sortBy],
+    queryFn: ({ signal, pageParam }) => getPosts({ signal, data: { pageParam, sortBy } }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages, lastPageParam) => {
       if (lastPage.length === 0) {

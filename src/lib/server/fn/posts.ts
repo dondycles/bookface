@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { authMiddleware } from "@/lib/middleware/auth-guard";
+import { SortBy } from "@/routes/feed";
 import { createServerFn } from "@tanstack/react-start";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db";
-import { post } from "../schema";
+import { post, postLikes } from "../schema";
 
 export const postSchema = z.object({
   message: z
@@ -15,14 +16,23 @@ export const postSchema = z.object({
 });
 
 export const getPosts = createServerFn({ method: "GET" })
-  .validator((pageParam: number) => pageParam)
+  .validator((data: { pageParam: number; sortBy: SortBy }) => data)
   .handler(async ({ data }) => {
     console.log("pageParam", data);
     return await db.query.post.findMany({
-      orderBy: (posts, { desc }) => [desc(posts.createdAt)],
+      with: {
+        likes: {
+          columns: {
+            id: true,
+          },
+        },
+      },
+      orderBy: (posts, { desc, sql }) => [
+        data.sortBy === "likes" ? desc(postLikes.postId) : desc(posts.createdAt),
+      ],
       columns: { id: true },
       limit: 10,
-      offset: data * 10,
+      offset: data.pageParam * 10,
     });
   });
 
