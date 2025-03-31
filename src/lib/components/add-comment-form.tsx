@@ -1,11 +1,8 @@
+import { errorHandlerWithToast, successHandlerWithToast } from "@/lib/utils";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Send } from "lucide-react";
 import { z } from "zod";
-import {
-  errorHandlerWithToast,
-  successHandlerWithToast,
-} from "../hooks/fnResHandlerWithToast";
 import { addComment } from "../server/fn/comments";
 import FieldInfo from "./field-info";
 import { Button } from "./ui/button";

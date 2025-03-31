@@ -1,3 +1,4 @@
+import { errorHandlerWithToast, successHandlerWithToast } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
@@ -10,10 +11,6 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
-import {
-  errorHandlerWithToast,
-  successHandlerWithToast,
-} from "../hooks/fnResHandlerWithToast";
 import { postQueryOptions } from "../queries/posts";
 import { addLikePost, removeLikePost } from "../server/fn/likes";
 import { deletePost, Post } from "../server/fn/posts";

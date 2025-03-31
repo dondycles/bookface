@@ -6,14 +6,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/lib/components/ui/dialog";
+import { errorHandlerWithToast, successHandlerWithToast } from "@/lib/utils";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { z } from "zod";
-import {
-  errorHandlerWithToast,
-  successHandlerWithToast,
-} from "../hooks/fnResHandlerWithToast";
 import { Comment, commentSchema, editComment } from "../server/fn/comments";
 import FieldInfo from "./field-info";
 import { Button } from "./ui/button";

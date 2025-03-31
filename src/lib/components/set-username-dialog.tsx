@@ -1,10 +1,7 @@
+import { errorHandlerWithToast, successHandlerWithToast } from "@/lib/utils";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import {
-  errorHandlerWithToast,
-  successHandlerWithToast,
-} from "../hooks/fnResHandlerWithToast";
 import { currentUserQueryOptions } from "../queries/user";
 import { CurrentUser, updateUsername, usernameSchema } from "../server/fn/user";
 import FieldInfo from "./field-info";

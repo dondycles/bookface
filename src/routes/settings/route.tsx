@@ -4,12 +4,9 @@ import { Button } from "@/lib/components/ui/button";
 import { Input } from "@/lib/components/ui/input";
 import { Label } from "@/lib/components/ui/label";
 import { Textarea } from "@/lib/components/ui/textarea";
-import {
-  errorHandlerWithToast,
-  successHandlerWithToast,
-} from "@/lib/hooks/fnResHandlerWithToast";
 import { currentUserQueryOptions } from "@/lib/queries/user";
 import { editProfile, settingsSchema } from "@/lib/server/fn/user";
+import { errorHandlerWithToast, successHandlerWithToast } from "@/lib/utils";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";

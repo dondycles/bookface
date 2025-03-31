@@ -1,9 +1,6 @@
+import { errorHandlerWithToast, successHandlerWithToast } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Delete, Edit, Ellipsis } from "lucide-react";
-import {
-  errorHandlerWithToast,
-  successHandlerWithToast,
-} from "../hooks/fnResHandlerWithToast";
 import { commentQueryOptions } from "../queries/comments";
 import { Comment, removeComment } from "../server/fn/comments";
 import { Post } from "../server/fn/posts";
