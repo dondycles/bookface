@@ -1,5 +1,7 @@
-import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { user } from "../schema/auth.schema";
+
+export const privacy = pgEnum("privacy", ["public", "private"]);
 
 export const post = pgTable("post", {
   id: text("id")
@@ -11,6 +13,7 @@ export const post = pgTable("post", {
     .notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  privacy: privacy().default("public"),
 });
 
 export const postLikes = pgTable("postLikes", {

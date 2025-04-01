@@ -12,6 +12,7 @@ export const postSchema = z.object({
     .min(1, "Post cannot be empty.")
     .max(512, "Max of 512 characters only.")
     .trim(),
+  privacy: z.enum(["public", "private"]),
 });
 
 export const getPostLikesCount = createServerFn({ method: "GET" })
@@ -32,7 +33,6 @@ export const getPosts = createServerFn({ method: "GET" })
           },
         },
       },
-
       orderBy: ({ createdAt }, { desc }) => [
         data.sortBy === "likes"
           ? desc(
@@ -40,6 +40,7 @@ export const getPosts = createServerFn({ method: "GET" })
             )
           : desc(createdAt),
       ],
+      where: (posts, { eq }) => eq(posts.privacy, "public"),
       limit: 10,
       offset: data.pageParam * 10,
     });
@@ -83,6 +84,7 @@ export const addPost = createServerFn({
       .values({
         message: data.message,
         userId: user.id,
+        privacy: data.privacy,
       })
       .returning();
     return postData[0];

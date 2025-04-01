@@ -11,11 +11,20 @@ import { errorHandlerWithToast, successHandlerWithToast } from "@/lib/utils";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
+import { Check, ChevronDown, Globe2, Lock } from "lucide-react";
 import { useState } from "react";
 import { z } from "zod";
 import { addPost, editPost, Post, postSchema } from "../server/fn/posts";
 import FieldInfo from "./field-info";
 import { Button } from "./ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandList,
+} from "./ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Textarea } from "./ui/textarea";
 
 export default function UpsertPostDialog({
@@ -31,24 +40,30 @@ export default function UpsertPostDialog({
   const form = useForm({
     defaultValues: {
       message: post ? post.message : "",
+      privacy: post?.privacy ?? "public",
     },
     validators: { onChange: postSchema },
-    onSubmit: async ({ value: { message } }) =>
+    onSubmit: async ({ value: { message, privacy } }) =>
       post
         ? handleEditPost.mutate({ newMessage: message, lastPost: post })
-        : handleSubmitPost.mutate(message),
+        : handleSubmitPost.mutate({ message, privacy }),
   });
 
   const handleSubmitPost = useMutation({
-    mutationFn: async (message: string) => {
-      return await addPost({ data: { message } });
+    mutationFn: async ({
+      message,
+      privacy,
+    }: {
+      message: string;
+      privacy: z.infer<typeof postSchema.shape.privacy>;
+    }) => {
+      return await addPost({ data: { message, privacy } });
     },
     onSuccess: (res) => {
       queryClient.invalidateQueries({
         queryKey: ["posts"],
       });
       form.reset();
-
       successHandlerWithToast("info", "Post added", {
         label: "View",
         onClick: () => {
@@ -86,7 +101,7 @@ export default function UpsertPostDialog({
         <DialogHeader>
           <DialogTitle>{post ? "Edit" : "New"} Post</DialogTitle>
           <DialogDescription hidden={Boolean(post)}>
-            Tell 'em what's new.
+            Tell 'em what's new. {form.getFieldValue("privacy")}
           </DialogDescription>
         </DialogHeader>
         <form.Field
@@ -107,7 +122,53 @@ export default function UpsertPostDialog({
             </>
           )}
         />
-        <DialogFooter>
+        <DialogFooter className="">
+          <form.Field
+            name="privacy"
+            children={(field) => (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline">
+                    {(field.state.value === "public" && <Globe2 />) ||
+                      (field.state.value === "private" && <Lock />)}
+                    <ChevronDown className="text-muted-foreground" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  onBlur={field.handleBlur}
+                  className="w-fit p-0"
+                  align="end"
+                >
+                  <Command>
+                    <CommandList>
+                      <CommandEmpty>No framework found.</CommandEmpty>
+                      <CommandGroup>
+                        <CommandItem
+                          onSelect={(v) => {
+                            field.handleChange(v as "public");
+                          }}
+                          value="public"
+                        >
+                          <CheckMarker matcher="public" value={field.state.value} />
+                          <Globe2 /> Public
+                        </CommandItem>
+                        <CommandItem
+                          onSelect={(v) => {
+                            field.handleChange(v as "private");
+                          }}
+                          value="private"
+                        >
+                          <CheckMarker matcher="private" value={field.state.value} />
+                          <Lock /> Private
+                        </CommandItem>
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            )}
+          />
+
           <form.Subscribe
             selector={(state) => [state.canSubmit, state.isSubmitting]}
             children={([canSubmit, isSubmitting]) => (
@@ -128,4 +189,8 @@ export default function UpsertPostDialog({
       </DialogContent>
     </Dialog>
   );
+}
+
+function CheckMarker({ value, matcher }: { value: string; matcher: string }) {
+  return <Check className={`${value === matcher ? "opacity-100" : "opacity-0"}`} />;
 }
