@@ -76,7 +76,13 @@ export default function Nav({
             </>
           ) : (
             <>
-              <Link to={"/feed"} className="text-4xl font-bold leading-none">
+              <Link
+                to={"/feed"}
+                search={{
+                  sortBy: "recent",
+                }}
+                className="text-4xl font-bold leading-none"
+              >
                 bookface
               </Link>
               <Button

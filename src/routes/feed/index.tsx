@@ -12,19 +12,28 @@ import UpsertPostDialog from "@/lib/components/upsert-post-dialog";
 import useAutoLoadNextPage from "@/lib/hooks/useAutoLoadNextPage";
 import { postsQueryOptions } from "@/lib/queries/posts";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { ChevronDown, ThumbsUp, Timer } from "lucide-react";
+import { z } from "zod";
 
-export type SortBy = "recent" | "likes";
+const searchSchema = z.object({
+  sortBy: z.enum(["likes", "recent"]),
+});
+
+export type SortBy = z.infer<typeof searchSchema.shape.sortBy>;
+
 export const Route = createFileRoute("/feed/")({
   component: FeedIndex,
-  validateSearch: (search: Record<string, unknown>): { sortBy: SortBy } => {
-    // validate and parse the search params into a typed state
-    return {
-      sortBy: search.sortBy as SortBy,
-    };
-  },
+  validateSearch: (search) => searchSchema.parse(search),
   beforeLoad: ({ search }) => {
+    if (search.sortBy !== "likes" && search.sortBy !== "recent") {
+      throw redirect({
+        to: "/feed",
+        search: {
+          sortBy: "recent",
+        },
+      });
+    }
     return { search };
   },
   loader: async ({ context }) => {
@@ -63,7 +72,7 @@ function FeedIndex() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button className="text-sm text-muted-foreground w-fit" variant={"ghost"}>
-            <p>Sort By: {sortBy}</p>
+            <p>Sort By: {sortBy ?? "recent"}</p>
             <ChevronDown />
           </Button>
         </DropdownMenuTrigger>

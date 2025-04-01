@@ -36,7 +36,7 @@ export const getPosts = createServerFn({ method: "GET" })
       orderBy: ({ createdAt }, { desc }) => [
         data.sortBy === "likes"
           ? desc(
-              sql<number>`(SELECT COUNT(*) FROM "postLikes" WHERE "postId" = ${post.id})`,
+              sql<number>`(SELECT COUNT(id) FROM "postLikes" WHERE "postId" = ${post.id})`,
             )
           : desc(createdAt),
       ],

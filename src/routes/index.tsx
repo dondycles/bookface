@@ -6,7 +6,8 @@ import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
 export const Route = createFileRoute("/")({
   component: Home,
   loader: ({ context }) => {
-    if (context.currentUser) throw redirect({ to: "/feed" });
+    if (context.currentUser)
+      throw redirect({ to: "/feed", search: { sortBy: "recent" } });
     return { currentUser: context.currentUser };
   },
 });
