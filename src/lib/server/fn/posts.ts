@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { authMiddleware } from "@/lib/middleware/auth-guard";
 import { SortBy } from "@/routes/feed";
 import { createServerFn } from "@tanstack/react-start";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db";
 import { post, postLikes } from "../schema";
@@ -14,6 +13,12 @@ export const postSchema = z.object({
     .max(512, "Max of 512 characters only.")
     .trim(),
 });
+
+export const getPostLikesCount = createServerFn({ method: "GET" })
+  .validator((postId: string) => postId)
+  .handler(async ({ data }) => {
+    return await db.$count(postLikes, eq(postLikes.postId, data));
+  });
 
 export const getPosts = createServerFn({ method: "GET" })
   .validator((data: { pageParam: number; sortBy: SortBy }) => data)
@@ -27,10 +32,14 @@ export const getPosts = createServerFn({ method: "GET" })
           },
         },
       },
-      orderBy: (posts, { desc, sql }) => [
-        data.sortBy === "likes" ? desc(postLikes.postId) : desc(posts.createdAt),
+
+      orderBy: ({ createdAt }, { desc }) => [
+        data.sortBy === "likes"
+          ? desc(
+              sql<number>`(SELECT COUNT(*) FROM "postLikes" WHERE "postId" = ${post.id})`,
+            )
+          : desc(createdAt),
       ],
-      columns: { id: true },
       limit: 10,
       offset: data.pageParam * 10,
     });

@@ -111,12 +111,14 @@ function FeedIndex() {
               </div>
             );
           return (
-            <PostCard
-              currentUser={currentUser}
-              postId={post.id}
-              key={post.id}
-              deepView={false}
-            />
+            <div ref={ref} key={post.id} className="flex-1">
+              <PostCard
+                currentUser={currentUser}
+                postId={post.id}
+                key={post.id}
+                deepView={false}
+              />
+            </div>
           );
         })}
       </div>
