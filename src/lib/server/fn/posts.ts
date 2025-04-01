@@ -5,6 +5,7 @@ import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db";
 import { post, postLikes } from "../schema";
+import { CurrentUser } from "./user";
 
 export const postSchema = z.object({
   message: z
@@ -22,7 +23,10 @@ export const getPostLikesCount = createServerFn({ method: "GET" })
   });
 
 export const getPosts = createServerFn({ method: "GET" })
-  .validator((data: { pageParam: number; sortBy: SortBy }) => data)
+  .validator(
+    (data: { pageParam: number; sortBy: SortBy; currentUser: CurrentUser }) => data,
+  )
+
   .handler(async ({ data }) => {
     console.log("pageParam", data);
     return await db.query.post.findMany({
@@ -40,7 +44,10 @@ export const getPosts = createServerFn({ method: "GET" })
             )
           : desc(createdAt),
       ],
-      where: (posts, { eq }) => eq(posts.privacy, "public"),
+      where: (posts, { eq, or }) =>
+        !data.currentUser
+          ? eq(posts.privacy, "public")
+          : or(eq(posts.privacy, "public"), eq(posts.userId, data.currentUser.dB.id)),
       limit: 10,
       offset: data.pageParam * 10,
     });

@@ -71,6 +71,7 @@ export const getUserProfile = createServerFn({ method: "GET" })
           columns: {
             id: true,
           },
+          where: (post, { eq }) => eq(post.privacy, "public"),
         },
       },
     });

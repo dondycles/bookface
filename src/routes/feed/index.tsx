@@ -44,7 +44,7 @@ export const Route = createFileRoute("/feed/")({
 function FeedIndex() {
   const { currentUser, sortBy } = Route.useLoaderData();
   const route = useRouter();
-  const posts = useInfiniteQuery(postsQueryOptions(sortBy));
+  const posts = useInfiniteQuery(postsQueryOptions(currentUser, sortBy));
   const _posts = posts.data?.pages.flatMap((page) => page);
 
   const { ref, loaderRef } = useAutoLoadNextPage({

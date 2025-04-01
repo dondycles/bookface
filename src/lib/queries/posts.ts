@@ -1,12 +1,14 @@
 import { SortBy } from "@/routes/feed";
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { getPost, getPostLikesCount, getPosts } from "../server/fn/posts";
+import { CurrentUser } from "../server/fn/user";
 
-export const postsQueryOptions = (sortBy?: SortBy) =>
+export const postsQueryOptions = (currentUser: CurrentUser, sortBy?: SortBy) =>
   infiniteQueryOptions({
-    queryKey: ["posts", `sortedBy: ${sortBy}`],
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps
+    queryKey: ["posts", `sortedBy: ${sortBy}, ${currentUser?.dB.id}`],
     queryFn: ({ signal, pageParam }) =>
-      getPosts({ signal, data: { pageParam, sortBy: sortBy ?? "recent" } }),
+      getPosts({ signal, data: { pageParam, sortBy: sortBy ?? "recent", currentUser } }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages, lastPageParam) => {
       if (lastPage.length === 0) {
