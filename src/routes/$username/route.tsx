@@ -3,6 +3,7 @@ import UserAvatar from "@/lib/components/avatar";
 import PostCard from "@/lib/components/post-card";
 import PostsSorter from "@/lib/components/posts-sorter";
 import { Button } from "@/lib/components/ui/button";
+import useAutoLoadNextPage from "@/lib/hooks/useAutoLoadNextPage";
 import { currentUserPostsQueryOptions } from "@/lib/queries/posts";
 import { currentUserInfoQueryOptions, userQueryOptions } from "@/lib/queries/user";
 import { CurrentUserInfo } from "@/lib/server/fn/user";
@@ -43,9 +44,14 @@ function RouteComponent() {
     initialData: currentUserInfo,
     ...currentUserInfoQueryOptions(),
   });
-  const { data: myPosts } = useInfiniteQuery({ ...currentUserPostsQueryOptions(sortBy) });
-  const _myPosts = myPosts?.pages.flatMap((page) => page);
+  const myPosts = useInfiniteQuery({ ...currentUserPostsQueryOptions(sortBy) });
+  const _myPosts = myPosts.data?.pages.flatMap((page) => page);
 
+  const { ref, loaderRef } = useAutoLoadNextPage({
+    fetchNextPage: () => {
+      myPosts.fetchNextPage();
+    },
+  });
   if (!isMyProfile)
     return <OtherUserProfile currentUserInfo={currentUserInfo} username={username} />;
   return (
@@ -91,7 +97,18 @@ function RouteComponent() {
           sortByState={sortBy}
         />
         <div className="flex flex-col gap-4 h-full w-full">
-          {_myPosts?.map((post) => {
+          {_myPosts?.map((post, i) => {
+            if (i === _myPosts.length - 1)
+              return (
+                <div ref={ref} key={post.id} className="flex-1">
+                  <PostCard
+                    currentUserInfo={currentUserInfo}
+                    postId={post.id}
+                    key={post.id}
+                    deepView={false}
+                  />
+                </div>
+              );
             return (
               <PostCard
                 currentUserInfo={currentUserInfo}
@@ -102,6 +119,17 @@ function RouteComponent() {
             );
           })}
         </div>
+        <Button
+          className="text-xs text-muted-foreground font-light"
+          hidden={!myPosts.hasNextPage}
+          ref={loaderRef}
+          variant={"ghost"}
+          onClick={() => {
+            myPosts.fetchNextPage();
+          }}
+        >
+          {myPosts.isFetchingNextPage ? "Loading..." : "Fetch more posts"}
+        </Button>
       </div>
     </div>
   );
