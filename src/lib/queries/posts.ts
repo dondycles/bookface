@@ -5,6 +5,7 @@ import {
   getPost,
   getPostLikesCount,
   getPosts,
+  getUserPosts,
 } from "../server/fn/posts";
 import { CurrentUserInfo } from "../server/fn/user";
 
@@ -58,3 +59,21 @@ export const currentUserPostsQueryOptions = (sortBy?: SortBy) =>
     },
   });
 export type CurrentUserPostsQueryOptions = typeof currentUserPostsQueryOptions;
+
+export const userPostsQueryOptions = (username: string, sortBy?: SortBy) =>
+  infiniteQueryOptions({
+    queryKey: ["userPosts", username, sortBy],
+    queryFn: ({ signal, pageParam }) =>
+      getUserPosts({
+        signal,
+        data: { pageParam, sortBy: sortBy ?? "recent", username },
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages, lastPageParam) => {
+      if (lastPage.length === 0) {
+        return undefined;
+      }
+      return lastPageParam + 1;
+    },
+  });
+export type UserPostsQueryOptions = typeof userPostsQueryOptions;

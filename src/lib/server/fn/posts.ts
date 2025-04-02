@@ -70,9 +70,34 @@ export type CurrentUserPosts = NonNullable<
   Awaited<ReturnType<typeof getCurrentUserPosts>>
 >;
 
+export const getUserPosts = createServerFn({ method: "GET" })
+  .validator((data: { pageParam: number; sortBy: SortBy; username: string }) => data)
+  .handler(async ({ data }) => {
+    if (!data.username) throw new Error(`[{ "message": "No Username" }]`);
+    return await db.query.post.findMany({
+      columns: {
+        id: true,
+      },
+
+      orderBy: ({ createdAt, id }, { desc }) => [
+        data.sortBy === "likes"
+          ? desc(sql<number>`(SELECT COUNT(id) FROM "postLikes" WHERE "postId" = ${id})`)
+          : desc(createdAt),
+      ],
+      where: (posts, { sql, and, eq }) =>
+        and(
+          sql`(select "id" from "user" where "username" = ${data.username}) = ${posts.userId}`,
+          eq(posts.privacy, "public"),
+        ),
+      limit: 10,
+      offset: data.pageParam * 10,
+    });
+  });
+
 export const getPost = createServerFn({ method: "GET" })
   .validator((id: string) => id)
   .handler(async ({ data }) => {
+    if (!data) throw new Error(`[{ "message": "No Post Id" }]`);
     return await db.query.post.findFirst({
       with: {
         author: true,

@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { authMiddleware } from "@/lib/middleware/auth-guard";
-import { SortBy } from "@/routes/feed";
 import { createServerFn } from "@tanstack/react-start";
 import { getWebRequest } from "@tanstack/react-start/server";
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { auth } from "../auth";
 import { db } from "../db";
@@ -55,26 +54,11 @@ export const getCurrentUserInfo = createServerFn({ method: "GET" }).handler(asyn
 
 export type CurrentUserInfo = Awaited<ReturnType<typeof getCurrentUserInfo>>;
 
-export const getUserProfile = createServerFn({ method: "GET" })
-  .validator((data: { username: string; sortBy: SortBy }) => data)
-  .handler(async ({ data: { username, sortBy } }) => {
+export const getUserInfo = createServerFn({ method: "GET" })
+  .validator((data: { username: string }) => data)
+  .handler(async ({ data: { username } }) => {
     return await db.query.user.findFirst({
       where: (user, { eq }) => eq(user.username, username),
-      with: {
-        posts: {
-          columns: {
-            id: true,
-          },
-          where: (post, { eq }) => eq(post.privacy, "public"),
-          orderBy: ({ createdAt, id }, { desc }) => [
-            sortBy === "likes"
-              ? desc(
-                  sql<number>`(SELECT COUNT(id) FROM "postLikes" WHERE "postId" = ${id})`,
-                )
-              : desc(createdAt),
-          ],
-        },
-      },
     });
   });
 
