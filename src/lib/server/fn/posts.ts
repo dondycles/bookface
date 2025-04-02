@@ -28,15 +28,11 @@ export const getPosts = createServerFn({ method: "GET" })
       data,
   )
   .handler(async ({ data }) => {
-    console.log("pageParam", data);
     return await db.query.post.findMany({
-      with: {
-        likes: {
-          columns: {
-            id: true,
-          },
-        },
+      columns: {
+        id: true,
       },
+
       orderBy: ({ createdAt, id }, { desc }) => [
         data.sortBy === "likes"
           ? desc(sql<number>`(SELECT COUNT(id) FROM "postLikes" WHERE "postId" = ${id})`)
@@ -50,6 +46,29 @@ export const getPosts = createServerFn({ method: "GET" })
       offset: data.pageParam * 10,
     });
   });
+
+export const getCurrentUserPosts = createServerFn({ method: "GET" })
+  .validator((data: { pageParam: number; sortBy: SortBy }) => data)
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }) => {
+    return await db.query.post.findMany({
+      columns: {
+        id: true,
+      },
+
+      orderBy: ({ createdAt, id }, { desc }) => [
+        data.sortBy === "likes"
+          ? desc(sql<number>`(SELECT COUNT(id) FROM "postLikes" WHERE "postId" = ${id})`)
+          : desc(createdAt),
+      ],
+      where: (posts, { eq }) => eq(posts.userId, context.dB.id),
+      limit: 10,
+      offset: data.pageParam * 10,
+    });
+  });
+export type CurrentUserPosts = NonNullable<
+  Awaited<ReturnType<typeof getCurrentUserPosts>>
+>;
 
 export const getPost = createServerFn({ method: "GET" })
   .validator((id: string) => id)
@@ -74,7 +93,6 @@ export const getPost = createServerFn({ method: "GET" })
       where: (posts, { eq }) => eq(posts.id, data),
     });
   });
-
 export type Post = NonNullable<Awaited<ReturnType<typeof getPost>>>;
 
 export const addPost = createServerFn({

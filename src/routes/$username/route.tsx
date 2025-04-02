@@ -3,9 +3,10 @@ import UserAvatar from "@/lib/components/avatar";
 import PostCard from "@/lib/components/post-card";
 import PostsSorter from "@/lib/components/posts-sorter";
 import { Button } from "@/lib/components/ui/button";
+import { currentUserPostsQueryOptions } from "@/lib/queries/posts";
 import { currentUserInfoQueryOptions, userQueryOptions } from "@/lib/queries/user";
 import { CurrentUserInfo } from "@/lib/server/fn/user";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
 import { searchSchema } from "../feed";
@@ -42,6 +43,9 @@ function RouteComponent() {
     initialData: currentUserInfo,
     ...currentUserInfoQueryOptions(),
   });
+  const { data: myPosts } = useInfiniteQuery({ ...currentUserPostsQueryOptions(sortBy) });
+  const _myPosts = myPosts?.pages.flatMap((page) => page);
+
   if (!isMyProfile)
     return <OtherUserProfile currentUserInfo={currentUserInfo} username={username} />;
   return (
@@ -75,9 +79,9 @@ function RouteComponent() {
             ) : (
               <p className="text-center italic ">{myProfile?.dB.bio ?? "No bio yet."}</p>
             )}
-            {/* <div>
-              <span>{myProfile?.dB.posts.length} post(s)</span>
-            </div> */}
+            <div>
+              <span>{_myPosts?.length} post(s)</span>
+            </div>
           </div>
         </div>
         <AddPostBar currentUserInfo={currentUserInfo} />
@@ -86,8 +90,8 @@ function RouteComponent() {
           mostRecent={{ to: "/$username", search: { sortBy: "recent" } }}
           sortByState={sortBy}
         />
-        {/* <div className="flex flex-col gap-4 h-full w-full">
-          {myProfile?.dB.posts?.map((post) => {
+        <div className="flex flex-col gap-4 h-full w-full">
+          {_myPosts?.map((post) => {
             return (
               <PostCard
                 currentUserInfo={currentUserInfo}
@@ -97,7 +101,7 @@ function RouteComponent() {
               />
             );
           })}
-        </div> */}
+        </div>
       </div>
     </div>
   );

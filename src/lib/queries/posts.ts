@@ -1,6 +1,11 @@
 import { SortBy } from "@/routes/feed";
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
-import { getPost, getPostLikesCount, getPosts } from "../server/fn/posts";
+import {
+  getCurrentUserPosts,
+  getPost,
+  getPostLikesCount,
+  getPosts,
+} from "../server/fn/posts";
 import { CurrentUserInfo } from "../server/fn/user";
 
 export const postsQueryOptions = (currentUserInfo: CurrentUserInfo, sortBy?: SortBy) =>
@@ -34,3 +39,22 @@ export const postLikesQueryOptions = (id: string) =>
     queryKey: ["postLikes", id],
     queryFn: ({ signal }) => getPostLikesCount({ data: id, signal }),
   });
+
+export const currentUserPostsQueryOptions = (sortBy?: SortBy) =>
+  infiniteQueryOptions({
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps
+    queryKey: ["currentUserPosts", sortBy],
+    queryFn: ({ signal, pageParam }) =>
+      getCurrentUserPosts({
+        signal,
+        data: { pageParam, sortBy: sortBy ?? "recent" },
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages, lastPageParam) => {
+      if (lastPage.length === 0) {
+        return undefined;
+      }
+      return lastPageParam + 1;
+    },
+  });
+export type CurrentUserPostsQueryOptions = typeof currentUserPostsQueryOptions;
