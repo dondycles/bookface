@@ -1,35 +1,49 @@
+import AddPostBar from "@/lib/components/add-post-bar";
 import UserAvatar from "@/lib/components/avatar";
 import PostCard from "@/lib/components/post-card";
+import PostsSorter from "@/lib/components/posts-sorter";
 import { Button } from "@/lib/components/ui/button";
-import { currentUserQueryOptions, userQueryOptions } from "@/lib/queries/user";
-import { CurrentUser } from "@/lib/server/fn/user";
+import { currentUserInfoQueryOptions, userQueryOptions } from "@/lib/queries/user";
+import { CurrentUserInfo } from "@/lib/server/fn/user";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
+import { searchSchema } from "../feed";
 
 export const Route = createFileRoute("/$username")({
   component: RouteComponent,
-  beforeLoad: async ({ params, context }) => {
-    const isMyProfile = params.username === context.currentUser?.dB.username;
-    return { isMyProfile };
+  validateSearch: (search) => searchSchema.parse(search),
+
+  beforeLoad: async ({ params, context, search }) => {
+    const isMyProfile = params.username === context.currentUserInfo?.dB.username;
+    if (search.sortBy !== "likes" && search.sortBy !== "recent") {
+      throw redirect({
+        to: "/feed",
+        search: {
+          sortBy: "recent",
+        },
+      });
+    }
+    return { isMyProfile, search };
   },
   loader: ({ params, context }) => {
     return {
       username: params.username,
       isMyProfile: context.isMyProfile,
-      currentUser: context.currentUser,
+      currentUserInfo: context.currentUserInfo,
+      sortBy: context.search.sortBy,
     };
   },
 });
 
 function RouteComponent() {
-  const { username, isMyProfile, currentUser } = Route.useLoaderData();
+  const { username, isMyProfile, currentUserInfo, sortBy } = Route.useLoaderData();
   const { data: myProfile } = useSuspenseQuery({
-    initialData: currentUser,
-    ...currentUserQueryOptions(),
+    initialData: currentUserInfo,
+    ...currentUserInfoQueryOptions(),
   });
   if (!isMyProfile)
-    return <OtherUserProfile currentUser={currentUser} username={username} />;
+    return <OtherUserProfile currentUserInfo={currentUserInfo} username={username} />;
   return (
     <div className="py-24 sm:max-w-[512px] mx-auto">
       <div className="flex flex-col gap-4 ">
@@ -61,36 +75,42 @@ function RouteComponent() {
             ) : (
               <p className="text-center italic ">{myProfile?.dB.bio ?? "No bio yet."}</p>
             )}
-            <div>
+            {/* <div>
               <span>{myProfile?.dB.posts.length} post(s)</span>
-            </div>
+            </div> */}
           </div>
         </div>
-
-        <div className="flex flex-col gap-4 h-full w-full">
+        <AddPostBar currentUserInfo={currentUserInfo} />
+        <PostsSorter
+          mostLikes={{ to: "/$username", search: { sortBy: "likes" } }}
+          mostRecent={{ to: "/$username", search: { sortBy: "recent" } }}
+          sortByState={sortBy}
+        />
+        {/* <div className="flex flex-col gap-4 h-full w-full">
           {myProfile?.dB.posts?.map((post) => {
             return (
               <PostCard
-                currentUser={currentUser}
+                currentUserInfo={currentUserInfo}
                 postId={post.id}
                 key={post.id}
                 deepView={false}
               />
             );
           })}
-        </div>
+        </div> */}
       </div>
     </div>
   );
 }
 function OtherUserProfile({
   username,
-  currentUser,
+  currentUserInfo,
 }: {
   username: string;
-  currentUser: CurrentUser;
+  currentUserInfo: CurrentUserInfo;
 }) {
-  const profile = useSuspenseQuery(userQueryOptions(username));
+  const { sortBy } = Route.useLoaderData();
+  const profile = useSuspenseQuery(userQueryOptions(username, sortBy));
 
   return (
     <div className="py-24 sm:max-w-[512px] mx-auto">
@@ -124,11 +144,16 @@ function OtherUserProfile({
               </div>
             </div>
           </div>
+          <PostsSorter
+            mostLikes={{ to: "/$username", search: { sortBy: "likes" } }}
+            mostRecent={{ to: "/$username", search: { sortBy: "recent" } }}
+            sortByState={sortBy}
+          />
           <div className="flex flex-col sm:gap-2 h-full w-full sm:px-2 ">
             {profile.data.posts?.map((post) => {
               return (
                 <PostCard
-                  currentUser={currentUser}
+                  currentUserInfo={currentUserInfo}
                   postId={post.id}
                   key={post.id}
                   deepView={false}

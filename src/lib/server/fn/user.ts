@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { authMiddleware } from "@/lib/middleware/auth-guard";
+import { SortBy } from "@/routes/feed";
 import { createServerFn } from "@tanstack/react-start";
 import { getWebRequest } from "@tanstack/react-start/server";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { auth } from "../auth";
 import { db } from "../db";
@@ -41,29 +42,22 @@ export const updateUsername = createServerFn({ method: "POST" })
       .where(eq(user.id, dB.id));
   });
 
-export const getCurrentUser = createServerFn({ method: "GET" }).handler(async () => {
+export const getCurrentUserInfo = createServerFn({ method: "GET" }).handler(async () => {
   const { headers } = getWebRequest()!;
   const session = await auth.api.getSession({ headers });
   if (!session) return null;
   const dB = await db.query.user.findFirst({
     where: (user, { eq }) => eq(user.id, session.user.id),
-    with: {
-      posts: {
-        columns: {
-          id: true,
-        },
-      },
-    },
   });
   if (!dB) return null;
   return { session, dB };
 });
 
-export type CurrentUser = Awaited<ReturnType<typeof getCurrentUser>>;
+export type CurrentUserInfo = Awaited<ReturnType<typeof getCurrentUserInfo>>;
 
 export const getUserProfile = createServerFn({ method: "GET" })
-  .validator((data: { username: string }) => data)
-  .handler(async ({ data: { username } }) => {
+  .validator((data: { username: string; sortBy: SortBy }) => data)
+  .handler(async ({ data: { username, sortBy } }) => {
     return await db.query.user.findFirst({
       where: (user, { eq }) => eq(user.username, username),
       with: {
@@ -72,6 +66,13 @@ export const getUserProfile = createServerFn({ method: "GET" })
             id: true,
           },
           where: (post, { eq }) => eq(post.privacy, "public"),
+          orderBy: ({ createdAt, id }, { desc }) => [
+            sortBy === "likes"
+              ? desc(
+                  sql<number>`(SELECT COUNT(id) FROM "postLikes" WHERE "postId" = ${id})`,
+                )
+              : desc(createdAt),
+          ],
         },
       },
     });

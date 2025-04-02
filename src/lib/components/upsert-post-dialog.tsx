@@ -17,13 +17,7 @@ import { z } from "zod";
 import { addPost, editPost, Post, postSchema } from "../server/fn/posts";
 import FieldInfo from "./field-info";
 import { Button } from "./ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-  CommandList,
-} from "./ui/command";
+import { Command, CommandGroup, CommandItem, CommandList } from "./ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Textarea } from "./ui/textarea";
 
@@ -63,6 +57,9 @@ export default function UpsertPostDialog({
       queryClient.invalidateQueries({
         queryKey: ["posts"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["currentUserPosts"],
+      });
       form.reset();
       successHandlerWithToast("info", "Post added", {
         label: "View",
@@ -87,6 +84,9 @@ export default function UpsertPostDialog({
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["post", post?.id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["currentUserPosts"],
       });
       successHandlerWithToast("info", "Post edited");
       setOpenDialog(false);
@@ -141,7 +141,6 @@ export default function UpsertPostDialog({
                 >
                   <Command>
                     <CommandList>
-                      <CommandEmpty>No framework found.</CommandEmpty>
                       <CommandGroup>
                         <CommandItem
                           onSelect={(v) => {

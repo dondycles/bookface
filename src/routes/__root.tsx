@@ -12,22 +12,23 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 import Nav from "@/lib/components/nav";
 import { Toaster } from "@/lib/components/ui/sonner";
-import { currentUserQueryOptions } from "@/lib/queries/user";
-import { CurrentUser } from "@/lib/server/fn/user";
+import { currentUserInfoQueryOptions } from "@/lib/queries/user";
+import { CurrentUserInfo } from "@/lib/server/fn/user";
 import appCss from "@/lib/styles/app.css?url";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
-  currentUser: CurrentUser;
+  currentUserInfo: CurrentUserInfo;
 }>()({
   beforeLoad: async ({ context }) => {
-    const currentUser = await context.queryClient.fetchQuery(currentUserQueryOptions()); // we're using react-query for caching, see router.tsx
-    return { currentUser };
+    const currentUserInfo = await context.queryClient.fetchQuery(
+      currentUserInfoQueryOptions(),
+    ); // we're using react-query for caching, see router.tsx
+    return { currentUserInfo };
   },
-  loader: ({ context: { currentUser } }) => {
-    return { currentUser };
+  loader: ({ context: { currentUserInfo } }) => {
+    return { currentUserInfo };
   },
-
   head: () => ({
     meta: [
       {
@@ -75,7 +76,7 @@ function RootComponent() {
 }
 
 function RootDocument({ children }: { readonly children: React.ReactNode }) {
-  const { currentUser } = Route.useLoaderData();
+  const { currentUserInfo } = Route.useLoaderData();
   return (
     // suppress since we're updating the "dark" class in a custom script below
     <html suppressHydrationWarning>
@@ -89,7 +90,7 @@ function RootDocument({ children }: { readonly children: React.ReactNode }) {
             localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
             )`}
         </ScriptOnce>
-        <Nav currentUser={currentUser} />
+        <Nav currentUserInfo={currentUserInfo} />
 
         {children}
         <Toaster richColors={true} />

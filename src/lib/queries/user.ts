@@ -1,14 +1,15 @@
+import { SortBy } from "@/routes/feed";
 import { queryOptions } from "@tanstack/react-query";
-import { getCurrentUser, getUserProfile } from "../server/fn/user";
+import { getCurrentUserInfo, getUserProfile } from "../server/fn/user";
 
-export const userQueryOptions = (username: string) =>
+export const userQueryOptions = (username: string, sortBy: SortBy) =>
   queryOptions({
-    queryKey: ["user", username],
-    queryFn: ({ signal }) => getUserProfile({ data: { username }, signal }),
+    queryKey: ["user", username, sortBy],
+    queryFn: ({ signal }) => getUserProfile({ data: { username, sortBy }, signal }),
   });
 
-export const currentUserQueryOptions = () =>
+export const currentUserInfoQueryOptions = () =>
   queryOptions({
-    queryKey: ["currentUser"],
-    queryFn: ({ signal }) => getCurrentUser({ signal }),
+    queryKey: ["currentUserInfo"],
+    queryFn: ({ signal }) => getCurrentUserInfo({ signal }),
   });

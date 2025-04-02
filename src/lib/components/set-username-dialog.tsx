@@ -2,8 +2,8 @@ import { errorHandlerWithToast, successHandlerWithToast } from "@/lib/utils";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { currentUserQueryOptions } from "../queries/user";
-import { CurrentUser, updateUsername, usernameSchema } from "../server/fn/user";
+import { currentUserInfoQueryOptions } from "../queries/user";
+import { CurrentUserInfo, updateUsername, usernameSchema } from "../server/fn/user";
 import FieldInfo from "./field-info";
 import { Button } from "./ui/button";
 import {
@@ -17,17 +17,17 @@ import {
 import { Input } from "./ui/input";
 
 export default function SetUsernameDialog({
-  currentUser: currentUserData,
+  currentUserInfo: currentUserInfoInitialData,
 }: {
-  currentUser: CurrentUser;
+  currentUserInfo: CurrentUserInfo;
 }) {
   const queryClient = useQueryClient();
-  const { data: currentUser } = useSuspenseQuery({
-    ...currentUserQueryOptions(),
-    initialData: currentUserData,
+  const { data: currentUserInfo } = useSuspenseQuery({
+    ...currentUserInfoQueryOptions(),
+    initialData: currentUserInfoInitialData,
   });
   const [openDialog, setOpenDialog] = useState(
-    Boolean(currentUser && !currentUser.dB?.username),
+    Boolean(currentUserInfo && !currentUserInfo.dB?.username),
   );
 
   const form = useForm({
@@ -42,7 +42,7 @@ export default function SetUsernameDialog({
     mutationFn: async (username: string) => updateUsername({ data: { username } }),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["currentUser"],
+        queryKey: ["currentUserInfo"],
       });
       form.reset();
       successHandlerWithToast("success", "Username set");
@@ -55,7 +55,7 @@ export default function SetUsernameDialog({
     <Dialog open={openDialog}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Hello, {currentUser?.dB?.name}</DialogTitle>
+          <DialogTitle>Hello, {currentUserInfo?.dB?.name}</DialogTitle>
           <DialogDescription>Please input your desired username</DialogDescription>
         </DialogHeader>
         <form.Field

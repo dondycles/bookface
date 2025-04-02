@@ -20,12 +20,12 @@ export const Route = createFileRoute("/search")({
     await context.queryClient.ensureQueryData(
       searchResultsQueryOptions(context.search.q),
     );
-    return { q: context.search.q, currentUser: context.currentUser };
+    return { q: context.search.q, currentUserInfo: context.currentUserInfo };
   },
 });
 
 function RouteComponent() {
-  const { currentUser } = Route.useLoaderData();
+  const { currentUserInfo } = Route.useLoaderData();
   const { q } = Route.useSearch();
   const { data: searchResults } = useSuspenseQuery(searchResultsQueryOptions(q));
   return (
@@ -40,7 +40,12 @@ function RouteComponent() {
       ) : null}
       {searchResults.posts.map((p) => {
         return (
-          <PostCard key={p.id} currentUser={currentUser} deepView={false} postId={p.id} />
+          <PostCard
+            key={p.id}
+            currentUserInfo={currentUserInfo}
+            deepView={false}
+            postId={p.id}
+          />
         );
       })}
       {searchResults.users.length > 0 ? (
@@ -61,7 +66,11 @@ function RouteComponent() {
                 <p className="text-muted-foreground">@{u.username}</p>
               </div>
             </div>
-            <Link to="/$username" params={{ username: u.username ?? "" }}>
+            <Link
+              to="/$username"
+              search={{ sortBy: "recent" }}
+              params={{ username: u.username ?? "" }}
+            >
               <ExternalLink className="text-muted-foreground size-5" />
             </Link>
           </div>

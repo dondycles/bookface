@@ -5,7 +5,7 @@ import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db";
 import { post, postLikes } from "../schema";
-import { CurrentUser } from "./user";
+import { CurrentUserInfo } from "./user";
 
 export const postSchema = z.object({
   message: z
@@ -24,9 +24,9 @@ export const getPostLikesCount = createServerFn({ method: "GET" })
 
 export const getPosts = createServerFn({ method: "GET" })
   .validator(
-    (data: { pageParam: number; sortBy: SortBy; currentUser: CurrentUser }) => data,
+    (data: { pageParam: number; sortBy: SortBy; currentUserInfo: CurrentUserInfo }) =>
+      data,
   )
-
   .handler(async ({ data }) => {
     console.log("pageParam", data);
     return await db.query.post.findMany({
@@ -37,17 +37,15 @@ export const getPosts = createServerFn({ method: "GET" })
           },
         },
       },
-      orderBy: ({ createdAt }, { desc }) => [
+      orderBy: ({ createdAt, id }, { desc }) => [
         data.sortBy === "likes"
-          ? desc(
-              sql<number>`(SELECT COUNT(id) FROM "postLikes" WHERE "postId" = ${post.id})`,
-            )
+          ? desc(sql<number>`(SELECT COUNT(id) FROM "postLikes" WHERE "postId" = ${id})`)
           : desc(createdAt),
       ],
       where: (posts, { eq, or }) =>
-        !data.currentUser
+        !data.currentUserInfo
           ? eq(posts.privacy, "public")
-          : or(eq(posts.privacy, "public"), eq(posts.userId, data.currentUser.dB.id)),
+          : or(eq(posts.privacy, "public"), eq(posts.userId, data.currentUserInfo.dB.id)),
       limit: 10,
       offset: data.pageParam * 10,
     });

@@ -3,18 +3,18 @@ import React from "react";
 import useAutoLoadNextPage from "../hooks/useAutoLoadNextPage";
 import { commentsQueryOptions } from "../queries/comments";
 import { Post } from "../server/fn/posts";
-import { CurrentUser } from "../server/fn/user";
+import { CurrentUserInfo } from "../server/fn/user";
 import CommentCard from "./comment-card";
 import { Button } from "./ui/button";
 
 export default function CommentsSection({
   post,
   deepView,
-  currentUser,
+  currentUserInfo,
 }: {
   post: Post;
   deepView: boolean;
-  currentUser: CurrentUser;
+  currentUserInfo: CurrentUserInfo;
 }) {
   const comments = useInfiniteQuery(commentsQueryOptions(post.id));
   const _comments = comments.data?.pages.flatMap((page) => page);
@@ -36,7 +36,7 @@ export default function CommentsSection({
             return (
               <React.Fragment key={c.id}>
                 <CommentCard
-                  currentUser={currentUser}
+                  currentUserInfo={currentUserInfo}
                   key={c.id}
                   commentId={c.id}
                   post={post}
@@ -46,7 +46,7 @@ export default function CommentsSection({
             );
           return (
             <CommentCard
-              currentUser={currentUser}
+              currentUserInfo={currentUserInfo}
               key={c.id}
               commentId={c.id}
               post={post}

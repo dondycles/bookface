@@ -4,7 +4,7 @@ import { Button } from "@/lib/components/ui/button";
 import { Input } from "@/lib/components/ui/input";
 import { Label } from "@/lib/components/ui/label";
 import { Textarea } from "@/lib/components/ui/textarea";
-import { currentUserQueryOptions } from "@/lib/queries/user";
+import { currentUserInfoQueryOptions } from "@/lib/queries/user";
 import { editProfile, settingsSchema } from "@/lib/server/fn/user";
 import { errorHandlerWithToast, successHandlerWithToast } from "@/lib/utils";
 import { useForm } from "@tanstack/react-form";
@@ -15,7 +15,7 @@ import { z } from "zod";
 export const Route = createFileRoute("/settings")({
   component: RouteComponent,
   loader: ({ context }) => {
-    if (!context.currentUser)
+    if (!context.currentUserInfo)
       throw redirect({
         to: "/",
       });
@@ -23,18 +23,18 @@ export const Route = createFileRoute("/settings")({
 });
 
 function RouteComponent() {
-  const { currentUser: currentUserData } = Route.useRouteContext();
+  const { currentUserInfo: currentUserInfoInitialData } = Route.useRouteContext();
   const queryClient = useQueryClient();
-  const { data: currentUser } = useSuspenseQuery({
-    ...currentUserQueryOptions(),
-    initialData: currentUserData,
+  const { data: currentUserInfo } = useSuspenseQuery({
+    ...currentUserInfoQueryOptions(),
+    initialData: currentUserInfoInitialData,
   });
 
   const form = useForm({
     defaultValues: {
-      name: currentUser?.dB.name ?? "",
-      username: currentUser?.dB.username ?? "",
-      bio: currentUser?.dB.bio ?? "",
+      name: currentUserInfo?.dB.name ?? "",
+      username: currentUserInfo?.dB.username ?? "",
+      bio: currentUserInfo?.dB.bio ?? "",
     },
     validators: { onChange: settingsSchema },
     onSubmit: async ({ value }) => submitPost.mutate(value),
@@ -44,7 +44,7 @@ function RouteComponent() {
     mutationFn: async (data: z.infer<typeof settingsSchema>) => editProfile({ data }),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["currentUser"],
+        queryKey: ["currentUserPosts"],
       });
       successHandlerWithToast("success", "Profile updated");
     },
@@ -60,8 +60,8 @@ function RouteComponent() {
       className="flex flex-col gap-4 py-24 sm:max-w-[512px] mx-auto px-2 sm:px-0"
     >
       <UserAvatar
-        alt={currentUser?.dB.username ?? "User PFP"}
-        url={currentUser?.dB.image}
+        alt={currentUserInfo?.dB.username ?? "User PFP"}
+        url={currentUserInfo?.dB.image}
         className="size-32 mx-auto"
       />
       <form.Field

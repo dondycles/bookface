@@ -14,8 +14,8 @@ import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useRouter } from "@tanstack/react-router";
 import { LogIn, LogOut, Plus, Search, Settings, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { currentUserQueryOptions } from "../queries/user";
-import { CurrentUser } from "../server/fn/user";
+import { currentUserInfoQueryOptions } from "../queries/user";
+import { CurrentUserInfo } from "../server/fn/user";
 import { useDebounce } from "../utils";
 import ThemeToggle from "./ThemeToggle";
 import UserAvatar from "./avatar";
@@ -24,15 +24,15 @@ import { Input } from "./ui/input";
 import UpsertPostDialog from "./upsert-post-dialog";
 
 export default function Nav({
-  currentUser: currentUserInitialData,
+  currentUserInfo: currentUserInfoInitialData,
 }: {
-  currentUser: CurrentUser;
+  currentUserInfo: CurrentUserInfo;
 }) {
   const queryClient = useQueryClient();
   const route = useRouter();
-  const { data: currentUser } = useSuspenseQuery({
-    ...currentUserQueryOptions(),
-    initialData: currentUserInitialData,
+  const { data: currentUserInfo } = useSuspenseQuery({
+    ...currentUserInfoQueryOptions(),
+    initialData: currentUserInfoInitialData,
   });
   const router = useRouter();
   const [searching, setSearching] = useState(false);
@@ -97,29 +97,30 @@ export default function Nav({
             </>
           )}
         </div>
-        {currentUser ? (
+        {currentUserInfo ? (
           <DropdownMenu>
             <DropdownMenuTrigger>
               <UserAvatar
-                url={currentUser.dB.image}
+                url={currentUserInfo.dB.image}
                 className="size-12"
-                alt={currentUser.dB.username ?? currentUser.dB.email}
+                alt={currentUserInfo.dB.username ?? currentUserInfo.dB.email}
               />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
                 <Link
                   to="/$username"
-                  params={{ username: currentUser.dB.username as string }}
+                  search={{ sortBy: "recent" }}
+                  params={{ username: currentUserInfo.dB.username as string }}
                 >
                   <Avatar>
                     <AvatarImage
-                      src={currentUser.dB.image ?? "/favicon.ico"}
+                      src={currentUserInfo.dB.image ?? "/favicon.ico"}
                       alt="@shadcn"
                     />
                     <AvatarFallback>BF</AvatarFallback>
                   </Avatar>
-                  <p>{currentUser.dB.name}</p>
+                  <p>{currentUserInfo.dB.name}</p>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSub>
@@ -144,9 +145,10 @@ export default function Nav({
               <DropdownMenuItem
                 onClick={async () => {
                   await authClient.signOut();
-                  await queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+                  await queryClient.invalidateQueries({ queryKey: ["currentUserInfo"] });
+                  await queryClient.invalidateQueries({ queryKey: ["currentUserPosts"] });
                   await queryClient.invalidateQueries({
-                    queryKey: ["user", currentUser.dB.username],
+                    queryKey: ["user", currentUserInfo.dB.username],
                   });
                   await router.invalidate();
                 }}
@@ -171,7 +173,7 @@ export default function Nav({
             <LogIn />
           </Button>
         )}
-        <SetUsernameDialog currentUser={currentUser} />
+        <SetUsernameDialog currentUserInfo={currentUserInfo} />
       </div>
     </nav>
   );

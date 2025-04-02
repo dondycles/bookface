@@ -4,7 +4,7 @@ import { Delete, Edit, Ellipsis } from "lucide-react";
 import { commentQueryOptions } from "../queries/comments";
 import { Comment, removeComment } from "../server/fn/comments";
 import { Post } from "../server/fn/posts";
-import { CurrentUser } from "../server/fn/user";
+import { CurrentUserInfo } from "../server/fn/user";
 import UserAvatar from "./avatar";
 import EditCommentDialog from "./edit-comment-dialog";
 import {
@@ -19,11 +19,11 @@ import { Skeleton } from "./ui/skeleton";
 
 export default function CommentCard({
   commentId,
-  currentUser,
+  currentUserInfo,
   post,
 }: {
   commentId: Comment["id"];
-  currentUser: CurrentUser;
+  currentUserInfo: CurrentUserInfo;
   post: Post;
 }) {
   const queryClient = useQueryClient();
@@ -32,8 +32,9 @@ export default function CommentCard({
   );
 
   const isAuthorizedToDelete =
-    currentUser?.dB.id === comment?.commenterId || currentUser?.dB.id === post.userId;
-  const isAuthorizedToEdit = currentUser?.dB.id === comment?.commenterId;
+    currentUserInfo?.dB.id === comment?.commenterId ||
+    currentUserInfo?.dB.id === post.userId;
+  const isAuthorizedToEdit = currentUserInfo?.dB.id === comment?.commenterId;
   const isAuthorized = isAuthorizedToDelete || isAuthorizedToEdit;
 
   const handleRemoveComment = useMutation({

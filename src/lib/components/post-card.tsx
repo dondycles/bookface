@@ -14,7 +14,7 @@ import { useState } from "react";
 import { postQueryOptions } from "../queries/posts";
 import { addLikePost, removeLikePost } from "../server/fn/likes";
 import { deletePost, Post } from "../server/fn/posts";
-import { CurrentUser } from "../server/fn/user";
+import { CurrentUserInfo } from "../server/fn/user";
 import AddCommentForm from "./add-comment-form";
 import UserAvatar from "./avatar";
 import CommentsSection from "./comments-section";
@@ -32,23 +32,23 @@ import { Skeleton } from "./ui/skeleton";
 import UpsertPostDialog from "./upsert-post-dialog";
 export default function PostCard({
   postId,
-  currentUser,
+  currentUserInfo,
   deepView = false,
 }: {
   postId: Post["id"];
 
   deepView?: boolean;
-  currentUser: CurrentUser;
+  currentUserInfo: CurrentUserInfo;
 }) {
   const queryClient = useQueryClient();
   const { data: post, isLoading: postLoading } = useQuery(postQueryOptions(postId));
   const [collapseComments, setCollapesComments] = useState(false);
-  const isLiked = post?.likers.some((l) => l.likerId === currentUser?.dB.id);
+  const isLiked = post?.likers.some((l) => l.likerId === currentUserInfo?.dB.id);
   const handleRemovePost = useMutation({
     mutationFn: async () => await deletePost({ data: { post: post! } }),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["currentUser"],
+        queryKey: ["currentUserPosts"],
       });
       queryClient.invalidateQueries({
         queryKey: ["posts"],
@@ -119,6 +119,7 @@ export default function PostCard({
             <Link
               className="font-semibold text-foreground"
               to="/$username"
+              search={{ sortBy: "recent" }}
               params={{ username: post.author.username ?? "" }}
             >
               <UserAvatar
@@ -133,6 +134,7 @@ export default function PostCard({
                 className="font-semibold text-foreground"
                 to="/$username"
                 params={{ username: post.author.username ?? "" }}
+                search={{ sortBy: "recent" }}
               >
                 @{post.author.username ?? post.author.name}
               </Link>
@@ -154,7 +156,7 @@ export default function PostCard({
                   <DropdownMenuSubTrigger
                     showIcon={false}
                     className="p-2 flex gap-2 cursor-pointer"
-                    hidden={currentUser?.dB.id !== post.userId}
+                    hidden={currentUserInfo?.dB.id !== post.userId}
                   >
                     <Edit className="size-4 text-muted-foreground" />
                     <p>Edit</p>
@@ -163,7 +165,7 @@ export default function PostCard({
               </DropdownMenuSub>
 
               <DropdownMenuItem
-                hidden={currentUser?.dB.id !== post.userId}
+                hidden={currentUserInfo?.dB.id !== post.userId}
                 onClick={() => {
                   handleRemovePost.mutate();
                 }}
@@ -215,7 +217,11 @@ export default function PostCard({
           )}
         </div>
         <CollapsibleContent className="px-2 sm:px-3">
-          <CommentsSection currentUser={currentUser} deepView={deepView} post={post} />
+          <CommentsSection
+            currentUserInfo={currentUserInfo}
+            deepView={deepView}
+            post={post}
+          />
         </CollapsibleContent>
       </Collapsible>
     </div>
