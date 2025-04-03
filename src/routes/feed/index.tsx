@@ -1,6 +1,6 @@
 import AddPostBar from "@/lib/components/add-post-bar";
 import PostCard from "@/lib/components/post-card";
-import PostsSorter from "@/lib/components/posts-sorter";
+import PostsOptionsBar from "@/lib/components/posts-options-bar";
 import { Button } from "@/lib/components/ui/button";
 import useAutoLoadNextPage from "@/lib/hooks/useAutoLoadNextPage";
 import { postsQueryOptions } from "@/lib/queries/posts";
@@ -47,10 +47,11 @@ function FeedIndex() {
   return (
     <div className="flex flex-col gap-4 py-24 sm:max-w-[512px] mx-auto">
       <AddPostBar currentUserInfo={currentUserInfo} />
-      <PostsSorter
+      <PostsOptionsBar
         sortByState={sortBy}
         mostLikes={{ to: "/feed", search: { sortBy: "likes" } }}
         mostRecent={{ to: "/feed", search: { sortBy: "recent" } }}
+        isMyProfile={false}
       />
       <div className="flex flex-col gap-4 h-full w-full ">
         {_posts?.map((post, i) => {

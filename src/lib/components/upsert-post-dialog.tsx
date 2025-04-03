@@ -37,10 +37,10 @@ export default function UpsertPostDialog({
       privacy: post?.privacy ?? "public",
     },
     validators: { onChange: postSchema },
-    onSubmit: async ({ value: { message, privacy } }) =>
+    onSubmit: async ({ value: newPost }) =>
       post
-        ? handleEditPost.mutate({ newMessage: message, lastPost: post })
-        : handleSubmitPost.mutate({ message, privacy }),
+        ? handleEditPost.mutate({ newPost, lastPost: post })
+        : handleSubmitPost.mutate(newPost),
   });
 
   const handleSubmitPost = useMutation({
@@ -77,10 +77,8 @@ export default function UpsertPostDialog({
   });
 
   const handleEditPost = useMutation({
-    mutationFn: async (data: {
-      lastPost: Post;
-      newMessage: z.infer<typeof postSchema>["message"];
-    }) => editPost({ data }),
+    mutationFn: async (data: { lastPost: Post; newPost: z.infer<typeof postSchema> }) =>
+      editPost({ data }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["post", post?.id],

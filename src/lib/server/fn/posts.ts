@@ -142,25 +142,23 @@ export const editPost = createServerFn({
   method: "POST",
 })
   .middleware([authMiddleware])
-  .validator(
-    (data: { lastPost: Post; newMessage: z.infer<typeof postSchema>["message"] }) => data,
-  )
-  .handler(async ({ data: { lastPost, newMessage }, context: { dB: user } }) => {
+  .validator((data: { lastPost: Post; newPost: z.infer<typeof postSchema> }) => data)
+  .handler(async ({ data: { lastPost, newPost }, context: { dB: user } }) => {
     if (!lastPost.id) throw new Error(`[{ "message": "No Post ID." }]`);
     if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
-    if (lastPost.message === newMessage)
-      throw new Error(`[{ "message": "No changes made." }]`);
+
     if (lastPost.userId !== user.id)
       throw new Error(`[{ "message": "You are not the author." }]`);
-    if (lastPost.message === newMessage)
+    if (lastPost.message === newPost.message && lastPost.privacy === newPost.privacy)
       throw new Error(`[{ "message": "No changes made." }]`);
-    const message = newMessage;
-    postSchema.parse({ message });
+    const message = newPost.message;
+    const privacy = newPost.privacy;
+    postSchema.parse({ message, privacy });
     await db
       .update(post)
       .set({
-        message: newMessage,
         updatedAt: new Date(),
+        ...newPost,
       })
       .where(eq(post.id, lastPost.id));
   });

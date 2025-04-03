@@ -1,6 +1,7 @@
 import { SortBy } from "@/routes/feed";
 import { AnyRouter, NavigateOptions, useRouter } from "@tanstack/react-router";
 import { Check, ChevronDown, ListChecks, ThumbsUp, Timer, X } from "lucide-react";
+import { useEffect } from "react";
 import { useSelectedPostsStore } from "../stores/selected-posts";
 import { Button } from "./ui/button";
 import { Command, CommandGroup, CommandItem, CommandList } from "./ui/command";
@@ -20,6 +21,8 @@ export default function PostsOptionsBar({
   const router = useRouter();
   const { setIsSelecting, isSelecting, reset } = useSelectedPostsStore();
 
+  useEffect(() => reset(), [reset, router.state.location.pathname]);
+
   return (
     <div className="sm:rounded-md bg-muted flex justify-between text-muted-foreground gap-2">
       <PostsSorter
@@ -30,10 +33,11 @@ export default function PostsOptionsBar({
       />
       <Button
         onClick={() => {
+          if (!isMyProfile || router.state.location.pathname === "feed") return;
           setIsSelecting();
           if (isSelecting) reset();
         }}
-        hidden={!isMyProfile}
+        hidden={!isMyProfile || router.state.location.pathname === "feed"}
         variant={"ghost"}
         size={"icon"}
       >
@@ -58,11 +62,14 @@ function PostsSorter({
     <Popover>
       <PopoverTrigger asChild>
         <Button className="text-sm text-muted-foreground w-fit" variant={"ghost"}>
-          <p>Sort By: {sortByState ?? "recent"}</p>
+          <p>
+            {(sortByState === "likes" && "Most Liked") ||
+              (sortByState === "recent" && "Most Recent")}
+          </p>
           <ChevronDown />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-fit p-0" align="end">
+      <PopoverContent className="w-fit p-0" align="start" alignOffset={8}>
         <Command>
           <CommandList>
             <CommandGroup>

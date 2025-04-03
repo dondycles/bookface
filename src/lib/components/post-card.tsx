@@ -7,6 +7,8 @@ import {
   Edit,
   Ellipsis,
   ExternalLink,
+  Globe,
+  Lock,
   MessageCircle,
   ThumbsUp,
   X,
@@ -141,7 +143,7 @@ export default function PostCard({
               />
             </Link>
 
-            <div className="text-muted-foreground leading-tight">
+            <div className="text-muted-foreground leading-tight flex flex-col gap-1">
               <Link
                 className="font-semibold text-foreground"
                 to="/$username"
@@ -150,7 +152,11 @@ export default function PostCard({
               >
                 @{post.author.username ?? post.author.name}
               </Link>
-              <p className="font-mono text-xs">{post.createdAt.toLocaleString()}</p>
+              <div className="flex gap-2 items-center">
+                <p className="font-mono text-xs">{post.createdAt.toLocaleString()}</p>
+                {post.privacy === "private" && <Lock className="size-3 " />}
+                {post.privacy === "public" && <Globe className="size-3" />}
+              </div>
             </div>
           </div>
           {isSelected ? (
