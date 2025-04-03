@@ -120,7 +120,7 @@ export default function UpsertPostDialog({
             </>
           )}
         />
-        <DialogFooter className="">
+        <DialogFooter className="flex flex-row justify-end">
           <form.Field
             name="privacy"
             children={(field) => (
