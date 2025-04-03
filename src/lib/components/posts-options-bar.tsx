@@ -1,20 +1,59 @@
 import { SortBy } from "@/routes/feed";
-import { NavigateOptions, useRouter } from "@tanstack/react-router";
-import { Check, ChevronDown, ThumbsUp, Timer } from "lucide-react";
+import { AnyRouter, NavigateOptions, useRouter } from "@tanstack/react-router";
+import { Check, ChevronDown, ListChecks, ThumbsUp, Timer, X } from "lucide-react";
+import { useSelectedPostsStore } from "../stores/selected-posts";
 import { Button } from "./ui/button";
 import { Command, CommandGroup, CommandItem, CommandList } from "./ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
-export default function PostsSorter({
+export default function PostsOptionsBar({
   sortByState,
   mostRecent,
   mostLikes,
+  isMyProfile,
 }: {
   sortByState: SortBy;
   mostRecent: NavigateOptions;
   mostLikes: NavigateOptions;
+  isMyProfile: boolean;
 }) {
-  const route = useRouter();
+  const router = useRouter();
+  const { setIsSelecting, isSelecting, reset } = useSelectedPostsStore();
+
+  return (
+    <div className="sm:rounded-md bg-muted flex justify-between text-muted-foreground gap-2">
+      <PostsSorter
+        mostLikes={mostLikes}
+        mostRecent={mostRecent}
+        sortByState={sortByState}
+        router={router}
+      />
+      <Button
+        onClick={() => {
+          setIsSelecting();
+          if (isSelecting) reset();
+        }}
+        hidden={!isMyProfile}
+        variant={"ghost"}
+        size={"icon"}
+      >
+        {isSelecting ? <X /> : <ListChecks />}
+      </Button>
+    </div>
+  );
+}
+
+function PostsSorter({
+  sortByState,
+  mostRecent,
+  mostLikes,
+  router,
+}: {
+  sortByState: SortBy;
+  mostRecent: NavigateOptions;
+  mostLikes: NavigateOptions;
+  router: AnyRouter;
+}) {
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -29,7 +68,7 @@ export default function PostsSorter({
             <CommandGroup>
               <CommandItem
                 onSelect={() => {
-                  route.navigate(mostRecent);
+                  router.navigate(mostRecent);
                 }}
               >
                 <Check
@@ -40,7 +79,7 @@ export default function PostsSorter({
               </CommandItem>
               <CommandItem
                 onSelect={() => {
-                  route.navigate(mostLikes);
+                  router.navigate(mostLikes);
                 }}
               >
                 <Check

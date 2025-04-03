@@ -1,8 +1,8 @@
 import { authMiddleware } from "@/lib/middleware/auth-guard";
+import { postLikes } from "@/lib/schema";
 import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
 import { db } from "../db";
-import { postLikes } from "../schema";
 
 export const addLikePost = createServerFn({
   method: "POST",

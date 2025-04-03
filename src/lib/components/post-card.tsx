@@ -2,6 +2,7 @@ import { errorHandlerWithToast, successHandlerWithToast } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
+  BoxSelect,
   Delete,
   Edit,
   Ellipsis,
@@ -9,12 +10,14 @@ import {
   MessageCircle,
   ThumbsUp,
   X,
+  XSquare,
 } from "lucide-react";
 import { useState } from "react";
 import { postQueryOptions } from "../queries/posts";
 import { addLikePost, removeLikePost } from "../server/fn/likes";
 import { deletePost, Post } from "../server/fn/posts";
 import { CurrentUserInfo } from "../server/fn/user";
+import { useSelectedPostsStore } from "../stores/selected-posts";
 import AddCommentForm from "./add-comment-form";
 import UserAvatar from "./avatar";
 import CommentsSection from "./comments-section";
@@ -43,7 +46,18 @@ export default function PostCard({
   const queryClient = useQueryClient();
   const { data: post, isLoading: postLoading } = useQuery(postQueryOptions(postId));
   const [collapseComments, setCollapesComments] = useState(false);
+
+  const {
+    posts: selectedPosts,
+    selectPost,
+    isSelecting,
+    reset,
+  } = useSelectedPostsStore();
+  const isSelected = selectedPosts?.some((p) => p.id === postId) ?? false;
+
+  const isMyPost = currentUserInfo?.dB.id === post?.userId;
   const isLiked = post?.likers.some((l) => l.likerId === currentUserInfo?.dB.id);
+
   const handleRemovePost = useMutation({
     mutationFn: async () => await deletePost({ data: { post: post! } }),
     onSuccess: () => {
@@ -95,9 +109,7 @@ export default function PostCard({
 
   if (postLoading)
     return (
-      <div
-        className={`sm:rounded-lg w-full py-4 px-2 sm:px-4 flex flex-col gap-4 bg-muted`}
-      >
+      <div className={`sm:rounded-lg w-full py-4 px-2 flex flex-col gap-4 bg-muted`}>
         <div className="flex gap-2">
           <Skeleton className="size-9 aspect-square rounded-full" />
           <div className="flex gap-2 flex-col">
@@ -112,7 +124,7 @@ export default function PostCard({
   return (
     <div key={post.id} className={`${!deepView && ""} sm:rounded-lg bg-muted`}>
       <div
-        className={`flex flex-col gap-4 py-4 px-2 sm:px-4 ${handleRemovePost.isPending && "animate-pulse"}`}
+        className={`flex flex-col gap-4 py-4 px-2  ${handleRemovePost.isPending && "animate-pulse"}`}
       >
         <div className="flex gap-4 justify-between items-start">
           <div className="flex gap-2 items-stretch">
@@ -141,47 +153,68 @@ export default function PostCard({
               <p className="font-mono text-xs">{post.createdAt.toLocaleString()}</p>
             </div>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Ellipsis className="text-muted-foreground size-5" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <Link draggable={false} to="/feed/$id" params={{ id: post.id }}>
-                <DropdownMenuItem>
-                  <ExternalLink /> View
-                </DropdownMenuItem>
-              </Link>
-              <DropdownMenuSub>
-                <UpsertPostDialog post={post}>
-                  <DropdownMenuSubTrigger
-                    showIcon={false}
-                    className="p-2 flex gap-2 cursor-pointer"
-                    hidden={currentUserInfo?.dB.id !== post.userId}
-                  >
-                    <Edit className="size-4 text-muted-foreground" />
-                    <p>Edit</p>
-                  </DropdownMenuSubTrigger>
-                </UpsertPostDialog>
-              </DropdownMenuSub>
+          {isSelected ? (
+            <button
+              onClick={() => {
+                if (selectedPosts?.length === 1) return reset();
+                selectPost(post);
+              }}
+              type="button"
+            >
+              <XSquare className="text-muted-foreground size-5" />
+            </button>
+          ) : isSelecting ? (
+            <button
+              onClick={() => {
+                selectPost(post);
+              }}
+              type="button"
+            >
+              <BoxSelect className="text-muted-foreground size-5" />
+            </button>
+          ) : (
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <Ellipsis className="text-muted-foreground size-5" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <Link draggable={false} to="/feed/$id" params={{ id: post.id }}>
+                  <DropdownMenuItem>
+                    <ExternalLink /> View
+                  </DropdownMenuItem>
+                </Link>
+                <DropdownMenuSub>
+                  <UpsertPostDialog post={post}>
+                    <DropdownMenuSubTrigger
+                      showIcon={false}
+                      className="p-2 flex gap-2 cursor-pointer"
+                      hidden={!isMyPost}
+                    >
+                      <Edit className="size-4 text-muted-foreground" />
+                      <p>Edit</p>
+                    </DropdownMenuSubTrigger>
+                  </UpsertPostDialog>
+                </DropdownMenuSub>
 
-              <DropdownMenuItem
-                hidden={currentUserInfo?.dB.id !== post.userId}
-                onClick={() => {
-                  handleRemovePost.mutate();
-                }}
-              >
-                <Delete className="text-destructive" />
-                <p className="text-destructive">Delete</p>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <DropdownMenuItem
+                  hidden={!isMyPost}
+                  onClick={() => {
+                    handleRemovePost.mutate();
+                  }}
+                >
+                  <Delete className="text-destructive" />
+                  <p className="text-destructive">Delete</p>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
 
         <p className="whitespace-pre-wrap">{post.message}</p>
       </div>
 
       <Collapsible open={collapseComments} onOpenChange={setCollapesComments}>
-        <div className="py-2 px-2 sm:px-3  sm:border-t flex gap-2">
+        <div className="py-2 px-2 sm:pl-3  sm:border-t flex gap-2">
           <Button
             onClick={async () =>
               isLiked ? handleUnlikePost.mutate() : handleLikePost.mutate()

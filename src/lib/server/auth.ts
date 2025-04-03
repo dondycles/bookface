@@ -26,22 +26,4 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     },
   },
-
-  // https://www.better-auth.com/docs/authentication/email-password
-  // emailAndPassword: {
-  //   enabled: true,
-  // },
-  // user: {
-  //   additionalFields: {
-  //     bio: {
-  //       type: "string",
-  //     },
-  //     username: {
-  //       type: "string",
-  //     },
-  //     displayUsername: {
-  //       type: "string",
-  //     },
-  //   },
-  // },
 });

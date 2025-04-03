@@ -11,7 +11,7 @@ export default function UserAvatar({
   alt: string;
 }) {
   return (
-    <Avatar className={cn("", className)}>
+    <Avatar className={cn("outline outline-accent", className)}>
       <AvatarImage src={url ?? "favicon.ico"} alt={alt} />
       <AvatarFallback>BF</AvatarFallback>
     </Avatar>

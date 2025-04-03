@@ -1,7 +1,8 @@
 import AddPostBar from "@/lib/components/add-post-bar";
 import UserAvatar from "@/lib/components/avatar";
 import PostCard from "@/lib/components/post-card";
-import PostsSorter from "@/lib/components/posts-sorter";
+import PostsOptionsBar from "@/lib/components/posts-options-bar";
+import SelectedPostOptionsFloatingBar from "@/lib/components/selected-posts-options-floating-bar";
 import { Button } from "@/lib/components/ui/button";
 import useAutoLoadNextPage from "@/lib/hooks/useAutoLoadNextPage";
 import { currentUserPostsQueryOptions, userPostsQueryOptions } from "@/lib/queries/posts";
@@ -52,8 +53,15 @@ function RouteComponent() {
       myPosts.fetchNextPage();
     },
   });
+
   if (!isMyProfile)
-    return <OtherUserProfile currentUserInfo={currentUserInfo} username={username} />;
+    return (
+      <OtherUserProfile
+        isMyProfile={isMyProfile}
+        currentUserInfo={currentUserInfo}
+        username={username}
+      />
+    );
   return (
     <div className="py-24 sm:max-w-[512px] mx-auto">
       <div className="flex flex-col gap-4 ">
@@ -91,10 +99,11 @@ function RouteComponent() {
           </div>
         </div>
         <AddPostBar currentUserInfo={currentUserInfo} />
-        <PostsSorter
+        <PostsOptionsBar
           mostLikes={{ to: "/$username", search: { sortBy: "likes" } }}
           mostRecent={{ to: "/$username", search: { sortBy: "recent" } }}
           sortByState={sortBy}
+          isMyProfile={isMyProfile}
         />
         <div className="flex flex-col gap-4 h-full w-full">
           {_myPosts?.map((post, i) => {
@@ -119,6 +128,7 @@ function RouteComponent() {
             );
           })}
         </div>
+        <SelectedPostOptionsFloatingBar />
         <Button
           className="text-xs text-muted-foreground font-light"
           hidden={!myPosts.hasNextPage}
@@ -137,9 +147,11 @@ function RouteComponent() {
 function OtherUserProfile({
   username,
   currentUserInfo,
+  isMyProfile,
 }: {
   username: string;
   currentUserInfo: CurrentUserInfo;
+  isMyProfile: boolean;
 }) {
   const { sortBy } = Route.useLoaderData();
   const profile = useSuspenseQuery(userInfoQueryOptions(username));
@@ -157,8 +169,8 @@ function OtherUserProfile({
       {!profile.data ? (
         <>User not found!</>
       ) : (
-        <div className="sm:px-4 flex flex-col gap-4 ">
-          <div className="sm:px-2 text-muted-foreground">
+        <div className="flex flex-col gap-4 ">
+          <div className="text-muted-foreground">
             <div className="flex flex-col gap-4 bg-muted sm:rounded-md p-4">
               <div className="flex gap-4">
                 <UserAvatar
@@ -184,10 +196,12 @@ function OtherUserProfile({
               </div>
             </div>
           </div>
-          <PostsSorter
+
+          <PostsOptionsBar
             mostLikes={{ to: "/$username", search: { sortBy: "likes" } }}
             mostRecent={{ to: "/$username", search: { sortBy: "recent" } }}
             sortByState={sortBy}
+            isMyProfile={isMyProfile}
           />
 
           <div className="flex flex-col gap-4 h-full w-full">

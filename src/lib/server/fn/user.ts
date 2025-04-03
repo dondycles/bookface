@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { authMiddleware } from "@/lib/middleware/auth-guard";
+import { user } from "@/lib/schema";
 import { createServerFn } from "@tanstack/react-start";
 import { getWebRequest } from "@tanstack/react-start/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { auth } from "../auth";
 import { db } from "../db";
-import { user } from "../schema";
 
 export const settingsSchema = z.object({
   name: z

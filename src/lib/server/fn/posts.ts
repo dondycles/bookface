@@ -1,10 +1,10 @@
 import { authMiddleware } from "@/lib/middleware/auth-guard";
+import { post, postLikes } from "@/lib/schema";
 import { SortBy } from "@/routes/feed";
 import { createServerFn } from "@tanstack/react-start";
 import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db";
-import { post, postLikes } from "../schema";
 import { CurrentUserInfo } from "./user";
 
 export const postSchema = z.object({
@@ -176,4 +176,24 @@ export const deletePost = createServerFn({
     if (data.post.userId !== user.id)
       throw new Error(`[{ "message": "You are not the author." }]`);
     await db.delete(post).where(and(eq(post.userId, user.id), eq(post.id, data.post.id)));
+  });
+
+export const deleteMultiplePosts = createServerFn({
+  method: "POST",
+})
+  .middleware([authMiddleware])
+  .validator((data: { posts: Post[] | null }) => data)
+  .handler(async ({ data, context: { dB: user } }) => {
+    if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
+    if (data.posts === null) throw new Error(`[{ "message": "No Selected Posts." }]`);
+    await db.transaction(async (tx) => {
+      for (const p of data.posts!) {
+        if (p.userId !== user.id) {
+          throw new Error(
+            `[{ "message": "You are not the author of post ID ${p.id}." }]`,
+          );
+        }
+        await tx.delete(post).where(and(eq(post.userId, user.id), eq(post.id, p.id)));
+      }
+    });
   });

@@ -1,9 +1,9 @@
 import { authMiddleware } from "@/lib/middleware/auth-guard";
+import { post, postComments } from "@/lib/schema";
 import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db";
-import { post, postComments } from "../schema";
 import { Post } from "./posts";
 export const commentSchema = z.object({
   message: z
