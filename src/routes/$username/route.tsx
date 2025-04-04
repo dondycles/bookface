@@ -1,66 +1,87 @@
 import AddPostBar from "@/lib/components/post/add-post-bar";
-import PostCard from "@/lib/components/post/post-card";
 import PostsMapper from "@/lib/components/post/posts-mapper";
 import PostsOptionsBar from "@/lib/components/post/posts-options-bar";
+import { PostsOrderer } from "@/lib/components/post/posts-orderer";
 import SelectedPostOptionsFloatingBar from "@/lib/components/post/selected-posts-options-floating-bar";
 import { Button } from "@/lib/components/ui/button";
 import UserAvatar from "@/lib/components/user-avatar";
-import useAutoLoadNextPage from "@/lib/hooks/useAutoLoadNextPage";
 import { currentUserPostsQueryOptions, userPostsQueryOptions } from "@/lib/queries/posts";
 import { currentUserInfoQueryOptions, userInfoQueryOptions } from "@/lib/queries/user";
-import { searchPostsSortBySchema } from "@/lib/search-schema";
+import { searchFeedSchema } from "@/lib/search-schema";
 import { CurrentUserInfo } from "@/lib/server/fn/user";
 import { useInfiniteQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import {
+  AnyRouter,
+  createFileRoute,
+  Link,
+  redirect,
+  useRouter,
+} from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
 
 export const Route = createFileRoute("/$username")({
   component: RouteComponent,
-  validateSearch: (search) => searchPostsSortBySchema.parse(search),
+  validateSearch: (search) => searchFeedSchema.parse(search),
 
   beforeLoad: async ({ params, context, search }) => {
     const isMyProfile = params.username === context.currentUserInfo?.dB.username;
-    if (search.postsSortBy !== "likes" && search.postsSortBy !== "recent") {
+    if (search.postsOrderBy !== "likes" && search.postsOrderBy !== "recent") {
       throw redirect({
         to: "/feed",
         search: {
-          postsSortBy: "recent",
+          postsOrderBy: "recent",
+          flow: search.flow,
+        },
+      });
+    }
+    if (search.flow !== "asc" && search.flow !== "desc") {
+      throw redirect({
+        to: "/feed",
+        search: {
+          postsOrderBy: search.postsOrderBy,
+          flow: "desc",
         },
       });
     }
     return { isMyProfile, search };
   },
-  loader: ({ params, context }) => {
+  loader: ({
+    params: { username },
+    context: {
+      isMyProfile,
+      currentUserInfo,
+      search: { flow, postsOrderBy },
+    },
+  }) => {
     return {
-      username: params.username,
-      isMyProfile: context.isMyProfile,
-      currentUserInfo: context.currentUserInfo,
-      postsSortBy: context.search.postsSortBy,
+      username,
+      isMyProfile,
+      currentUserInfo,
+      postsOrderBy,
+      flow,
     };
   },
 });
 
 function RouteComponent() {
-  const { username, isMyProfile, currentUserInfo, postsSortBy } = Route.useLoaderData();
+  const router = useRouter();
+  const { username, isMyProfile, currentUserInfo, postsOrderBy, flow } =
+    Route.useLoaderData();
   const { data: myProfile } = useSuspenseQuery({
     initialData: currentUserInfo,
     ...currentUserInfoQueryOptions(),
   });
-  const myPosts = useInfiniteQuery({ ...currentUserPostsQueryOptions(postsSortBy) });
-  const _myPosts = myPosts.data?.pages.flatMap((page) => page);
-
-  const { ref, loaderRef } = useAutoLoadNextPage({
-    fetchNextPage: () => {
-      myPosts.fetchNextPage();
-    },
+  const myPosts = useInfiniteQuery({
+    ...currentUserPostsQueryOptions(postsOrderBy, flow),
   });
+  const _myPosts = myPosts.data?.pages.flatMap((page) => page);
 
   if (!isMyProfile)
     return (
       <OtherUserProfile
-        isMyProfile={isMyProfile}
         currentUserInfo={currentUserInfo}
         username={username}
+        router={router}
       />
     );
   return (
@@ -100,47 +121,30 @@ function RouteComponent() {
           </div>
         </div>
         <AddPostBar currentUserInfo={currentUserInfo} />
-        <PostsOptionsBar
-          mostLikes={{ to: "/$username", search: { postsSortBy: "likes" } }}
-          mostRecent={{ to: "/$username", search: { postsSortBy: "recent" } }}
-          postsSortByState={postsSortBy}
-          isMyProfile={isMyProfile}
+
+        <PostsOptionsBar router={router} isMyProfile={isMyProfile}>
+          <PostsOrderer
+            router={router}
+            mostLikes={(flow) => ({
+              to: "/$username",
+              search: { postsOrderBy: "likes", flow },
+            })}
+            mostRecent={(flow) => ({
+              to: "/$username",
+              search: { postsOrderBy: "recent", flow },
+            })}
+            flow={flow}
+            postsOrderBy={postsOrderBy}
+          />
+        </PostsOptionsBar>
+        <PostsMapper
+          _posts={_myPosts}
+          currentUserInfo={currentUserInfo}
+          fetchNextPage={myPosts.fetchNextPage}
+          hasNextPage={myPosts.hasNextPage}
+          isFetchingNextPage={myPosts.isFetchingNextPage}
         />
-        <div className="flex flex-col gap-4 h-full w-full">
-          {_myPosts?.map((post, i) => {
-            if (i === _myPosts.length - 1)
-              return (
-                <div ref={ref} key={post.id} className="flex-1">
-                  <PostCard
-                    currentUserInfo={currentUserInfo}
-                    postId={post.id}
-                    key={post.id}
-                    deepView={false}
-                  />
-                </div>
-              );
-            return (
-              <PostCard
-                currentUserInfo={currentUserInfo}
-                postId={post.id}
-                key={post.id}
-                deepView={false}
-              />
-            );
-          })}
-        </div>
         <SelectedPostOptionsFloatingBar />
-        <Button
-          className="text-xs text-muted-foreground font-light"
-          hidden={!myPosts.hasNextPage}
-          ref={loaderRef}
-          variant={"ghost"}
-          onClick={() => {
-            myPosts.fetchNextPage();
-          }}
-        >
-          {myPosts.isFetchingNextPage ? "Loading..." : "Fetch more posts"}
-        </Button>
       </div>
     </div>
   );
@@ -148,15 +152,17 @@ function RouteComponent() {
 function OtherUserProfile({
   username,
   currentUserInfo,
-  isMyProfile,
+  router,
 }: {
   username: string;
   currentUserInfo: CurrentUserInfo;
-  isMyProfile: boolean;
+  router: AnyRouter;
 }) {
-  const { postsSortBy } = Route.useLoaderData();
+  const { postsOrderBy, flow } = Route.useLoaderData();
   const profile = useSuspenseQuery(userInfoQueryOptions(username));
-  const posts = useInfiniteQuery({ ...userPostsQueryOptions(username, postsSortBy) });
+  const posts = useInfiniteQuery({
+    ...userPostsQueryOptions(username, postsOrderBy, flow),
+  });
   const _posts = posts.data?.pages.flatMap((page) => page);
 
   return (
@@ -192,13 +198,21 @@ function OtherUserProfile({
             </div>
           </div>
 
-          <PostsOptionsBar
-            mostLikes={{ to: "/$username", search: { postsSortBy: "likes" } }}
-            mostRecent={{ to: "/$username", search: { postsSortBy: "recent" } }}
-            postsSortByState={postsSortBy}
-            isMyProfile={isMyProfile}
-          />
-
+          <PostsOptionsBar router={router} isMyProfile={false}>
+            <PostsOrderer
+              router={router}
+              mostLikes={(flow) => ({
+                to: "/$username",
+                search: { postsOrderBy: "likes", flow },
+              })}
+              mostRecent={(flow) => ({
+                to: "/$username",
+                search: { postsOrderBy: "recent", flow },
+              })}
+              flow={flow}
+              postsOrderBy={postsOrderBy}
+            />
+          </PostsOptionsBar>
           <PostsMapper
             _posts={_posts}
             fetchNextPage={() => posts.fetchNextPage()}

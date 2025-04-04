@@ -7,7 +7,7 @@ export const Route = createFileRoute("/")({
   component: Home,
   beforeLoad: ({ context }) => {
     if (context.currentUserInfo)
-      throw redirect({ to: "/feed", search: { sortBy: "recent" } });
+      throw redirect({ to: "/feed", search: { postsOrderBy: "recent", flow: "desc" } });
   },
 });
 

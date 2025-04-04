@@ -1,5 +1,5 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
-import { PostsSortBy } from "../search-schema";
+import { PostsOrderBy, SearchFlow } from "../search-schema";
 import {
   getCurrentUserPosts,
   getPost,
@@ -9,17 +9,24 @@ import {
 } from "../server/fn/posts";
 import { CurrentUserInfo } from "../server/fn/user";
 
+// * done with order and flow
 export const postsQueryOptions = (
   currentUserInfo: CurrentUserInfo,
-  sortBy?: PostsSortBy,
+  postsOrderBy: PostsOrderBy,
+  flow: SearchFlow,
 ) =>
   infiniteQueryOptions({
     // eslint-disable-next-line @tanstack/query/exhaustive-deps
-    queryKey: ["posts", `sortedBy: ${sortBy}, ${currentUserInfo?.dB.id}`],
+    queryKey: ["posts", `orderedBy: ${postsOrderBy} ${flow}, ${currentUserInfo?.dB.id}`],
     queryFn: ({ signal, pageParam }) =>
       getPosts({
         signal,
-        data: { pageParam, sortBy: sortBy ?? "recent", currentUserInfo },
+        data: {
+          pageParam,
+          postsOrderBy,
+          flow,
+          currentUserInfo,
+        },
       }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages, lastPageParam) => {
@@ -44,14 +51,16 @@ export const postLikesQueryOptions = (id: string) =>
     queryFn: ({ signal }) => getPostLikesCount({ data: id, signal }),
   });
 
-export const currentUserPostsQueryOptions = (sortBy?: PostsSortBy) =>
+export const currentUserPostsQueryOptions = (
+  postsOrderBy: PostsOrderBy,
+  flow: SearchFlow,
+) =>
   infiniteQueryOptions({
-    // eslint-disable-next-line @tanstack/query/exhaustive-deps
-    queryKey: ["currentUserPosts", sortBy],
+    queryKey: ["currentUserPosts", postsOrderBy, flow],
     queryFn: ({ signal, pageParam }) =>
       getCurrentUserPosts({
         signal,
-        data: { pageParam, sortBy: sortBy ?? "recent" },
+        data: { pageParam, postsOrderBy: postsOrderBy, flow },
       }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages, lastPageParam) => {
@@ -63,13 +72,22 @@ export const currentUserPostsQueryOptions = (sortBy?: PostsSortBy) =>
   });
 export type CurrentUserPostsQueryOptions = typeof currentUserPostsQueryOptions;
 
-export const userPostsQueryOptions = (username: string, sortBy?: PostsSortBy) =>
+export const userPostsQueryOptions = (
+  username: string,
+  postsOrderBy: PostsOrderBy,
+  flow: SearchFlow,
+) =>
   infiniteQueryOptions({
-    queryKey: ["userPosts", username, sortBy],
+    queryKey: ["userPosts", username, postsOrderBy, flow],
     queryFn: ({ signal, pageParam }) =>
       getUserPosts({
         signal,
-        data: { pageParam, sortBy: sortBy ?? "recent", username },
+        data: {
+          pageParam,
+          postsOrderBy: postsOrderBy,
+          flow,
+          username,
+        },
       }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages, lastPageParam) => {

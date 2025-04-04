@@ -43,14 +43,25 @@ export default function Nav({
     if (searching && debouncedQ !== "") {
       route.navigate({
         to: "/search",
-        search: { q: debouncedQ },
+        search: {
+          q: debouncedQ,
+          postsOrderBy: router.state.location.search.postsOrderBy ?? "recent",
+          usersOrderBy: router.state.location.search.usersOrderBy ?? "dateJoined",
+          flow: "desc",
+        },
       });
     }
-  }, [searching, debouncedQ, route]);
+  }, [
+    searching,
+    debouncedQ,
+    route,
+    router.state.location.search.postsOrderBy,
+    router.state.location.search.usersOrderBy,
+  ]);
   return (
     <nav className="gap-4  fixed w-full z-10 bg-muted shadow-xl shadow-black/5">
-      <div className="sm:max-w-[512px] mx-auto flex items-center justify-between w-full  px-2 sm:px-0  py-4">
-        <div className="flex gap-2 flex-1 justify-start">
+      <div className="sm:max-w-[512px] mx-auto flex items-center gap-2 justify-between w-full  px-2 sm:px-0  py-4 ">
+        <div className="flex gap-2 flex-1 justify-start items-center">
           {searching ? (
             <>
               <Input
@@ -79,11 +90,14 @@ export default function Nav({
               <Link
                 to={"/feed"}
                 search={{
-                  sortBy: "recent",
+                  postsOrderBy: "recent",
+                  flow: "desc",
                 }}
-                className="text-4xl font-bold leading-none"
+                className="font-bold"
               >
-                bookface
+                <div className="bg-accent rounded-full aspect-square h-12 flex items-center justify-center text-2xl">
+                  bf
+                </div>
               </Link>
               <Button
                 key={"Search"}
@@ -110,7 +124,7 @@ export default function Nav({
               <DropdownMenuItem asChild>
                 <Link
                   to="/$username"
-                  search={{ sortBy: "recent" }}
+                  search={{ postsOrderBy: "recent", flow: "desc" }}
                   params={{ username: currentUserInfo.dB.username as string }}
                 >
                   <Avatar>

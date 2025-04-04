@@ -134,7 +134,7 @@ export default function PostCard({
             <Link
               className="font-semibold text-foreground"
               to="/$username"
-              search={{ postsSortBy: "recent" }}
+              search={{ postsOrderBy: "recent", flow: "desc" }}
               params={{ username: post.author.username ?? "" }}
             >
               <UserAvatar
@@ -149,7 +149,7 @@ export default function PostCard({
                 className="font-semibold text-foreground"
                 to="/$username"
                 params={{ username: post.author.username ?? "" }}
-                search={{ postsSortBy: "recent" }}
+                search={{ postsOrderBy: "recent", flow: "desc" }}
               >
                 @{post.author.username ?? post.author.name}
               </Link>

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-export const searchPostsSortBySchema = z.object({
-  postsSortBy: z.enum(["likes", "recent"]),
+export const searchPostsOrderBySchema = z.object({
+  postsOrderBy: z.enum(["likes", "recent"]),
 });
 
 export const searchQSchema = z.object({
@@ -12,11 +12,37 @@ export const searchQSchema = z.object({
     .trim(),
 });
 
-export const searchUsersSortBySchema = z.object({
-  usersSortBy: z.enum(["name", "recent"]),
+export const searchUsersOrderBySchema = z.object({
+  usersOrderBy: z.enum(["fullName", "dateJoined", "userName"]),
 });
-export type PostsSortBy = z.infer<typeof searchPostsSortBySchema.shape.postsSortBy>;
+
+export const searchFlowSchema = z.object({
+  flow: z.enum(["asc", "desc"]),
+});
 
 export type SearchQ = z.infer<typeof searchQSchema.shape.q>;
 
-export type UsersSortBy = z.infer<typeof searchUsersSortBySchema.shape.usersSortBy>;
+export type PostsOrderBy = z.infer<typeof searchPostsOrderBySchema.shape.postsOrderBy>;
+
+export type UsersOrderBy = z.infer<typeof searchUsersOrderBySchema.shape.usersOrderBy>;
+
+export type SearchFlow = z.infer<typeof searchFlowSchema.shape.flow>;
+
+export const searchFeedSchema = z.object({
+  postsOrderBy: searchPostsOrderBySchema.shape.postsOrderBy,
+  flow: searchFlowSchema.shape.flow,
+});
+
+export type SearchFeedSchema = z.infer<typeof searchFeedSchema>;
+
+export const searchUsernameSchema = z.object({
+  postsOrderBy: searchPostsOrderBySchema.shape.postsOrderBy,
+  flow: searchFlowSchema.shape.flow,
+});
+
+export const searchSearchSchema = z.object({
+  q: searchQSchema.shape.q,
+  postsOrderBy: searchPostsOrderBySchema.shape.postsOrderBy,
+  usersOrderBy: searchUsersOrderBySchema.shape.usersOrderBy,
+  flow: searchFlowSchema.shape.flow,
+});

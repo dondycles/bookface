@@ -1,35 +1,25 @@
-import { PostsSortBy } from "@/lib/search-schema";
-import { NavigateOptions, useRouter } from "@tanstack/react-router";
+import { AnyRouter } from "@tanstack/react-router";
 import { ListChecks, X } from "lucide-react";
 import { useEffect } from "react";
 import { useSelectedPostsStore } from "../../stores/selected-posts";
 import { Button } from "../ui/button";
-import { PostsSorter } from "./posts-sorter";
 
 export default function PostsOptionsBar({
-  postsSortByState,
-  mostRecent,
-  mostLikes,
   isMyProfile,
+  router,
+  children,
 }: {
-  postsSortByState: PostsSortBy;
-  mostRecent: NavigateOptions;
-  mostLikes: NavigateOptions;
   isMyProfile: boolean;
+  router: AnyRouter;
+  children: React.ReactNode;
 }) {
-  const router = useRouter();
   const { setIsSelecting, isSelecting, reset } = useSelectedPostsStore();
 
   useEffect(() => reset(), [reset, router.state.location.pathname]);
 
   return (
     <div className="sm:rounded-md bg-muted flex justify-between text-muted-foreground gap-2">
-      <PostsSorter
-        mostLikes={mostLikes}
-        mostRecent={mostRecent}
-        postsSortByState={postsSortByState}
-        router={router}
-      />
+      {children}
       <Button
         onClick={() => {
           if (!isMyProfile || router.state.location.pathname === "feed") return;

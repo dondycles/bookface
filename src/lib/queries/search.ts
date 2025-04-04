@@ -1,12 +1,24 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
-import { PostsSortBy, UsersSortBy } from "../search-schema";
+import { PostsOrderBy, SearchFlow, UsersOrderBy } from "../search-schema";
 import { getPostsResults, getUsersResults } from "../server/fn/search";
 
-export const searchPostsQueryOptions = (q: string, sortBy?: PostsSortBy) =>
+export const searchPostsQueryOptions = (
+  q: string,
+  postsOrderBy: PostsOrderBy,
+  flow: SearchFlow,
+) =>
   infiniteQueryOptions({
-    queryKey: ["searchPosts", q, sortBy],
+    queryKey: ["searchPosts", q, postsOrderBy, flow],
     queryFn: ({ signal, pageParam }) =>
-      getPostsResults({ data: { pageParam, q, sortBy: sortBy ?? "recent" }, signal }),
+      getPostsResults({
+        data: {
+          pageParam,
+          q,
+          postsOrderBy,
+          flow,
+        },
+        signal,
+      }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages, lastPageParam) => {
       if (lastPage.length === 0) {
@@ -15,11 +27,23 @@ export const searchPostsQueryOptions = (q: string, sortBy?: PostsSortBy) =>
       return lastPageParam + 1;
     },
   });
-export const searchUsersQueryOptions = (q: string, sortBy?: UsersSortBy) =>
+export const searchUsersQueryOptions = (
+  q: string,
+  usersOrderBy: UsersOrderBy,
+  flow: SearchFlow,
+) =>
   infiniteQueryOptions({
-    queryKey: ["searchUsers", q, sortBy],
+    queryKey: ["searchUsers", q, usersOrderBy, flow],
     queryFn: ({ signal, pageParam }) =>
-      getUsersResults({ data: { pageParam, q, sortBy: sortBy ?? "recent" }, signal }),
+      getUsersResults({
+        data: {
+          pageParam,
+          q,
+          usersOrderBy,
+          flow,
+        },
+        signal,
+      }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages, lastPageParam) => {
       if (lastPage.length === 0) {
