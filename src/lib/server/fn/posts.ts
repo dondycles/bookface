@@ -1,6 +1,7 @@
 import { authMiddleware } from "@/lib/middleware/auth-guard";
 import { post, postLikes } from "@/lib/schema";
-import { SortBy } from "@/routes/feed";
+
+import { SortBy } from "@/lib/global-schema";
 import { createServerFn } from "@tanstack/react-start";
 import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";

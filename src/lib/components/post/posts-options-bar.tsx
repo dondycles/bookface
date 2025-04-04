@@ -1,11 +1,10 @@
-import { SortBy } from "@/routes/feed";
-import { AnyRouter, NavigateOptions, useRouter } from "@tanstack/react-router";
-import { Check, ChevronDown, ListChecks, ThumbsUp, Timer, X } from "lucide-react";
+import { SortBy } from "@/lib/global-schema";
+import { NavigateOptions, useRouter } from "@tanstack/react-router";
+import { ListChecks, X } from "lucide-react";
 import { useEffect } from "react";
 import { useSelectedPostsStore } from "../../stores/selected-posts";
 import { Button } from "../ui/button";
-import { Command, CommandGroup, CommandItem, CommandList } from "../ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { PostsSorter } from "./posts-sorter";
 
 export default function PostsOptionsBar({
   sortByState,
@@ -44,62 +43,5 @@ export default function PostsOptionsBar({
         {isSelecting ? <X /> : <ListChecks />}
       </Button>
     </div>
-  );
-}
-
-function PostsSorter({
-  sortByState,
-  mostRecent,
-  mostLikes,
-  router,
-}: {
-  sortByState: SortBy;
-  mostRecent: NavigateOptions;
-  mostLikes: NavigateOptions;
-  router: AnyRouter;
-}) {
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button className="text-sm text-muted-foreground w-fit" variant={"ghost"}>
-          <p>
-            {(sortByState === "likes" && "Most Liked") ||
-              (sortByState === "recent" && "Most Recent")}
-          </p>
-          <ChevronDown />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-fit p-0" align="start" alignOffset={8}>
-        <Command>
-          <CommandList>
-            <CommandGroup>
-              <CommandItem
-                onSelect={() => {
-                  router.navigate(mostRecent);
-                }}
-              >
-                <Check
-                  className={`${sortByState === "recent" ? "opacity-100" : "opacity-0"}`}
-                />
-                <Timer />
-                <p>Most Recent</p>
-              </CommandItem>
-              <CommandItem
-                onSelect={() => {
-                  router.navigate(mostLikes);
-                }}
-              >
-                <Check
-                  className={`${sortByState === "likes" ? "opacity-100" : "opacity-0"}`}
-                />
-
-                <ThumbsUp />
-                <p>Most Liked</p>
-              </CommandItem>
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
   );
 }

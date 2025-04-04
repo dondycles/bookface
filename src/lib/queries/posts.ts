@@ -1,5 +1,5 @@
-import { SortBy } from "@/routes/feed";
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
+import { SortBy } from "../global-schema";
 import {
   getCurrentUserPosts,
   getPost,

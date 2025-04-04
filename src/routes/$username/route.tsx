@@ -1,9 +1,11 @@
 import AddPostBar from "@/lib/components/post/add-post-bar";
 import PostCard from "@/lib/components/post/post-card";
+import PostsMapper from "@/lib/components/post/posts-mapper";
 import PostsOptionsBar from "@/lib/components/post/posts-options-bar";
 import SelectedPostOptionsFloatingBar from "@/lib/components/post/selected-posts-options-floating-bar";
 import { Button } from "@/lib/components/ui/button";
 import UserAvatar from "@/lib/components/user-avatar";
+import { searchSortBySchema } from "@/lib/global-schema";
 import useAutoLoadNextPage from "@/lib/hooks/useAutoLoadNextPage";
 import { currentUserPostsQueryOptions, userPostsQueryOptions } from "@/lib/queries/posts";
 import { currentUserInfoQueryOptions, userInfoQueryOptions } from "@/lib/queries/user";
@@ -11,11 +13,10 @@ import { CurrentUserInfo } from "@/lib/server/fn/user";
 import { useInfiniteQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
-import { searchSchema } from "../feed";
 
 export const Route = createFileRoute("/$username")({
   component: RouteComponent,
-  validateSearch: (search) => searchSchema.parse(search),
+  validateSearch: (search) => searchSortBySchema.parse(search),
 
   beforeLoad: async ({ params, context, search }) => {
     const isMyProfile = params.username === context.currentUserInfo?.dB.username;
@@ -158,12 +159,6 @@ function OtherUserProfile({
   const posts = useInfiniteQuery({ ...userPostsQueryOptions(username, sortBy) });
   const _posts = posts.data?.pages.flatMap((page) => page);
 
-  const { ref, loaderRef } = useAutoLoadNextPage({
-    fetchNextPage: () => {
-      posts.fetchNextPage();
-    },
-  });
-
   return (
     <div className="py-24 sm:max-w-[512px] mx-auto">
       {!profile.data ? (
@@ -204,40 +199,13 @@ function OtherUserProfile({
             isMyProfile={isMyProfile}
           />
 
-          <div className="flex flex-col gap-4 h-full w-full">
-            {_posts?.map((post, i) => {
-              if (i === _posts.length - 1)
-                return (
-                  <div ref={ref} key={post.id} className="flex-1">
-                    <PostCard
-                      currentUserInfo={currentUserInfo}
-                      postId={post.id}
-                      key={post.id}
-                      deepView={false}
-                    />
-                  </div>
-                );
-              return (
-                <PostCard
-                  currentUserInfo={currentUserInfo}
-                  postId={post.id}
-                  key={post.id}
-                  deepView={false}
-                />
-              );
-            })}
-          </div>
-          <Button
-            className="text-xs text-muted-foreground font-light"
-            hidden={!posts.hasNextPage}
-            ref={loaderRef}
-            variant={"ghost"}
-            onClick={() => {
-              posts.fetchNextPage();
-            }}
-          >
-            {posts.isFetchingNextPage ? "Loading..." : "Fetch more posts"}
-          </Button>
+          <PostsMapper
+            _posts={_posts}
+            fetchNextPage={() => posts.fetchNextPage()}
+            hasNextPage={posts.hasNextPage}
+            isFetchingNextPage={posts.isFetchingNextPage}
+            currentUserInfo={currentUserInfo}
+          />
         </div>
       )}
     </div>
