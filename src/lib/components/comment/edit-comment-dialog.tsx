@@ -1,3 +1,5 @@
+import FieldInfo from "@/lib/components/field-info";
+import { Button } from "@/lib/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -6,15 +8,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/lib/components/ui/dialog";
+import { Textarea } from "@/lib/components/ui/textarea";
+import { Comment, commentSchema, editComment } from "@/lib/server/fn/comments";
 import { errorHandlerWithToast, successHandlerWithToast } from "@/lib/utils";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { z } from "zod";
-import { Comment, commentSchema, editComment } from "../server/fn/comments";
-import FieldInfo from "./field-info";
-import { Button } from "./ui/button";
-import { Textarea } from "./ui/textarea";
 
 export default function EditCommentDialog({
   children,

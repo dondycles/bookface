@@ -1,6 +1,6 @@
-import AddPostBar from "@/lib/components/add-post-bar";
-import PostCard from "@/lib/components/post-card";
-import PostsOptionsBar from "@/lib/components/posts-options-bar";
+import AddPostBar from "@/lib/components/post/add-post-bar";
+import PostCard from "@/lib/components/post/post-card";
+import PostsOptionsBar from "@/lib/components/post/posts-options-bar";
 import { Button } from "@/lib/components/ui/button";
 import useAutoLoadNextPage from "@/lib/hooks/useAutoLoadNextPage";
 import { postsQueryOptions } from "@/lib/queries/posts";

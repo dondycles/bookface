@@ -1,12 +1,12 @@
+import { addComment } from "@/lib/server/fn/comments";
 import { errorHandlerWithToast, successHandlerWithToast } from "@/lib/utils";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Send } from "lucide-react";
 import { z } from "zod";
-import { addComment } from "../server/fn/comments";
-import FieldInfo from "./field-info";
-import { Button } from "./ui/button";
-import { Textarea } from "./ui/textarea";
+import FieldInfo from "../field-info";
+import { Button } from "../ui/button";
+import { Textarea } from "../ui/textarea";
 export const commentSchema = z.object({
   message: z.string(),
 });

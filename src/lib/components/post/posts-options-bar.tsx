@@ -2,10 +2,10 @@ import { SortBy } from "@/routes/feed";
 import { AnyRouter, NavigateOptions, useRouter } from "@tanstack/react-router";
 import { Check, ChevronDown, ListChecks, ThumbsUp, Timer, X } from "lucide-react";
 import { useEffect } from "react";
-import { useSelectedPostsStore } from "../stores/selected-posts";
-import { Button } from "./ui/button";
-import { Command, CommandGroup, CommandItem, CommandList } from "./ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { useSelectedPostsStore } from "../../stores/selected-posts";
+import { Button } from "../ui/button";
+import { Command, CommandGroup, CommandItem, CommandList } from "../ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 export default function PostsOptionsBar({
   sortByState,

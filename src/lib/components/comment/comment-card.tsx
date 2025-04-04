@@ -1,12 +1,3 @@
-import { errorHandlerWithToast, successHandlerWithToast } from "@/lib/utils";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Delete, Edit, Ellipsis } from "lucide-react";
-import { commentQueryOptions } from "../queries/comments";
-import { Comment, removeComment } from "../server/fn/comments";
-import { Post } from "../server/fn/posts";
-import { CurrentUserInfo } from "../server/fn/user";
-import UserAvatar from "./avatar";
-import EditCommentDialog from "./edit-comment-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,8 +5,17 @@ import {
   DropdownMenuSub,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
-import { Skeleton } from "./ui/skeleton";
+} from "@/lib/components/ui/dropdown-menu";
+import { Skeleton } from "@/lib/components/ui/skeleton";
+import UserAvatar from "@/lib/components/user-avatar";
+import { commentQueryOptions } from "@/lib/queries/comments";
+import { Comment, removeComment } from "@/lib/server/fn/comments";
+import { Post } from "@/lib/server/fn/posts";
+import { CurrentUserInfo } from "@/lib/server/fn/user";
+import { errorHandlerWithToast, successHandlerWithToast } from "@/lib/utils";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Delete, Edit, Ellipsis } from "lucide-react";
+import EditCommentDialog from "./edit-comment-dialog";
 
 export default function CommentCard({
   commentId,

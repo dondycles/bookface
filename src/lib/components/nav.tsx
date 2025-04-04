@@ -17,11 +17,11 @@ import { useEffect, useState } from "react";
 import { currentUserInfoQueryOptions } from "../queries/user";
 import { CurrentUserInfo } from "../server/fn/user";
 import { useDebounce } from "../utils";
-import ThemeToggle from "./ThemeToggle";
-import UserAvatar from "./avatar";
+import UpsertPostDialog from "./post/upsert-post-dialog";
 import SetUsernameDialog from "./set-username-dialog";
+import ThemeToggle from "./ThemeToggle";
 import { Input } from "./ui/input";
-import UpsertPostDialog from "./upsert-post-dialog";
+import UserAvatar from "./user-avatar";
 
 export default function Nav({
   currentUserInfo: currentUserInfoInitialData,

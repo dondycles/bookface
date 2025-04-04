@@ -1,11 +1,11 @@
+import { Button } from "@/lib/components/ui/button";
+import useAutoLoadNextPage from "@/lib/hooks/useAutoLoadNextPage";
+import { commentsQueryOptions } from "@/lib/queries/comments";
+import { Post } from "@/lib/server/fn/posts";
+import { CurrentUserInfo } from "@/lib/server/fn/user";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import React from "react";
-import useAutoLoadNextPage from "../hooks/useAutoLoadNextPage";
-import { commentsQueryOptions } from "../queries/comments";
-import { Post } from "../server/fn/posts";
-import { CurrentUserInfo } from "../server/fn/user";
 import CommentCard from "./comment-card";
-import { Button } from "./ui/button";
 
 export default function CommentsSection({
   post,

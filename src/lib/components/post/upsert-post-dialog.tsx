@@ -14,12 +14,12 @@ import { useRouter } from "@tanstack/react-router";
 import { Check, ChevronDown, Globe2, Lock } from "lucide-react";
 import { useState } from "react";
 import { z } from "zod";
-import { addPost, editPost, Post, postSchema } from "../server/fn/posts";
-import FieldInfo from "./field-info";
-import { Button } from "./ui/button";
-import { Command, CommandGroup, CommandItem, CommandList } from "./ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { Textarea } from "./ui/textarea";
+import { addPost, editPost, Post, postSchema } from "../../server/fn/posts";
+import FieldInfo from "../field-info";
+import { Button } from "../ui/button";
+import { Command, CommandGroup, CommandItem, CommandList } from "../ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Textarea } from "../ui/textarea";
 
 export default function UpsertPostDialog({
   children,

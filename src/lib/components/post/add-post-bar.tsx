@@ -1,6 +1,6 @@
-import { CurrentUserInfo } from "../server/fn/user";
-import UserAvatar from "./avatar";
-import { Input } from "./ui/input";
+import { CurrentUserInfo } from "../../server/fn/user";
+import { Input } from "../ui/input";
+import UserAvatar from "../user-avatar";
 import UpsertPostDialog from "./upsert-post-dialog";
 
 export default function AddPostBar({

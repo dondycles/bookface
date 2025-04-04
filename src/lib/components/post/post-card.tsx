@@ -15,16 +15,15 @@ import {
   XSquare,
 } from "lucide-react";
 import { useState } from "react";
-import { postQueryOptions } from "../queries/posts";
-import { addLikePost, removeLikePost } from "../server/fn/likes";
-import { deletePost, Post } from "../server/fn/posts";
-import { CurrentUserInfo } from "../server/fn/user";
-import { useSelectedPostsStore } from "../stores/selected-posts";
-import AddCommentForm from "./add-comment-form";
-import UserAvatar from "./avatar";
-import CommentsSection from "./comments-section";
-import { Button } from "./ui/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
+import { postQueryOptions } from "../../queries/posts";
+import { addLikePost, removeLikePost } from "../../server/fn/likes";
+import { deletePost, Post } from "../../server/fn/posts";
+import { CurrentUserInfo } from "../../server/fn/user";
+import { useSelectedPostsStore } from "../../stores/selected-posts";
+import AddCommentForm from "../comment/add-comment-form";
+import CommentsSection from "../comment/comments-section";
+import { Button } from "../ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,8 +31,10 @@ import {
   DropdownMenuSub,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
-import { Skeleton } from "./ui/skeleton";
+} from "../ui/dropdown-menu";
+import { Skeleton } from "../ui/skeleton";
+import UserAvatar from "../user-avatar";
+import PostTimeInfo from "./post-time-info";
 import UpsertPostDialog from "./upsert-post-dialog";
 export default function PostCard({
   postId,
@@ -153,7 +154,7 @@ export default function PostCard({
                 @{post.author.username ?? post.author.name}
               </Link>
               <div className="flex gap-2 items-center">
-                <p className="font-mono text-xs">{post.createdAt.toLocaleString()}</p>
+                <PostTimeInfo createdAt={post.createdAt} />
                 {post.privacy === "private" && <Lock className="size-3 " />}
                 {post.privacy === "public" && <Globe className="size-3" />}
               </div>

@@ -1,5 +1,5 @@
-import UserAvatar from "@/lib/components/avatar";
-import PostCard from "@/lib/components/post-card";
+import PostCard from "@/lib/components/post/post-card";
+import UserAvatar from "@/lib/components/user-avatar";
 import { searchResultsQueryOptions } from "@/lib/queries/search";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";

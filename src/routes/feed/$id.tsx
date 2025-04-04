@@ -1,4 +1,4 @@
-import PostCard from "@/lib/components/post-card";
+import PostCard from "@/lib/components/post/post-card";
 import { postQueryOptions } from "@/lib/queries/posts";
 import { createFileRoute } from "@tanstack/react-router";
 

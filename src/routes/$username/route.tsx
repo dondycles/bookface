@@ -1,9 +1,9 @@
-import AddPostBar from "@/lib/components/add-post-bar";
-import UserAvatar from "@/lib/components/avatar";
-import PostCard from "@/lib/components/post-card";
-import PostsOptionsBar from "@/lib/components/posts-options-bar";
-import SelectedPostOptionsFloatingBar from "@/lib/components/selected-posts-options-floating-bar";
+import AddPostBar from "@/lib/components/post/add-post-bar";
+import PostCard from "@/lib/components/post/post-card";
+import PostsOptionsBar from "@/lib/components/post/posts-options-bar";
+import SelectedPostOptionsFloatingBar from "@/lib/components/post/selected-posts-options-floating-bar";
 import { Button } from "@/lib/components/ui/button";
+import UserAvatar from "@/lib/components/user-avatar";
 import useAutoLoadNextPage from "@/lib/hooks/useAutoLoadNextPage";
 import { currentUserPostsQueryOptions, userPostsQueryOptions } from "@/lib/queries/posts";
 import { currentUserInfoQueryOptions, userInfoQueryOptions } from "@/lib/queries/user";

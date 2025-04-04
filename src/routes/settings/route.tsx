@@ -1,9 +1,9 @@
-import UserAvatar from "@/lib/components/avatar";
 import FieldInfo from "@/lib/components/field-info";
 import { Button } from "@/lib/components/ui/button";
 import { Input } from "@/lib/components/ui/input";
 import { Label } from "@/lib/components/ui/label";
 import { Textarea } from "@/lib/components/ui/textarea";
+import UserAvatar from "@/lib/components/user-avatar";
 import { currentUserInfoQueryOptions } from "@/lib/queries/user";
 import { editProfile, settingsSchema } from "@/lib/server/fn/user";
 import { errorHandlerWithToast, successHandlerWithToast } from "@/lib/utils";

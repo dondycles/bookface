@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
-import { deleteMultiplePosts } from "../server/fn/posts";
-import { useSelectedPostsStore } from "../stores/selected-posts";
-import { errorHandlerWithToast, successHandlerWithToast } from "../utils";
-import { Button } from "./ui/button";
+import { deleteMultiplePosts } from "../../server/fn/posts";
+import { useSelectedPostsStore } from "../../stores/selected-posts";
+import { errorHandlerWithToast, successHandlerWithToast } from "../../utils";
+import { Button } from "../ui/button";
 
 export default function SelectedPostOptionsFloatingBar() {
   const { posts, reset } = useSelectedPostsStore();
