@@ -5,10 +5,10 @@ import PostsOptionsBar from "@/lib/components/post/posts-options-bar";
 import SelectedPostOptionsFloatingBar from "@/lib/components/post/selected-posts-options-floating-bar";
 import { Button } from "@/lib/components/ui/button";
 import UserAvatar from "@/lib/components/user-avatar";
-import { searchSortBySchema } from "@/lib/global-schema";
 import useAutoLoadNextPage from "@/lib/hooks/useAutoLoadNextPage";
 import { currentUserPostsQueryOptions, userPostsQueryOptions } from "@/lib/queries/posts";
 import { currentUserInfoQueryOptions, userInfoQueryOptions } from "@/lib/queries/user";
+import { searchPostsSortBySchema } from "@/lib/search-schema";
 import { CurrentUserInfo } from "@/lib/server/fn/user";
 import { useInfiniteQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
@@ -16,15 +16,15 @@ import { ExternalLink } from "lucide-react";
 
 export const Route = createFileRoute("/$username")({
   component: RouteComponent,
-  validateSearch: (search) => searchSortBySchema.parse(search),
+  validateSearch: (search) => searchPostsSortBySchema.parse(search),
 
   beforeLoad: async ({ params, context, search }) => {
     const isMyProfile = params.username === context.currentUserInfo?.dB.username;
-    if (search.sortBy !== "likes" && search.sortBy !== "recent") {
+    if (search.postsSortBy !== "likes" && search.postsSortBy !== "recent") {
       throw redirect({
         to: "/feed",
         search: {
-          sortBy: "recent",
+          postsSortBy: "recent",
         },
       });
     }
@@ -35,18 +35,18 @@ export const Route = createFileRoute("/$username")({
       username: params.username,
       isMyProfile: context.isMyProfile,
       currentUserInfo: context.currentUserInfo,
-      sortBy: context.search.sortBy,
+      postsSortBy: context.search.postsSortBy,
     };
   },
 });
 
 function RouteComponent() {
-  const { username, isMyProfile, currentUserInfo, sortBy } = Route.useLoaderData();
+  const { username, isMyProfile, currentUserInfo, postsSortBy } = Route.useLoaderData();
   const { data: myProfile } = useSuspenseQuery({
     initialData: currentUserInfo,
     ...currentUserInfoQueryOptions(),
   });
-  const myPosts = useInfiniteQuery({ ...currentUserPostsQueryOptions(sortBy) });
+  const myPosts = useInfiniteQuery({ ...currentUserPostsQueryOptions(postsSortBy) });
   const _myPosts = myPosts.data?.pages.flatMap((page) => page);
 
   const { ref, loaderRef } = useAutoLoadNextPage({
@@ -101,9 +101,9 @@ function RouteComponent() {
         </div>
         <AddPostBar currentUserInfo={currentUserInfo} />
         <PostsOptionsBar
-          mostLikes={{ to: "/$username", search: { sortBy: "likes" } }}
-          mostRecent={{ to: "/$username", search: { sortBy: "recent" } }}
-          sortByState={sortBy}
+          mostLikes={{ to: "/$username", search: { postsSortBy: "likes" } }}
+          mostRecent={{ to: "/$username", search: { postsSortBy: "recent" } }}
+          postsSortByState={postsSortBy}
           isMyProfile={isMyProfile}
         />
         <div className="flex flex-col gap-4 h-full w-full">
@@ -154,9 +154,9 @@ function OtherUserProfile({
   currentUserInfo: CurrentUserInfo;
   isMyProfile: boolean;
 }) {
-  const { sortBy } = Route.useLoaderData();
+  const { postsSortBy } = Route.useLoaderData();
   const profile = useSuspenseQuery(userInfoQueryOptions(username));
-  const posts = useInfiniteQuery({ ...userPostsQueryOptions(username, sortBy) });
+  const posts = useInfiniteQuery({ ...userPostsQueryOptions(username, postsSortBy) });
   const _posts = posts.data?.pages.flatMap((page) => page);
 
   return (
@@ -193,9 +193,9 @@ function OtherUserProfile({
           </div>
 
           <PostsOptionsBar
-            mostLikes={{ to: "/$username", search: { sortBy: "likes" } }}
-            mostRecent={{ to: "/$username", search: { sortBy: "recent" } }}
-            sortByState={sortBy}
+            mostLikes={{ to: "/$username", search: { postsSortBy: "likes" } }}
+            mostRecent={{ to: "/$username", search: { postsSortBy: "recent" } }}
+            postsSortByState={postsSortBy}
             isMyProfile={isMyProfile}
           />
 

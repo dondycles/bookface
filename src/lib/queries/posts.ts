@@ -1,5 +1,5 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
-import { SortBy } from "../global-schema";
+import { PostsSortBy } from "../search-schema";
 import {
   getCurrentUserPosts,
   getPost,
@@ -9,7 +9,10 @@ import {
 } from "../server/fn/posts";
 import { CurrentUserInfo } from "../server/fn/user";
 
-export const postsQueryOptions = (currentUserInfo: CurrentUserInfo, sortBy?: SortBy) =>
+export const postsQueryOptions = (
+  currentUserInfo: CurrentUserInfo,
+  sortBy?: PostsSortBy,
+) =>
   infiniteQueryOptions({
     // eslint-disable-next-line @tanstack/query/exhaustive-deps
     queryKey: ["posts", `sortedBy: ${sortBy}, ${currentUserInfo?.dB.id}`],
@@ -41,7 +44,7 @@ export const postLikesQueryOptions = (id: string) =>
     queryFn: ({ signal }) => getPostLikesCount({ data: id, signal }),
   });
 
-export const currentUserPostsQueryOptions = (sortBy?: SortBy) =>
+export const currentUserPostsQueryOptions = (sortBy?: PostsSortBy) =>
   infiniteQueryOptions({
     // eslint-disable-next-line @tanstack/query/exhaustive-deps
     queryKey: ["currentUserPosts", sortBy],
@@ -60,7 +63,7 @@ export const currentUserPostsQueryOptions = (sortBy?: SortBy) =>
   });
 export type CurrentUserPostsQueryOptions = typeof currentUserPostsQueryOptions;
 
-export const userPostsQueryOptions = (username: string, sortBy?: SortBy) =>
+export const userPostsQueryOptions = (username: string, sortBy?: PostsSortBy) =>
   infiniteQueryOptions({
     queryKey: ["userPosts", username, sortBy],
     queryFn: ({ signal, pageParam }) =>

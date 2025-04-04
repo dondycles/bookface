@@ -1,28 +1,45 @@
 import PostsMapper from "@/lib/components/post/posts-mapper";
-import PostsOptionsBar from "@/lib/components/post/posts-options-bar";
+import { PostsSorter } from "@/lib/components/post/posts-sorter";
 import UserAvatar from "@/lib/components/user-avatar";
-import { searchQSchema, searchSortBySchema } from "@/lib/global-schema";
+import { UsersSorter } from "@/lib/components/users-sorted";
 import { searchPostsQueryOptions, searchUsersQueryOptions } from "@/lib/queries/search";
+import {
+  searchPostsSortBySchema,
+  searchQSchema,
+  searchUsersSortBySchema,
+} from "@/lib/search-schema";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useRouter } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
 import { z } from "zod";
 
 const searchSchema = z.object({
   q: searchQSchema.shape.q,
-  sortBy: searchSortBySchema.shape.sortBy,
+  postsSortBy: searchPostsSortBySchema.shape.postsSortBy,
+  usersSortBy: searchUsersSortBySchema.shape.usersSortBy,
 });
 
 export const Route = createFileRoute("/search")({
   component: RouteComponent,
   validateSearch: (search) => searchSchema.parse(search),
   beforeLoad: ({ search }) => {
-    if (search.sortBy !== "likes" && search.sortBy !== "recent") {
+    if (search.postsSortBy !== "likes" && search.postsSortBy !== "recent") {
       throw redirect({
         to: "/search",
         search: {
-          sortBy: "recent",
+          postsSortBy: "recent",
           q: search.q,
+          usersSortBy: search.usersSortBy,
+        },
+      });
+    }
+    if (search.usersSortBy !== "name" && search.usersSortBy !== "recent") {
+      throw redirect({
+        to: "/search",
+        search: {
+          postsSortBy: search.postsSortBy,
+          q: search.q,
+          usersSortBy: "recent",
         },
       });
     }
@@ -30,13 +47,12 @@ export const Route = createFileRoute("/search")({
   },
   loader: async ({ context }) => {
     await context.queryClient.ensureInfiniteQueryData(
-      searchPostsQueryOptions(context.search.q, context.search.sortBy),
+      searchPostsQueryOptions(context.search.q, context.search.postsSortBy),
     );
     await context.queryClient.ensureInfiniteQueryData(
-      searchUsersQueryOptions(context.search.q, context.search.sortBy),
+      searchUsersQueryOptions(context.search.q, context.search.usersSortBy),
     );
     return {
-      q: context.search.q,
       currentUserInfo: context.currentUserInfo,
     };
   },
@@ -44,9 +60,10 @@ export const Route = createFileRoute("/search")({
 
 function RouteComponent() {
   const { currentUserInfo } = Route.useLoaderData();
-  const { q, sortBy } = Route.useSearch();
-  const postsResults = useInfiniteQuery(searchPostsQueryOptions(q, sortBy));
-  const usersResults = useInfiniteQuery(searchUsersQueryOptions(q, sortBy));
+  const { q, postsSortBy, usersSortBy } = Route.useSearch();
+  const router = useRouter();
+  const postsResults = useInfiniteQuery(searchPostsQueryOptions(q, postsSortBy));
+  const usersResults = useInfiniteQuery(searchUsersQueryOptions(q, usersSortBy));
   const _posts = postsResults.data?.pages.flatMap((page) => page);
   const _users = usersResults.data?.pages.flatMap((page) => page);
   return (
@@ -59,11 +76,17 @@ function RouteComponent() {
           {_posts.length > 0 ? (
             <div className="text-muted-foreground flex gap-2 items-center justify-between bg-muted sm:rounded-md">
               <p className="text-xs pl-2">Posts Result ({_posts.length}) </p>
-              <PostsOptionsBar
-                sortByState={sortBy}
-                mostLikes={{ to: "/search", search: { sortBy: "likes", q } }}
-                mostRecent={{ to: "/search", search: { sortBy: "recent", q } }}
-                isMyProfile={false}
+              <PostsSorter
+                postsSortByState={postsSortBy}
+                mostLikes={{
+                  to: "/search",
+                  search: { postsSortBy: "likes", q, usersSortBy },
+                }}
+                mostRecent={{
+                  to: "/search",
+                  search: { postsSortBy: "recent", q, usersSortBy },
+                }}
+                router={router}
               />
             </div>
           ) : null}
@@ -79,8 +102,20 @@ function RouteComponent() {
       {_users ? (
         <>
           {_users.length > 0 ? (
-            <div className="border-t pt-2 px-2 sm:px-0 text-muted-foreground text-sm">
-              Users ({_users.length}){" "}
+            <div className="text-muted-foreground flex gap-2 items-center justify-between bg-muted sm:rounded-md">
+              <p className="text-xs pl-2">Users ({_users.length}) </p>
+              <UsersSorter
+                usersSortByState={usersSortBy}
+                alphabetical={{
+                  to: "/search",
+                  search: { usersSortBy: "name", q, postsSortBy },
+                }}
+                mostRecent={{
+                  to: "/search",
+                  search: { usersSortBy: "recent", q, postsSortBy },
+                }}
+                router={router}
+              />
             </div>
           ) : null}
           {_users.map((u) => {
@@ -102,7 +137,7 @@ function RouteComponent() {
                 </div>
                 <Link
                   to="/$username"
-                  search={{ sortBy: "recent" }}
+                  search={{ postsSortBy: "recent" }}
                   params={{ username: u.username ?? "" }}
                 >
                   <ExternalLink className="text-muted-foreground size-5" />

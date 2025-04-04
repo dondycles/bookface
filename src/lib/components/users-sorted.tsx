@@ -1,19 +1,19 @@
-import { PostsSortBy } from "@/lib/search-schema";
+import { UsersSortBy } from "@/lib/search-schema";
 import { AnyRouter, NavigateOptions } from "@tanstack/react-router";
-import { Check, ChevronDown, ThumbsUp, Timer } from "lucide-react";
-import { Button } from "../ui/button";
-import { Command, CommandGroup, CommandItem, CommandList } from "../ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { ArrowDownAZ, Check, ChevronDown, Timer } from "lucide-react";
+import { Button } from "./ui/button";
+import { Command, CommandGroup, CommandItem, CommandList } from "./ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
-export function PostsSorter({
-  postsSortByState,
+export function UsersSorter({
+  usersSortByState,
+  alphabetical,
   mostRecent,
-  mostLikes,
   router,
 }: {
-  postsSortByState: PostsSortBy;
+  usersSortByState: UsersSortBy;
+  alphabetical: NavigateOptions;
   mostRecent: NavigateOptions;
-  mostLikes: NavigateOptions;
   router: AnyRouter;
 }) {
   return (
@@ -21,8 +21,8 @@ export function PostsSorter({
       <PopoverTrigger asChild>
         <Button className="text-sm text-muted-foreground w-fit" variant={"ghost"}>
           <p>
-            {(postsSortByState === "likes" && "Most Liked") ||
-              (postsSortByState === "recent" && "Most Recent")}
+            {(usersSortByState === "name" && "Alphabetical") ||
+              (usersSortByState === "recent" && "Most Recent")}
           </p>
           <ChevronDown />
         </Button>
@@ -37,22 +37,22 @@ export function PostsSorter({
                 }}
               >
                 <Check
-                  className={`${postsSortByState === "recent" ? "opacity-100" : "opacity-0"}`}
+                  className={`${usersSortByState === "recent" ? "opacity-100" : "opacity-0"}`}
                 />
                 <Timer />
                 <p>Most Recent</p>
               </CommandItem>
               <CommandItem
                 onSelect={() => {
-                  router.navigate(mostLikes);
+                  router.navigate(alphabetical);
                 }}
               >
                 <Check
-                  className={`${postsSortByState === "likes" ? "opacity-100" : "opacity-0"}`}
+                  className={`${usersSortByState === "name" ? "opacity-100" : "opacity-0"}`}
                 />
 
-                <ThumbsUp />
-                <p>Most Liked</p>
+                <ArrowDownAZ />
+                <p>Alphabetical</p>
               </CommandItem>
             </CommandGroup>
           </CommandList>

@@ -1,4 +1,4 @@
-import { SortBy } from "@/lib/global-schema";
+import { PostsSortBy, UsersSortBy } from "@/lib/search-schema";
 import { createServerFn } from "@tanstack/react-start";
 import { sql } from "drizzle-orm";
 import { db } from "../db";
@@ -28,7 +28,7 @@ export const getPost = createServerFn({ method: "GET" })
   });
 
 export const getPostsResults = createServerFn({ method: "GET" })
-  .validator((data: { q: string; pageParam: number; sortBy: SortBy }) => data)
+  .validator((data: { q: string; pageParam: number; sortBy: PostsSortBy }) => data)
   .handler(async ({ data: { q, sortBy, pageParam } }) => {
     const posts = await db.query.post.findMany({
       columns: {
@@ -46,7 +46,7 @@ export const getPostsResults = createServerFn({ method: "GET" })
     return posts;
   });
 export const getUsersResults = createServerFn({ method: "GET" })
-  .validator((data: { q: string; pageParam: number; sortBy: SortBy }) => data)
+  .validator((data: { q: string; pageParam: number; sortBy: UsersSortBy }) => data)
   .handler(async ({ data: { q, pageParam } }) => {
     const users = await db.query.user.findMany({
       with: {

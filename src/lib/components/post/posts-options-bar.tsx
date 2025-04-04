@@ -1,4 +1,4 @@
-import { SortBy } from "@/lib/global-schema";
+import { PostsSortBy } from "@/lib/search-schema";
 import { NavigateOptions, useRouter } from "@tanstack/react-router";
 import { ListChecks, X } from "lucide-react";
 import { useEffect } from "react";
@@ -7,12 +7,12 @@ import { Button } from "../ui/button";
 import { PostsSorter } from "./posts-sorter";
 
 export default function PostsOptionsBar({
-  sortByState,
+  postsSortByState,
   mostRecent,
   mostLikes,
   isMyProfile,
 }: {
-  sortByState: SortBy;
+  postsSortByState: PostsSortBy;
   mostRecent: NavigateOptions;
   mostLikes: NavigateOptions;
   isMyProfile: boolean;
@@ -27,7 +27,7 @@ export default function PostsOptionsBar({
       <PostsSorter
         mostLikes={mostLikes}
         mostRecent={mostRecent}
-        sortByState={sortByState}
+        postsSortByState={postsSortByState}
         router={router}
       />
       <Button

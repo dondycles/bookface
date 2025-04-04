@@ -1,8 +1,8 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
-import { SortBy } from "../global-schema";
+import { PostsSortBy, UsersSortBy } from "../search-schema";
 import { getPostsResults, getUsersResults } from "../server/fn/search";
 
-export const searchPostsQueryOptions = (q: string, sortBy?: SortBy) =>
+export const searchPostsQueryOptions = (q: string, sortBy?: PostsSortBy) =>
   infiniteQueryOptions({
     queryKey: ["searchPosts", q, sortBy],
     queryFn: ({ signal, pageParam }) =>
@@ -15,7 +15,7 @@ export const searchPostsQueryOptions = (q: string, sortBy?: SortBy) =>
       return lastPageParam + 1;
     },
   });
-export const searchUsersQueryOptions = (q: string, sortBy?: SortBy) =>
+export const searchUsersQueryOptions = (q: string, sortBy?: UsersSortBy) =>
   infiniteQueryOptions({
     queryKey: ["searchUsers", q, sortBy],
     queryFn: ({ signal, pageParam }) =>

@@ -1,7 +1,7 @@
 import { authMiddleware } from "@/lib/middleware/auth-guard";
 import { post, postLikes } from "@/lib/schema";
 
-import { SortBy } from "@/lib/global-schema";
+import { PostsSortBy } from "@/lib/search-schema";
 import { createServerFn } from "@tanstack/react-start";
 import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
@@ -25,8 +25,11 @@ export const getPostLikesCount = createServerFn({ method: "GET" })
 
 export const getPosts = createServerFn({ method: "GET" })
   .validator(
-    (data: { pageParam: number; sortBy: SortBy; currentUserInfo: CurrentUserInfo }) =>
-      data,
+    (data: {
+      pageParam: number;
+      sortBy: PostsSortBy;
+      currentUserInfo: CurrentUserInfo;
+    }) => data,
   )
   .handler(async ({ data }) => {
     return await db.query.post.findMany({
@@ -49,7 +52,7 @@ export const getPosts = createServerFn({ method: "GET" })
   });
 
 export const getCurrentUserPosts = createServerFn({ method: "GET" })
-  .validator((data: { pageParam: number; sortBy: SortBy }) => data)
+  .validator((data: { pageParam: number; sortBy: PostsSortBy }) => data)
   .middleware([authMiddleware])
   .handler(async ({ data, context }) => {
     return await db.query.post.findMany({
@@ -72,7 +75,7 @@ export type CurrentUserPosts = NonNullable<
 >;
 
 export const getUserPosts = createServerFn({ method: "GET" })
-  .validator((data: { pageParam: number; sortBy: SortBy; username: string }) => data)
+  .validator((data: { pageParam: number; sortBy: PostsSortBy; username: string }) => data)
   .handler(async ({ data }) => {
     if (!data.username) throw new Error(`[{ "message": "No Username" }]`);
     return await db.query.post.findMany({
