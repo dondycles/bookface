@@ -12,7 +12,6 @@ import { AnyRouter, createFileRoute, redirect, useRouter } from "@tanstack/react
 export const Route = createFileRoute("/$username/posts")({
   component: RouteComponent,
   validateSearch: (search) => searchFeedSchema.parse(search),
-
   beforeLoad: async ({ params, context, search }) => {
     const isMyProfile = params.username === context.currentUserInfo?.dB.username;
     if (search.postsOrderBy !== "likes" && search.postsOrderBy !== "recent") {
