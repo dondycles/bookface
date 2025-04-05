@@ -11,14 +11,23 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as SignInImport } from './routes/sign-in'
 import { Route as SettingsRouteImport } from './routes/settings/route'
 import { Route as SearchRouteImport } from './routes/search/route'
 import { Route as UsernameRouteImport } from './routes/$username/route'
 import { Route as IndexImport } from './routes/index'
 import { Route as FeedIndexImport } from './routes/feed/index'
 import { Route as FeedIdImport } from './routes/feed/$id'
+import { Route as UsernamePostsImport } from './routes/$username/posts'
+import { Route as UsernameFriendsImport } from './routes/$username/friends'
 
 // Create/Update Routes
+
+const SignInRoute = SignInImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const SettingsRouteRoute = SettingsRouteImport.update({
   id: '/settings',
@@ -56,6 +65,18 @@ const FeedIdRoute = FeedIdImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const UsernamePostsRoute = UsernamePostsImport.update({
+  id: '/posts',
+  path: '/posts',
+  getParentRoute: () => UsernameRouteRoute,
+} as any)
+
+const UsernameFriendsRoute = UsernameFriendsImport.update({
+  id: '/friends',
+  path: '/friends',
+  getParentRoute: () => UsernameRouteRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -88,6 +109,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRoute
     }
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInImport
+      parentRoute: typeof rootRoute
+    }
+    '/$username/friends': {
+      id: '/$username/friends'
+      path: '/friends'
+      fullPath: '/$username/friends'
+      preLoaderRoute: typeof UsernameFriendsImport
+      parentRoute: typeof UsernameRouteImport
+    }
+    '/$username/posts': {
+      id: '/$username/posts'
+      path: '/posts'
+      fullPath: '/$username/posts'
+      preLoaderRoute: typeof UsernamePostsImport
+      parentRoute: typeof UsernameRouteImport
+    }
     '/feed/$id': {
       id: '/feed/$id'
       path: '/feed/$id'
@@ -107,20 +149,40 @@ declare module '@tanstack/react-router' {
 
 // Create and export the route tree
 
+interface UsernameRouteRouteChildren {
+  UsernameFriendsRoute: typeof UsernameFriendsRoute
+  UsernamePostsRoute: typeof UsernamePostsRoute
+}
+
+const UsernameRouteRouteChildren: UsernameRouteRouteChildren = {
+  UsernameFriendsRoute: UsernameFriendsRoute,
+  UsernamePostsRoute: UsernamePostsRoute,
+}
+
+const UsernameRouteRouteWithChildren = UsernameRouteRoute._addFileChildren(
+  UsernameRouteRouteChildren,
+)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/$username': typeof UsernameRouteRoute
+  '/$username': typeof UsernameRouteRouteWithChildren
   '/search': typeof SearchRouteRoute
   '/settings': typeof SettingsRouteRoute
+  '/sign-in': typeof SignInRoute
+  '/$username/friends': typeof UsernameFriendsRoute
+  '/$username/posts': typeof UsernamePostsRoute
   '/feed/$id': typeof FeedIdRoute
   '/feed': typeof FeedIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/$username': typeof UsernameRouteRoute
+  '/$username': typeof UsernameRouteRouteWithChildren
   '/search': typeof SearchRouteRoute
   '/settings': typeof SettingsRouteRoute
+  '/sign-in': typeof SignInRoute
+  '/$username/friends': typeof UsernameFriendsRoute
+  '/$username/posts': typeof UsernamePostsRoute
   '/feed/$id': typeof FeedIdRoute
   '/feed': typeof FeedIndexRoute
 }
@@ -128,9 +190,12 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/$username': typeof UsernameRouteRoute
+  '/$username': typeof UsernameRouteRouteWithChildren
   '/search': typeof SearchRouteRoute
   '/settings': typeof SettingsRouteRoute
+  '/sign-in': typeof SignInRoute
+  '/$username/friends': typeof UsernameFriendsRoute
+  '/$username/posts': typeof UsernamePostsRoute
   '/feed/$id': typeof FeedIdRoute
   '/feed/': typeof FeedIndexRoute
 }
@@ -142,16 +207,31 @@ export interface FileRouteTypes {
     | '/$username'
     | '/search'
     | '/settings'
+    | '/sign-in'
+    | '/$username/friends'
+    | '/$username/posts'
     | '/feed/$id'
     | '/feed'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/$username' | '/search' | '/settings' | '/feed/$id' | '/feed'
+  to:
+    | '/'
+    | '/$username'
+    | '/search'
+    | '/settings'
+    | '/sign-in'
+    | '/$username/friends'
+    | '/$username/posts'
+    | '/feed/$id'
+    | '/feed'
   id:
     | '__root__'
     | '/'
     | '/$username'
     | '/search'
     | '/settings'
+    | '/sign-in'
+    | '/$username/friends'
+    | '/$username/posts'
     | '/feed/$id'
     | '/feed/'
   fileRoutesById: FileRoutesById
@@ -159,18 +239,20 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  UsernameRouteRoute: typeof UsernameRouteRoute
+  UsernameRouteRoute: typeof UsernameRouteRouteWithChildren
   SearchRouteRoute: typeof SearchRouteRoute
   SettingsRouteRoute: typeof SettingsRouteRoute
+  SignInRoute: typeof SignInRoute
   FeedIdRoute: typeof FeedIdRoute
   FeedIndexRoute: typeof FeedIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  UsernameRouteRoute: UsernameRouteRoute,
+  UsernameRouteRoute: UsernameRouteRouteWithChildren,
   SearchRouteRoute: SearchRouteRoute,
   SettingsRouteRoute: SettingsRouteRoute,
+  SignInRoute: SignInRoute,
   FeedIdRoute: FeedIdRoute,
   FeedIndexRoute: FeedIndexRoute,
 }
@@ -189,6 +271,7 @@ export const routeTree = rootRoute
         "/$username",
         "/search",
         "/settings",
+        "/sign-in",
         "/feed/$id",
         "/feed/"
       ]
@@ -197,13 +280,28 @@ export const routeTree = rootRoute
       "filePath": "index.tsx"
     },
     "/$username": {
-      "filePath": "$username/route.tsx"
+      "filePath": "$username/route.tsx",
+      "children": [
+        "/$username/friends",
+        "/$username/posts"
+      ]
     },
     "/search": {
       "filePath": "search/route.tsx"
     },
     "/settings": {
       "filePath": "settings/route.tsx"
+    },
+    "/sign-in": {
+      "filePath": "sign-in.tsx"
+    },
+    "/$username/friends": {
+      "filePath": "$username/friends.tsx",
+      "parent": "/$username"
+    },
+    "/$username/posts": {
+      "filePath": "$username/posts.tsx",
+      "parent": "/$username"
     },
     "/feed/$id": {
       "filePath": "feed/$id.tsx"

@@ -1,5 +1,5 @@
 import { pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
-import { user } from "../schema/auth.schema";
+import { user } from "./user.schema";
 
 export const privacy = pgEnum("privacy", ["public", "private"]);
 

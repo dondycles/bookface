@@ -1,4 +1,5 @@
-export * from "./auth.schema";
+export * from "./friendship.schema";
 export * from "./post.schema";
 export * from "./relations.schema";
+export * from "./user.schema";
 // export your other schemas here

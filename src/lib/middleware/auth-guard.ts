@@ -1,4 +1,5 @@
 import { auth } from "@/lib/server/auth";
+import { redirect } from "@tanstack/react-router";
 import { createMiddleware } from "@tanstack/react-start";
 import { getWebRequest, setResponseStatus } from "@tanstack/react-start/server";
 import { db } from "../server/db";
@@ -23,7 +24,7 @@ export const authMiddleware = createMiddleware().server(async ({ next }) => {
 
   if (!session) {
     setResponseStatus(401);
-    throw new Error("Unauthorized");
+    throw redirect({ to: "/sign-in" });
   }
 
   const dB = await db.query.user.findFirst({
@@ -32,7 +33,7 @@ export const authMiddleware = createMiddleware().server(async ({ next }) => {
 
   if (!dB) {
     setResponseStatus(401);
-    throw new Error("Unauthorized");
+    throw redirect({ to: "/sign-in" });
   }
 
   return next({ context: { session, dB } });

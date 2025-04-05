@@ -123,7 +123,7 @@ export default function Nav({
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
                 <Link
-                  to="/$username"
+                  to="/$username/posts"
                   search={{ postsOrderBy: "recent", flow: "desc" }}
                   params={{ username: currentUserInfo.dB.username as string }}
                 >
@@ -162,7 +162,7 @@ export default function Nav({
                   await queryClient.invalidateQueries({ queryKey: ["currentUserInfo"] });
                   await queryClient.invalidateQueries({ queryKey: ["currentUserPosts"] });
                   await queryClient.invalidateQueries({
-                    queryKey: ["user", currentUserInfo.dB.username],
+                    queryKey: ["currentUserFriendships"],
                   });
                   await router.invalidate();
                 }}

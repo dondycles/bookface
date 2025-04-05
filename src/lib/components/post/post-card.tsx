@@ -32,8 +32,10 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "../ui/hover-card";
 import { Skeleton } from "../ui/skeleton";
 import UserAvatar from "../user-avatar";
+import UserOptionsBtns from "../user-options-btns";
 import PostTimeInfo from "./post-time-info";
 import UpsertPostDialog from "./upsert-post-dialog";
 export default function PostCard({
@@ -109,7 +111,6 @@ export default function PostCard({
 
     onError: (e: Error) => errorHandlerWithToast(e),
   });
-
   if (postLoading)
     return (
       <div className={`sm:rounded-lg w-full py-4 px-2 flex flex-col gap-4 bg-muted`}>
@@ -145,14 +146,63 @@ export default function PostCard({
             </Link>
 
             <div className="text-muted-foreground leading-tight flex flex-col gap-1">
-              <Link
-                className="font-semibold text-foreground"
-                to="/$username"
-                params={{ username: post.author.username ?? "" }}
-                search={{ postsOrderBy: "recent", flow: "desc" }}
-              >
-                @{post.author.username ?? post.author.name}
-              </Link>
+              <HoverCard openDelay={500}>
+                <HoverCardTrigger>
+                  <Link
+                    to="/$username/posts"
+                    params={{ username: post.author.username ?? "" }}
+                    search={{ postsOrderBy: "recent", flow: "desc" }}
+                    className="font-semibold text-foreground"
+                  >
+                    @{post.author.username ?? post.author.name}
+                  </Link>
+                </HoverCardTrigger>
+                {!isMyPost ? (
+                  <HoverCardContent
+                    align="start"
+                    side="top"
+                    className="flex flex-col gap-2 w-fit"
+                  >
+                    <div className="flex flex-row gap-2">
+                      <Link
+                        to="/$username/posts"
+                        params={{ username: post.author.username ?? "" }}
+                        search={{ postsOrderBy: "recent", flow: "desc" }}
+                        className="text-lg"
+                      >
+                        <UserAvatar
+                          className="size-20"
+                          url={post.author.image}
+                          alt={post.author.username ?? post.author.email}
+                        />
+                      </Link>
+                      <div className="flex-1">
+                        <Link
+                          to="/$username/posts"
+                          params={{ username: post.author.username ?? "" }}
+                          search={{ postsOrderBy: "recent", flow: "desc" }}
+                          className="text-lg"
+                        >
+                          <p>{post.author.name}</p>
+                        </Link>
+                        <Link
+                          to="/$username/posts"
+                          params={{ username: post.author.username ?? "" }}
+                          search={{ postsOrderBy: "recent", flow: "desc" }}
+                          className="font-semibold text-muted-foreground text-sm"
+                        >
+                          <p>@{post.author.username ?? post.author.name}</p>
+                        </Link>
+                      </div>
+                    </div>
+                    <UserOptionsBtns
+                      currentUserInfo={currentUserInfo}
+                      targetedUserId={post.author.id}
+                    />
+                  </HoverCardContent>
+                ) : null}
+              </HoverCard>
+
               <div className="flex gap-2 items-center">
                 <PostTimeInfo createdAt={post.createdAt} />
                 {post.privacy === "private" && <Lock className="size-3 " />}
