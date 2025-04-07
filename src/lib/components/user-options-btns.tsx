@@ -75,14 +75,17 @@ export default function UserOptionsBtns({
     pusher.subscribe(friendship.data?.id ?? `${currentUserInfo.dB.id}${targetedUserId}`);
 
     pusher.bind(`addFriend${currentUserInfo.dB.id}`, () => {
+      alert("addFriend");
       friendship.refetch();
     });
 
     pusher.bind(`acceptFriend${currentUserInfo.dB.id}`, () => {
+      alert("acceptFriend");
       friendship.refetch();
     });
 
     pusher.bind(`removeFriend${currentUserInfo.dB.id}`, () => {
+      alert("removeFriend");
       friendship.refetch();
     });
 
