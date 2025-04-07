@@ -36,7 +36,7 @@ export default function UserOptionsBtns({
   const friendshipStatus = friendship.data?.status;
   const iAmTheReceiver = friendship.data?.receiver === currentUserInfo?.dB.id;
   const updateReceiverId =
-    targetedUserId === currentUserInfo?.dB.id
+    targetedUserId !== currentUserInfo?.dB.id
       ? (targetedUserId as string)
       : (currentUserInfo!.dB.id as string);
 
