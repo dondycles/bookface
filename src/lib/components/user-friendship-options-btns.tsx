@@ -18,7 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 
-export default function UserOptionsBtns({
+export default function UserFriendshipOptionsBtns({
   currentUserInfo,
   targetedUserId,
   className,

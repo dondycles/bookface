@@ -1,34 +1,22 @@
 import authClient from "@/lib/auth-client";
-import { Avatar, AvatarFallback, AvatarImage } from "@/lib/components/ui/avatar";
 import { Button } from "@/lib/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "@/lib/components/ui/dropdown-menu";
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useRouter } from "@tanstack/react-router";
-import { LogIn, LogOut, Plus, Search, Settings, X } from "lucide-react";
+import { LogIn, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { currentUserInfoQueryOptions } from "../queries/user";
 import { CurrentUserInfo } from "../server/fn/user";
 import { useDebounce } from "../utils";
-import UpsertPostDialog from "./post/upsert-post-dialog";
+import NotificationDropdown from "./notification-dropdown";
 import SetUsernameDialog from "./set-username-dialog";
-import ThemeToggle from "./ThemeToggle";
 import { Input } from "./ui/input";
-import UserAvatar from "./user-avatar";
+import UserDropdownMenu from "./user-dropdown-menu";
 
 export default function Nav({
   currentUserInfo: currentUserInfoInitialData,
 }: {
   currentUserInfo: CurrentUserInfo;
 }) {
-  const queryClient = useQueryClient();
   const route = useRouter();
   const { data: currentUserInfo } = useSuspenseQuery({
     ...currentUserInfoQueryOptions(),
@@ -103,7 +91,6 @@ export default function Nav({
                 key={"Search"}
                 onClick={() => setSearching(true)}
                 variant={"ghost"}
-                className="aspect-square h-9"
                 size={"icon"}
               >
                 <Search className="size-6" />
@@ -112,68 +99,10 @@ export default function Nav({
           )}
         </div>
         {currentUserInfo ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <UserAvatar
-                url={currentUserInfo.dB.image}
-                className="size-12"
-                alt={currentUserInfo.dB.username ?? currentUserInfo.dB.email}
-              />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem asChild>
-                <Link
-                  to="/$username/posts"
-                  search={{ postsOrderBy: "recent", flow: "desc" }}
-                  params={{ username: currentUserInfo.dB.username as string }}
-                >
-                  <Avatar>
-                    <AvatarImage
-                      src={currentUserInfo.dB.image ?? "/favicon.ico"}
-                      alt="@shadcn"
-                    />
-                    <AvatarFallback>BF</AvatarFallback>
-                  </Avatar>
-                  <p>{currentUserInfo.dB.name}</p>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSub>
-                <UpsertPostDialog>
-                  <DropdownMenuSubTrigger
-                    showIcon={false}
-                    className="p-2 flex gap-2 cursor-pointer"
-                  >
-                    <Plus className="size-4" />
-                    <p>New Post</p>
-                  </DropdownMenuSubTrigger>
-                </UpsertPostDialog>
-              </DropdownMenuSub>
-
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/settings">
-                  <Settings />
-                  <p>Account Settings</p>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={async () => {
-                  await authClient.signOut();
-                  await queryClient.invalidateQueries({ queryKey: ["currentUserInfo"] });
-                  await queryClient.invalidateQueries({ queryKey: ["currentUserPosts"] });
-                  await queryClient.invalidateQueries({
-                    queryKey: ["currentUserFriendships"],
-                  });
-                  await router.invalidate();
-                }}
-              >
-                <LogOut className="text-destructive" />
-                <p>Log Out</p>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <ThemeToggle className="w-full" />
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <>
+            <NotificationDropdown currentUserInfo={currentUserInfo} />
+            <UserDropdownMenu currentUserInfo={currentUserInfo} />
+          </>
         ) : (
           <Button
             onClick={() =>

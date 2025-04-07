@@ -35,7 +35,7 @@ import {
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "../ui/hover-card";
 import { Skeleton } from "../ui/skeleton";
 import UserAvatar from "../user-avatar";
-import UserOptionsBtns from "../user-options-btns";
+import UserFriendshipOptionsBtns from "../user-friendship-options-btns";
 import PostTimeInfo from "./post-time-info";
 import UpsertPostDialog from "./upsert-post-dialog";
 export default function PostCard({
@@ -195,7 +195,7 @@ export default function PostCard({
                         </Link>
                       </div>
                     </div>
-                    <UserOptionsBtns
+                    <UserFriendshipOptionsBtns
                       currentUserInfo={currentUserInfo}
                       targetedUserId={post.author.id}
                     />

@@ -2,6 +2,8 @@ import { type ClassValue, clsx } from "clsx";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { twMerge } from "tailwind-merge";
+import { Friendships } from "./server/fn/friendships";
+import { UserInfo } from "./server/fn/user";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -79,4 +81,21 @@ export const successHandlerWithToast = (
   if (type === "warning") {
     toast.warning(message);
   }
+};
+
+export const getModifiedFriendships = (friendships: Friendships, username: string) => {
+  if (!friendships) return [];
+  const modifiedFriendships: Array<
+    Omit<
+      NonNullable<(typeof friendships)[0]>,
+      "receiverInfo" | "requesterInfo" | "requester" | "receiver"
+    > & { info: UserInfo }
+  > = [];
+  friendships.map((f, i) => {
+    modifiedFriendships[i] = {
+      ...f,
+      info: f.receiverInfo.username !== username ? f.receiverInfo : f.requesterInfo,
+    };
+  });
+  return modifiedFriendships;
 };

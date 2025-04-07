@@ -1,6 +1,6 @@
 import { Button } from "@/lib/components/ui/button";
 import UserAvatar from "@/lib/components/user-avatar";
-import UserOptionsBtns from "@/lib/components/user-options-btns";
+import UserFriendshipOptionsBtns from "@/lib/components/user-friendship-options-btns";
 import { currentUserInfoQueryOptions, userInfoQueryOptions } from "@/lib/queries/user";
 import { CurrentUserInfo } from "@/lib/server/fn/user";
 import { useQuery } from "@tanstack/react-query";
@@ -110,7 +110,7 @@ function OtherUserInfo({
               <p className="text-center italic ">
                 {profile.data.bio?.length === 0 ? "No bio yet." : profile.data.bio}
               </p>
-              <UserOptionsBtns
+              <UserFriendshipOptionsBtns
                 currentUserInfo={currentUserInfo}
                 targetedUserId={profile.data.id}
               />

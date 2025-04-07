@@ -11,8 +11,7 @@ import {
   currentUserFriendshipsQueryOptions,
   thisUserAcceptedfriendshipsQueryOptions,
 } from "@/lib/queries/friendship";
-import { Friendships } from "@/lib/server/fn/friendships";
-import { UserInfo } from "@/lib/server/fn/user";
+import { getModifiedFriendships } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, ExternalLink, X } from "lucide-react";
@@ -28,23 +27,6 @@ export const Route = createFileRoute("/$username/friends")({
     };
   },
 });
-
-const getModifiedFriendships = (friendships: Friendships, username: string) => {
-  if (!friendships) return [];
-  const modifiedFriendships: Array<
-    Omit<
-      NonNullable<(typeof friendships)[0]>,
-      "receiverInfo" | "requesterInfo" | "requester" | "receiver"
-    > & { info: UserInfo }
-  > = [];
-  friendships.map((f, i) => {
-    modifiedFriendships[i] = {
-      ...f,
-      info: f.receiverInfo.username !== username ? f.receiverInfo : f.requesterInfo,
-    };
-  });
-  return modifiedFriendships;
-};
 
 function RouteComponent() {
   const { isMyProfile } = Route.useLoaderData();
