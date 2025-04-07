@@ -49,14 +49,14 @@ export const useRemoveFriendshipMutation = ({
   ids,
 }: {
   queryClient: QueryClient;
-  ids: { friendshipId: string; receiverId: string };
+  ids: { friendshipId: string; updateReceiverId: string };
   queryKey: string[];
   refetchOption: "reset" | "invalidate";
 }) => {
   return useMutation({
     mutationFn: async () => {
       return await removeFriendship({
-        data: { friendshipId: ids.friendshipId, receiverId: ids.receiverId },
+        data: { friendshipId: ids.friendshipId, updateReceiverId: ids.updateReceiverId },
       });
     },
     onSuccess: () => {
@@ -82,14 +82,14 @@ export const useAcceptFriendshipRequestMutation = ({
   refetchOption,
 }: {
   queryClient: QueryClient;
-  ids: { friendshipId: string; receiverId: string };
+  ids: { friendshipId: string; updateReceiverId: string };
   queryKey: string[];
   refetchOption: "reset" | "invalidate";
 }) => {
   return useMutation({
     mutationFn: async () => {
       return await acceptFriendshipRequest({
-        data: { friendshipId: ids.friendshipId, receiverId: ids.receiverId },
+        data: { friendshipId: ids.friendshipId, updateReceiverId: ids.updateReceiverId },
       });
     },
     onSuccess: () => {

@@ -49,9 +49,9 @@ export default function UserOptionsBtns({
     queryClient,
     ids: {
       friendshipId: friendship.data?.id ?? "",
-      receiverId: iAmTheReceiver
+      updateReceiverId: iAmTheReceiver
         ? (friendship.data?.requester ?? "")
-        : (friendship.data?.receiver ?? ""),
+        : (friendship.data?.requester ?? ""),
     },
     queryKey: ["friendship", `${friendship.data?.id}`],
     refetchOption: "reset",
@@ -61,7 +61,7 @@ export default function UserOptionsBtns({
     queryClient,
     ids: {
       friendshipId: friendship.data?.id ?? "",
-      receiverId: iAmTheReceiver
+      updateReceiverId: iAmTheReceiver
         ? (friendship.data?.requester ?? "")
         : (friendship.data?.receiver ?? ""),
     },
@@ -78,16 +78,12 @@ export default function UserOptionsBtns({
       friendship.refetch();
     });
 
-    pusher.bind(`acceptFriend${currentUserInfo.dB.id}`, (e: { id: string }) => {
-      queryClient.resetQueries({
-        queryKey: ["friendship", e.id],
-      });
+    pusher.bind(`acceptFriend${currentUserInfo.dB.id}`, () => {
+      friendship.refetch();
     });
 
-    pusher.bind(`removeFriend${currentUserInfo.dB.id}`, (e: { id: string }) => {
-      queryClient.resetQueries({
-        queryKey: ["friendship", e.id],
-      });
+    pusher.bind(`removeFriend${currentUserInfo.dB.id}`, () => {
+      friendship.refetch();
     });
 
     return () => {
