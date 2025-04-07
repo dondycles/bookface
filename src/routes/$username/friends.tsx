@@ -100,27 +100,39 @@ function FriendshipBar({
 }: {
   friendship: ReturnType<typeof getModifiedFriendships>[0];
 }) {
-  const { queryClient } = Route.useRouteContext();
+  const { queryClient, currentUserInfo } = Route.useRouteContext();
   const handleRemoveFriendship = useRemoveFriendshipMutation({
     friendshipId: friendship.id,
+    targetedUserId: friendship.info.id,
+    refetch: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["currentUserFriendships"],
+      });
+    },
   });
 
   const handleAcceptFriendship = useAcceptFriendshipRequestMutation({
     friendshipId: friendship.id,
+    targetedUserId: friendship.info.id,
+    refetch: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["currentUserFriendships"],
+      });
+    },
   });
 
   useEffect(() => {
-    pusher.subscribe(friendship.id);
-    pusher.bind("all", () => {
+    if (!currentUserInfo) return;
+    pusher.subscribe(currentUserInfo.dB.id);
+    pusher.bind("friendships", () => {
       queryClient.invalidateQueries({
         queryKey: ["currentUserFriendships"],
       });
     });
-
     return () => {
-      pusher.unsubscribe(friendship.id);
+      pusher.unsubscribe(currentUserInfo.dB.id);
     };
-  }, []);
+  }, [currentUserInfo, queryClient]);
 
   return (
     <div

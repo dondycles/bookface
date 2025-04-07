@@ -50,17 +50,36 @@ export default function UserFriendshipOptionsBtns({
 
   const handleRemoveFriendship = useRemoveFriendshipMutation({
     friendshipId: friendship.data?.id as string,
+    targetedUserId,
+    refetch: () => {
+      queryClient.resetQueries({
+        queryKey: ["friendship", `${currentUserInfo?.dB.id}${targetedUserId}`],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["currentUserFriendships"],
+      });
+    },
   });
 
   const handleAcceptFriendshipRequest = useAcceptFriendshipRequestMutation({
     friendshipId: friendship.data?.id as string,
+    targetedUserId,
+    refetch: () => {
+      queryClient.resetQueries({
+        queryKey: ["friendship", `${currentUserInfo?.dB.id}${targetedUserId}`],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["currentUserFriendships"],
+      });
+    },
   });
 
   useEffect(() => {
-    pusher.subscribe(friendship.data?.id ?? "");
-    pusher.bind("all", () => {
+    if (!currentUserInfo) return;
+    pusher.subscribe(currentUserInfo.dB.id);
+    pusher.bind("friendships", () => {
       queryClient.resetQueries({
-        queryKey: ["friendship", `${currentUserInfo?.dB.id}${targetedUserId}`],
+        queryKey: ["friendship", `${currentUserInfo.dB.id}${targetedUserId}`],
       });
       queryClient.invalidateQueries({
         queryKey: ["currentUserFriendships"],
@@ -68,9 +87,9 @@ export default function UserFriendshipOptionsBtns({
     });
 
     return () => {
-      pusher.unsubscribe(friendship.data?.id ?? "");
+      pusher.unsubscribe(`notifications${currentUserInfo?.dB.id}`);
     };
-  }, [friendship.data]);
+  }, [currentUserInfo, queryClient, targetedUserId]);
 
   return (
     <div className={cn("flex rounded-md gap-[1px]", className)}>

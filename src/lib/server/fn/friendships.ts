@@ -58,12 +58,7 @@ export const addFriendshipRequest = createServerFn({
           status: "pending",
         })
         .returning();
-      await pusher.trigger(friendshipData[0].id, "all", friendshipData[0].id);
-      await pusher.trigger(
-        `notifications${data.receiverId}`,
-        "friendships",
-        friendshipData[0],
-      );
+      await pusher.trigger(data.receiverId, "friendships", friendshipData[0]);
     } else if (status.status === "pending")
       throw new Error(`[{ "message": "Already Pending." }]`);
   });
@@ -71,8 +66,8 @@ export const removeFriendship = createServerFn({
   method: "POST",
 })
   .middleware([authMiddleware])
-  .validator((data: { friendshipId: string }) => data)
-  .handler(async ({ data: { friendshipId }, context: { dB: user } }) => {
+  .validator((data: { friendshipId: string; targetedUserId: string }) => data)
+  .handler(async ({ data: { friendshipId, targetedUserId }, context: { dB: user } }) => {
     if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
 
     const status = await checkFriendshipStatus({
@@ -81,14 +76,14 @@ export const removeFriendship = createServerFn({
     if (!status) throw new Error(`[{ "message": "Request First." }]`);
 
     await db.delete(friendship).where(eq(friendship.id, friendshipId));
-    await pusher.trigger(friendshipId, "all", friendshipId);
+    await pusher.trigger(targetedUserId, "friendships", null);
   });
 export const acceptFriendshipRequest = createServerFn({
   method: "POST",
 })
   .middleware([authMiddleware])
-  .validator((data: { friendshipId: string }) => data)
-  .handler(async ({ data: { friendshipId }, context: { dB: user } }) => {
+  .validator((data: { friendshipId: string; targetedUserId: string }) => data)
+  .handler(async ({ data: { friendshipId, targetedUserId }, context: { dB: user } }) => {
     if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
     const status = await checkFriendshipStatus({
       data: { recieverId: "", requesterId: "", friendshipId },
@@ -104,7 +99,7 @@ export const acceptFriendshipRequest = createServerFn({
         acceptedAt: new Date(),
       })
       .where(eq(friendship.id, friendshipId));
-    await pusher.trigger(friendshipId, "all", friendshipId);
+    await pusher.trigger(targetedUserId, "friendships", null);
   });
 export const getCurrentUserFriendships = createServerFn({
   method: "GET",

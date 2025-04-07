@@ -32,38 +32,54 @@ export const useAddFriendshipRequestMutation = ({
 
 export const useRemoveFriendshipMutation = ({
   friendshipId,
+  targetedUserId,
+  refetch,
 }: {
   friendshipId: string;
+  targetedUserId: string;
+  refetch: () => void;
 }) => {
   return useMutation({
     mutationFn: async () => {
       return await removeFriendship({
-        data: { friendshipId },
+        data: { friendshipId, targetedUserId },
       });
     },
     onSuccess: () => {
       successHandlerWithToast("info", "Friendship Cancelled.");
+      refetch();
     },
-    onError: (e: Error) => errorHandlerWithToast(e),
+    onError: (e: Error) => {
+      errorHandlerWithToast(e);
+      refetch();
+    },
     mutationKey: ["removeFriendship", `${friendshipId}`],
   });
 };
 
 export const useAcceptFriendshipRequestMutation = ({
   friendshipId,
+  targetedUserId,
+  refetch,
 }: {
   friendshipId: string;
+  targetedUserId: string;
+  refetch: () => void;
 }) => {
   return useMutation({
     mutationFn: async () => {
       return await acceptFriendshipRequest({
-        data: { friendshipId },
+        data: { friendshipId, targetedUserId },
       });
     },
     onSuccess: () => {
       successHandlerWithToast("info", "Friendship Accepted.");
+      refetch();
     },
-    onError: (e: Error) => errorHandlerWithToast(e),
+    onError: (e: Error) => {
+      errorHandlerWithToast(e);
+      refetch();
+    },
     mutationKey: ["acceptFriendship", `${friendshipId}`],
   });
 };
