@@ -63,7 +63,9 @@ export default function UserOptionsBtns({
     pusher.subscribe("friendships");
 
     pusher.bind("all", () => {
-      queryClient.refetchQueries(friendship);
+      queryClient.resetQueries({
+        queryKey: ["friendship", `${currentUserInfo?.dB.id}${targetedUserId}`],
+      });
     });
 
     return () => {
