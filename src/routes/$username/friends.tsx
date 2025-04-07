@@ -89,11 +89,11 @@ function FriendshipBar({
   friendship: ReturnType<typeof getModifiedFriendships>[0];
 }) {
   const handleRemoveFriendship = useRemoveFriendshipMutation({
-    ids: { friendshipId: friendship.id, updateReceiverId: friendship.info.id },
+    friendshipId: friendship.id,
   });
 
   const handleAcceptFriendship = useAcceptFriendshipRequestMutation({
-    ids: { friendshipId: friendship.id, updateReceiverId: friendship.info.id },
+    friendshipId: friendship.id,
   });
   return (
     <div

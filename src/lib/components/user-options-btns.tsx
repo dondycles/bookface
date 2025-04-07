@@ -30,38 +30,28 @@ export default function UserOptionsBtns({
   const queryClient = useQueryClient();
 
   const friendship = useQuery(
-    thisFriendshipQueryOptions(targetedUserId, currentUserInfo?.dB.id ?? ""),
+    thisFriendshipQueryOptions(targetedUserId, currentUserInfo?.dB.id as string),
   );
 
   const friendshipStatus = friendship.data?.status;
   const iAmTheReceiver = friendship.data?.receiver === currentUserInfo?.dB.id;
-  const updateReceiverId =
-    targetedUserId !== currentUserInfo?.dB.id
-      ? (targetedUserId as string)
-      : (currentUserInfo!.dB.id as string);
 
   const handleAddFriendshipRequest = useAddFriendshipRequestMutation({
-    currentUserId: currentUserInfo?.dB.id ?? "",
+    currentUserId: currentUserInfo?.dB.id as string,
     targetedUserId,
+    queryClient,
   });
 
   const handleRemoveFriendship = useRemoveFriendshipMutation({
-    ids: {
-      friendshipId: friendship.data?.id ?? "",
-      updateReceiverId,
-    },
+    friendshipId: friendship.data?.id as string,
   });
 
   const handleAcceptFriendshipRequest = useAcceptFriendshipRequestMutation({
-    ids: {
-      friendshipId: friendship.data?.id ?? "",
-      updateReceiverId,
-    },
+    friendshipId: friendship.data?.id as string,
   });
 
   useEffect(() => {
-    pusher.subscribe("friendships");
-
+    pusher.subscribe(friendship.data?.id ?? "");
     pusher.bind("all", () => {
       queryClient.resetQueries({
         queryKey: ["friendship", `${currentUserInfo?.dB.id}${targetedUserId}`],
@@ -69,9 +59,9 @@ export default function UserOptionsBtns({
     });
 
     return () => {
-      pusher.unsubscribe("friendships");
+      pusher.unsubscribe(friendship.data?.id ?? "");
     };
-  }, []);
+  }, [friendship.data]);
 
   return (
     <div className={cn("flex rounded-md gap-[1px]", className)}>

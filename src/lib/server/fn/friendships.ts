@@ -26,40 +26,34 @@ export const addFriendshipRequest = createServerFn({
         status: "pending",
       })
       .returning();
-    await pusher.trigger("friendships", "all", friendshipData[0].id);
+    await pusher.trigger(friendshipData[0].id, "all", friendshipData[0].id);
   });
 export const removeFriendship = createServerFn({
   method: "POST",
 })
   .middleware([authMiddleware])
-  .validator((data: { friendshipId: string; updateReceiverId: string }) => data)
-  .handler(
-    async ({ data: { friendshipId, updateReceiverId }, context: { dB: user } }) => {
-      if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
-      await db.delete(friendship).where(eq(friendship.id, friendshipId));
-      console.log(updateReceiverId);
-      await pusher.trigger("friendships", "all", friendshipId);
-    },
-  );
+  .validator((data: { friendshipId: string }) => data)
+  .handler(async ({ data: { friendshipId }, context: { dB: user } }) => {
+    if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
+    await db.delete(friendship).where(eq(friendship.id, friendshipId));
+    await pusher.trigger(friendshipId, "all", friendshipId);
+  });
 export const acceptFriendshipRequest = createServerFn({
   method: "POST",
 })
   .middleware([authMiddleware])
-  .validator((data: { friendshipId: string; updateReceiverId: string }) => data)
-  .handler(
-    async ({ data: { friendshipId, updateReceiverId }, context: { dB: user } }) => {
-      if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
-      await db
-        .update(friendship)
-        .set({
-          status: "accepted",
-          acceptedAt: new Date(),
-        })
-        .where(eq(friendship.id, friendshipId));
-      console.log(updateReceiverId);
-      await pusher.trigger("friendships", "all", friendshipId);
-    },
-  );
+  .validator((data: { friendshipId: string }) => data)
+  .handler(async ({ data: { friendshipId }, context: { dB: user } }) => {
+    if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
+    await db
+      .update(friendship)
+      .set({
+        status: "accepted",
+        acceptedAt: new Date(),
+      })
+      .where(eq(friendship.id, friendshipId));
+    await pusher.trigger(friendshipId, "all", friendshipId);
+  });
 export const getCurrentUserFriendships = createServerFn({
   method: "GET",
 })
