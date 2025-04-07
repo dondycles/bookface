@@ -75,7 +75,9 @@ export default function UserOptionsBtns({
     pusher.subscribe(friendship.data?.id ?? `${currentUserInfo.dB.id}${targetedUserId}`);
 
     pusher.bind(currentUserInfo.dB.id, () => {
-      queryClient.resetQueries(friendship);
+      queryClient.resetQueries({
+        queryKey: ["friendship", `${friendship.data?.id}`],
+      });
     });
 
     return () => {
