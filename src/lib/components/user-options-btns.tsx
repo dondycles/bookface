@@ -81,9 +81,7 @@ export default function UserOptionsBtns({
     });
 
     return () => {
-      pusher.unsubscribe(
-        friendship.data?.id ?? `${currentUserInfo?.dB.id}${targetedUserId}`,
-      );
+      pusher.unsubscribe("friendships");
     };
   }, []);
 
