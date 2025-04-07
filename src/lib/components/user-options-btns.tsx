@@ -47,39 +47,55 @@ export default function UserOptionsBtns({
 
   const handleRemoveFriendship = useRemoveFriendshipMutation({
     queryClient,
-    friendshipId: friendship.data?.id ?? "",
+    ids: {
+      friendshipId: friendship.data?.id ?? "",
+      receiverId: iAmTheReceiver
+        ? (friendship.data?.requester ?? "")
+        : (friendship.data?.receiver ?? ""),
+    },
     queryKey: ["friendship", `${friendship.data?.id}`],
     refetchOption: "reset",
   });
 
   const handleAcceptFriendshipRequest = useAcceptFriendshipRequestMutation({
     queryClient,
-    friendshipId: friendship.data?.id ?? "",
+    ids: {
+      friendshipId: friendship.data?.id ?? "",
+      receiverId: iAmTheReceiver
+        ? (friendship.data?.requester ?? "")
+        : (friendship.data?.receiver ?? ""),
+    },
     queryKey: ["friendship", `${friendship.data?.id}`],
     refetchOption: "reset",
   });
 
   useEffect(() => {
-    pusher.subscribe(friendship.data?.id ?? `${currentUserInfo?.dB.id}${targetedUserId}`);
-    pusher.bind("addFriend", () => {
+    if (!currentUserInfo) return;
+
+    pusher.subscribe(friendship.data?.id ?? `${currentUserInfo.dB.id}${targetedUserId}`);
+
+    pusher.bind(`addFriend${currentUserInfo.dB.id}`, () => {
       friendship.refetch();
     });
-    pusher.bind("acceptFriend", () => {
+
+    pusher.bind(`acceptFriend${currentUserInfo.dB.id}`, (e: { id: string }) => {
       queryClient.resetQueries({
-        queryKey: ["friendship", `${friendship.data?.id}`],
+        queryKey: ["friendship", e.id],
       });
     });
-    pusher.bind("removeFriend", () => {
+
+    pusher.bind(`removeFriend${currentUserInfo.dB.id}`, (e: { id: string }) => {
       queryClient.resetQueries({
-        queryKey: ["friendship", `${friendship.data?.id}`],
+        queryKey: ["friendship", e.id],
       });
     });
+
     return () => {
       pusher.unsubscribe(
         friendship.data?.id ?? `${currentUserInfo?.dB.id}${targetedUserId}`,
       );
     };
-  }, [friendship.data]);
+  }, [friendship.data, currentUserInfo]);
 
   return (
     <div className={cn("flex rounded-md gap-[1px]", className)}>

@@ -44,18 +44,20 @@ export const useAddFriendshipRequestMutation = ({
 
 export const useRemoveFriendshipMutation = ({
   queryClient,
-  friendshipId,
   queryKey,
   refetchOption,
+  ids,
 }: {
   queryClient: QueryClient;
-  friendshipId: string;
+  ids: { friendshipId: string; receiverId: string };
   queryKey: string[];
   refetchOption: "reset" | "invalidate";
 }) => {
   return useMutation({
     mutationFn: async () => {
-      return await removeFriendship({ data: friendshipId });
+      return await removeFriendship({
+        data: { friendshipId: ids.friendshipId, receiverId: ids.receiverId },
+      });
     },
     onSuccess: () => {
       successHandlerWithToast("info", "Friendship Cancelled.");
@@ -69,24 +71,26 @@ export const useRemoveFriendshipMutation = ({
         });
     },
     onError: (e: Error) => errorHandlerWithToast(e),
-    mutationKey: ["removeFriendship", `${friendshipId}`],
+    mutationKey: ["removeFriendship", `${ids.friendshipId}`],
   });
 };
 
 export const useAcceptFriendshipRequestMutation = ({
   queryClient,
-  friendshipId,
+  ids,
   queryKey,
   refetchOption,
 }: {
   queryClient: QueryClient;
-  friendshipId: string;
+  ids: { friendshipId: string; receiverId: string };
   queryKey: string[];
   refetchOption: "reset" | "invalidate";
 }) => {
   return useMutation({
     mutationFn: async () => {
-      return await acceptFriendshipRequest({ data: friendshipId });
+      return await acceptFriendshipRequest({
+        data: { friendshipId: ids.friendshipId, receiverId: ids.receiverId },
+      });
     },
     onSuccess: () => {
       successHandlerWithToast("info", "Friendship Accepted.");
@@ -100,6 +104,6 @@ export const useAcceptFriendshipRequestMutation = ({
         });
     },
     onError: (e: Error) => errorHandlerWithToast(e),
-    mutationKey: ["acceptFriendship", `${friendshipId}`],
+    mutationKey: ["acceptFriendship", `${ids.friendshipId}`],
   });
 };

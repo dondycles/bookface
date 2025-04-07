@@ -27,19 +27,17 @@ export const addFriendshipRequest = createServerFn({
         status: "pending",
       })
       .returning();
-    await pusher.trigger(friendshipData[0].id, "addFriend", {
-      message: friendshipData[0].id,
-    });
+    await pusher.trigger(friendshipData[0].id, `addFriend${data.receiverId}`, null);
   });
 export const removeFriendship = createServerFn({
   method: "POST",
 })
   .middleware([authMiddleware])
-  .validator((friendshipId: string) => friendshipId)
-  .handler(async ({ data: friendshipId, context: { dB: user } }) => {
+  .validator((data: { friendshipId: string; receiverId: string }) => data)
+  .handler(async ({ data: { friendshipId, receiverId }, context: { dB: user } }) => {
     if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
     await db.delete(friendship).where(eq(friendship.id, friendshipId));
-    await pusher.trigger(friendshipId, "removeFriend", {
+    await pusher.trigger(friendshipId, `removeFriend${receiverId}`, {
       message: friendshipId,
     });
   });
@@ -47,8 +45,8 @@ export const acceptFriendshipRequest = createServerFn({
   method: "POST",
 })
   .middleware([authMiddleware])
-  .validator((friendshipId: string) => friendshipId)
-  .handler(async ({ data: friendshipId, context: { dB: user } }) => {
+  .validator((data: { friendshipId: string; receiverId: string }) => data)
+  .handler(async ({ data: { friendshipId, receiverId }, context: { dB: user } }) => {
     if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
     await db
       .update(friendship)
@@ -57,7 +55,7 @@ export const acceptFriendshipRequest = createServerFn({
         acceptedAt: new Date(),
       })
       .where(eq(friendship.id, friendshipId));
-    await pusher.trigger(friendshipId, "acceptFriend", {
+    await pusher.trigger(friendshipId, `acceptFriend${receiverId}`, {
       message: friendshipId,
     });
   });

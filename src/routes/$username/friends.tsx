@@ -92,14 +92,14 @@ function FriendshipBar({
 
   const handleRemoveFriendship = useRemoveFriendshipMutation({
     queryClient,
-    friendshipId: friendship.id,
+    ids: { friendshipId: friendship.id, receiverId: friendship.info.id },
     queryKey: ["currentUserFriendships"],
     refetchOption: "invalidate",
   });
 
   const handleAcceptFriendship = useAcceptFriendshipRequestMutation({
     queryClient,
-    friendshipId: friendship.id,
+    ids: { friendshipId: friendship.id, receiverId: friendship.info.id },
     queryKey: ["currentUserFriendships"],
     refetchOption: "invalidate",
   });
