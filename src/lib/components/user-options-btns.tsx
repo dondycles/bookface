@@ -35,7 +35,8 @@ export default function UserOptionsBtns({
 
   const friendshipStatus = friendship.data?.status;
   const iAmTheReceiver = friendship.data?.receiver === currentUserInfo?.dB.id;
-
+  const updateReceiverId =
+    (iAmTheReceiver ? friendship.data?.requester : friendship.data?.receiver) || "";
   const handleAddFriendshipRequest = useAddFriendshipRequestMutation({
     currentUserId: currentUserInfo?.dB.id ?? "",
     queryClient,
@@ -49,9 +50,7 @@ export default function UserOptionsBtns({
     queryClient,
     ids: {
       friendshipId: friendship.data?.id ?? "",
-      updateReceiverId: iAmTheReceiver
-        ? (friendship.data?.requester ?? "")
-        : (friendship.data?.receiver ?? ""),
+      updateReceiverId,
     },
     queryKey: ["friendship", `${friendship.data?.id}`],
     refetchOption: "reset",
@@ -61,9 +60,7 @@ export default function UserOptionsBtns({
     queryClient,
     ids: {
       friendshipId: friendship.data?.id ?? "",
-      updateReceiverId: iAmTheReceiver
-        ? (friendship.data?.requester ?? "")
-        : (friendship.data?.receiver ?? ""),
+      updateReceiverId,
     },
     queryKey: ["friendship", `${friendship.data?.id}`],
     refetchOption: "reset",
@@ -74,19 +71,19 @@ export default function UserOptionsBtns({
 
     pusher.subscribe(friendship.data?.id ?? `${currentUserInfo.dB.id}${targetedUserId}`);
 
-    pusher.bind(`addFriend${currentUserInfo.dB.id}`, () => {
+    pusher.bind("addFriend", () => {
       alert("addFriend");
-      friendship.refetch();
+      queryClient.resetQueries(friendship);
     });
 
     pusher.bind(`acceptFriend${currentUserInfo.dB.id}`, () => {
       alert("acceptFriend");
-      friendship.refetch();
+      queryClient.resetQueries(friendship);
     });
 
     pusher.bind(`removeFriend${currentUserInfo.dB.id}`, () => {
       alert("removeFriend");
-      friendship.refetch();
+      queryClient.resetQueries(friendship);
     });
 
     return () => {

@@ -27,11 +27,7 @@ export const addFriendshipRequest = createServerFn({
         status: "pending",
       })
       .returning();
-    pusher.trigger(
-      friendshipData[0].id,
-      `addFriend${data.receiverId}`,
-      friendshipData[0].id,
-    );
+    pusher.trigger(friendshipData[0].id, "addFriend", friendshipData[0].id);
   });
 export const removeFriendship = createServerFn({
   method: "POST",
