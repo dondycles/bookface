@@ -1,10 +1,10 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell } from "lucide-react";
+import { Bell, BellDot, Check, X } from "lucide-react";
 import { useEffect } from "react";
 import { pusher } from "../pusher-client";
 import { currentUserFriendshipsQueryOptions } from "../queries/friendship";
 import { CurrentUserInfo } from "../server/fn/user";
-import { getModifiedFriendships } from "../utils";
+import { getPendingReceivedFriendships } from "../utils";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -14,6 +14,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import UserAvatar from "./user-avatar";
 
 export default function NotificationDropdown({
   currentUserInfo,
@@ -23,11 +24,10 @@ export default function NotificationDropdown({
   const queryClient = useQueryClient();
 
   const friendships = useQuery({ ...currentUserFriendshipsQueryOptions() });
-  const _friendships = getModifiedFriendships(
+  const _pendingFriendships = getPendingReceivedFriendships(
     friendships.data ?? [],
     currentUserInfo?.dB.username ?? "",
   );
-  const pendingFriendships = _friendships.filter((f) => f.status === "pending");
 
   useEffect(() => {
     pusher.subscribe(`notifications${currentUserInfo.dB.id}`);
@@ -45,17 +45,42 @@ export default function NotificationDropdown({
     <DropdownMenu key={"bell"}>
       <DropdownMenuTrigger asChild>
         <Button size={"icon"} variant={"ghost"}>
-          <Bell className="size-6" />
-          {pendingFriendships.length}
+          {_pendingFriendships.length > 0 ? (
+            <BellDot className="size-6" />
+          ) : (
+            <Bell className="size-6" />
+          )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuGroup>
-          <DropdownMenuLabel>Friendships</DropdownMenuLabel>
-          {pendingFriendships.map((f) => {
-            return <DropdownMenuItem key={f.id}>{f.info.name}</DropdownMenuItem>;
-          })}
-        </DropdownMenuGroup>
+        {_pendingFriendships.length > 0 ? (
+          <DropdownMenuGroup>
+            <DropdownMenuLabel className="font-normal text-xs text-muted-foreground">
+              Pending friendships
+            </DropdownMenuLabel>
+            {_pendingFriendships.map((f) => {
+              return (
+                <DropdownMenuItem key={f.id}>
+                  <UserAvatar
+                    alt={f.requesterInfo.username ?? "User PFP"}
+                    url={f.requesterInfo.image}
+                  />
+                  {f.requesterInfo.name}
+                  <div className="flex gap-[1px]">
+                    <Button variant={"secondary"} className="rounded-r-none">
+                      <Check />
+                    </Button>
+                    <Button variant={"secondary"} className="rounded-l-none">
+                      <X />
+                    </Button>
+                  </div>
+                </DropdownMenuItem>
+              );
+            })}
+          </DropdownMenuGroup>
+        ) : (
+          <DropdownMenuItem>No notifications...</DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

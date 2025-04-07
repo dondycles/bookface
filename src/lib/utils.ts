@@ -99,3 +99,10 @@ export const getModifiedFriendships = (friendships: Friendships, username: strin
   });
   return modifiedFriendships;
 };
+
+export const getPendingReceivedFriendships = (
+  friendships: Friendships,
+  username: string,
+) => {
+  return friendships.filter((f) => f.requesterInfo.username !== username);
+};

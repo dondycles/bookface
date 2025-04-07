@@ -49,7 +49,7 @@ export const addFriendshipRequest = createServerFn({
     });
 
     if (!status) {
-      const friendshipData = await db
+      await db
         .insert(friendship)
         .values({
           requester: user.id,
@@ -58,7 +58,7 @@ export const addFriendshipRequest = createServerFn({
           status: "pending",
         })
         .returning();
-      await pusher.trigger(data.receiverId, "friendships", friendshipData[0]);
+      await pusher.trigger(data.receiverId, "friendships", null);
     } else if (status.status === "pending")
       throw new Error(`[{ "message": "Already Pending." }]`);
   });
