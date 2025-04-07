@@ -10,6 +10,33 @@ const friendSchema = z.object({
   receiverId: z.string(),
 });
 
+export const checkFriendshipStatus = createServerFn({
+  method: "GET",
+})
+  .middleware([authMiddleware])
+  .validator(
+    (data: { recieverId: string; requesterId: string; friendshipId: string }) => data,
+  )
+  .handler(
+    async ({
+      data: { recieverId, requesterId, friendshipId },
+      context: { dB: user },
+    }) => {
+      if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
+      return await db.query.friendship.findFirst({
+        where: (friendship, { or, eq }) =>
+          or(
+            or(
+              eq(friendship.id, `${recieverId}${requesterId}`),
+              eq(friendship.id, `${requesterId}${recieverId}`),
+            ),
+            eq(friendship.id, friendshipId),
+          ),
+        columns: { status: true },
+      });
+    },
+  );
+
 export const addFriendshipRequest = createServerFn({
   method: "POST",
 })
@@ -35,6 +62,12 @@ export const removeFriendship = createServerFn({
   .validator((data: { friendshipId: string }) => data)
   .handler(async ({ data: { friendshipId }, context: { dB: user } }) => {
     if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
+
+    const status = await checkFriendshipStatus({
+      data: { recieverId: "", requesterId: "", friendshipId },
+    });
+    if (!status) throw new Error(`[{ "message": "Request First." }]`);
+
     await db.delete(friendship).where(eq(friendship.id, friendshipId));
     await pusher.trigger(friendshipId, "all", friendshipId);
   });
@@ -45,6 +78,13 @@ export const acceptFriendshipRequest = createServerFn({
   .validator((data: { friendshipId: string }) => data)
   .handler(async ({ data: { friendshipId }, context: { dB: user } }) => {
     if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
+    const status = await checkFriendshipStatus({
+      data: { recieverId: "", requesterId: "", friendshipId },
+    });
+    if (!status) throw new Error(`[{ "message": "Request First." }]`);
+    if (status.status === "accepted")
+      throw new Error(`[{ "message": "Already Friend." }]`);
+
     await db
       .update(friendship)
       .set({

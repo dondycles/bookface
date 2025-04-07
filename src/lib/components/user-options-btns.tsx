@@ -86,8 +86,20 @@ export default function UserOptionsBtns({
         </DropdownMenu>
       ) : (
         <Button
-          disabled={friendship.isFetching}
-          className={`${friendship.isFetching ? "animate-pulse " : ""} flex-1 rounded-r-none`}
+          disabled={
+            friendship.isFetching ||
+            handleAcceptFriendshipRequest.isPending ||
+            handleRemoveFriendship.isPending ||
+            handleAddFriendshipRequest.isPending
+          }
+          className={`${
+            friendship.isFetching ||
+            handleAcceptFriendshipRequest.isPending ||
+            handleRemoveFriendship.isPending ||
+            handleAddFriendshipRequest.isPending
+              ? "animate-pulse "
+              : ""
+          } flex-1 rounded-r-none`}
           onClick={() => {
             if (friendshipStatus === "pending") {
               if (iAmTheReceiver) {
