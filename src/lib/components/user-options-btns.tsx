@@ -39,6 +39,7 @@ export default function UserOptionsBtns({
     targetedUserId === currentUserInfo?.dB.id
       ? (targetedUserId as string)
       : (currentUserInfo!.dB.id as string);
+
   const handleAddFriendshipRequest = useAddFriendshipRequestMutation({
     currentUserId: currentUserInfo?.dB.id ?? "",
     queryClient,
