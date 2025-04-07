@@ -36,7 +36,9 @@ export default function UserOptionsBtns({
   const friendshipStatus = friendship.data?.status;
   const iAmTheReceiver = friendship.data?.receiver === currentUserInfo?.dB.id;
   const updateReceiverId =
-    (iAmTheReceiver ? friendship.data?.requester : friendship.data?.receiver) || "";
+    targetedUserId === currentUserInfo?.dB.id
+      ? (targetedUserId as string)
+      : (currentUserInfo!.dB.id as string);
   const handleAddFriendshipRequest = useAddFriendshipRequestMutation({
     currentUserId: currentUserInfo?.dB.id ?? "",
     queryClient,
