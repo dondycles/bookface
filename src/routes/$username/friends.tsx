@@ -1,10 +1,12 @@
 import { Button } from "@/lib/components/ui/button";
+import { Skeleton } from "@/lib/components/ui/skeleton";
 import UserAvatar from "@/lib/components/user-avatar";
 import UserBar from "@/lib/components/user-bar";
 import {
   useAcceptFriendshipRequestMutation,
   useRemoveFriendshipMutation,
 } from "@/lib/mutations/friendship";
+import { pusher } from "@/lib/pusher-client";
 import {
   currentUserFriendshipsQueryOptions,
   thisUserAcceptedfriendshipsQueryOptions,
@@ -14,6 +16,7 @@ import { UserInfo } from "@/lib/server/fn/user";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, ExternalLink, X } from "lucide-react";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/$username/friends")({
   component: RouteComponent,
@@ -57,7 +60,35 @@ function MyFriends() {
     friendships.data ?? [],
     currentUserInfo?.dB.username ?? "",
   );
-
+  if (friendships.isFetching)
+    return (
+      <div className="flex flex-col gap-4 flex-1">
+        <Skeleton className="w-full py-4 px-2 sm:px-4 sm:rounded-md rounded-none flex gap-2">
+          <Skeleton className="size-14 rounded-full" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+          <Skeleton className="size-10 mb-0 mt-auto" />
+        </Skeleton>
+        <Skeleton className="w-full py-4 px-2 sm:px-4 sm:rounded-md rounded-none flex gap-2">
+          <Skeleton className="size-14 rounded-full" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+          <Skeleton className="size-10 mb-0 mt-auto" />
+        </Skeleton>
+        <Skeleton className="w-full py-4 px-2 sm:px-4 sm:rounded-md rounded-none flex gap-2">
+          <Skeleton className="size-14 rounded-full" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+          <Skeleton className="size-10 mb-0 mt-auto" />
+        </Skeleton>
+      </div>
+    );
   return (
     <div className="flex flex-col gap-4 flex-1">
       {_friendships.map((f) => {
@@ -87,6 +118,7 @@ function FriendshipBar({
 }: {
   friendship: ReturnType<typeof getModifiedFriendships>[0];
 }) {
+  const { queryClient } = Route.useRouteContext();
   const handleRemoveFriendship = useRemoveFriendshipMutation({
     friendshipId: friendship.id,
   });
@@ -94,6 +126,20 @@ function FriendshipBar({
   const handleAcceptFriendship = useAcceptFriendshipRequestMutation({
     friendshipId: friendship.id,
   });
+
+  useEffect(() => {
+    pusher.subscribe(friendship.id);
+    pusher.bind("all", () => {
+      queryClient.invalidateQueries({
+        queryKey: ["currentUserFriendships"],
+      });
+    });
+
+    return () => {
+      pusher.unsubscribe(friendship.id);
+    };
+  }, []);
+
   return (
     <div
       key={friendship.id}

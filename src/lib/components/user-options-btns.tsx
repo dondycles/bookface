@@ -40,7 +40,12 @@ export default function UserOptionsBtns({
   const handleAddFriendshipRequest = useAddFriendshipRequestMutation({
     currentUserId: currentUserInfo?.dB.id as string,
     targetedUserId,
-    refetch: friendship.refetch,
+    refetch: () => {
+      friendship.refetch();
+      queryClient.invalidateQueries({
+        queryKey: ["currentUserFriendships"],
+      });
+    },
   });
 
   const handleRemoveFriendship = useRemoveFriendshipMutation({
@@ -56,6 +61,9 @@ export default function UserOptionsBtns({
     pusher.bind("all", () => {
       queryClient.resetQueries({
         queryKey: ["friendship", `${currentUserInfo?.dB.id}${targetedUserId}`],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["currentUserFriendships"],
       });
     });
 
