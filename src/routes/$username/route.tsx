@@ -22,13 +22,19 @@ export const Route = createFileRoute("/$username")({
 });
 
 function RouteComponent() {
-  const { currentUserInfo, username, isMyProfile } = Route.useLoaderData();
-  const { data: myProfile } = useQuery({
-    initialData: currentUserInfo,
-    ...currentUserInfoQueryOptions(),
-  });
+  const { username, isMyProfile, currentUserInfo } = Route.useLoaderData();
+
   if (!isMyProfile)
     return <OtherUserInfo currentUserInfo={currentUserInfo} username={username} />;
+
+  return <MyProfile />;
+}
+function MyProfile() {
+  const { currentUserInfo } = Route.useLoaderData();
+  const { data: myProfile } = useQuery({
+    initialData: currentUserInfo ?? null,
+    ...currentUserInfoQueryOptions(),
+  });
   return (
     <div className="py-24 sm:max-w-[512px] mx-auto">
       <div className="flex flex-col gap-4 ">
@@ -123,11 +129,11 @@ function Navigation() {
   const router = useRouterState();
 
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-[1px] rounded-md overflow-hidden ">
       <Button
         asChild
         variant={router.location.pathname.match("/posts") ? "default" : "secondary"}
-        className="text-xs flex-1"
+        className="text-xs flex-1 rounded-r-none"
       >
         <Link
           to="/$username/posts"
@@ -140,7 +146,7 @@ function Navigation() {
       <Button
         asChild
         variant={router.location.pathname.match("/friends") ? "default" : "secondary"}
-        className="text-xs flex-1"
+        className="text-xs flex-1 rounded-l-none"
       >
         <Link to="/$username/friends" params={{ username }}>
           Friends

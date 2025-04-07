@@ -1,9 +1,15 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Ban, Check, Ellipsis, Flag, MessageCircle, Plus, X } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Ban, Check, Ellipsis, Flag, MessageCircle, Plus, Star, X } from "lucide-react";
+import { useEffect } from "react";
+import {
+  useAcceptFriendshipRequestMutation,
+  useAddFriendshipRequestMutation,
+  useRemoveFriendshipMutation,
+} from "../mutations/friendship";
+import { pusher } from "../pusher-client";
 import { thisFriendshipQueryOptions } from "../queries/friendship";
-import { addFriendshipRequest, removeFriendshipRequest } from "../server/fn/friendships";
 import { CurrentUserInfo } from "../server/fn/user";
-import { cn, errorHandlerWithToast, successHandlerWithToast } from "../utils";
+import { cn } from "../utils";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -30,89 +36,104 @@ export default function UserOptionsBtns({
   const friendshipStatus = friendship.data?.status;
   const iAmTheReceiver = friendship.data?.receiver === currentUserInfo?.dB.id;
 
-  const handleAddFriendshipRequest = useMutation({
-    mutationFn: async () => {
-      return await addFriendshipRequest({ data: { receiverId: targetedUserId } });
-    },
-    onSuccess: () => {
-      successHandlerWithToast("info", "Friendship Requested.");
-      queryClient.resetQueries({
-        queryKey: ["friendship", `${currentUserInfo?.dB.id}${targetedUserId}`],
-      });
+  const handleAddFriendshipRequest = useAddFriendshipRequestMutation({
+    currentUserId: currentUserInfo?.dB.id ?? "",
+    queryClient,
+    refetch: () => friendship.refetch(),
+    targetedUserId,
+    queryKey: ["friendship", `${currentUserInfo?.dB.id}${targetedUserId}`],
+    refetchOption: "reset",
+  });
+
+  const handleRemoveFriendship = useRemoveFriendshipMutation({
+    queryClient,
+    friendshipId: friendship.data?.id ?? "",
+    queryKey: ["friendship", `${friendship.data?.id}`],
+    refetchOption: "reset",
+  });
+
+  const handleAcceptFriendshipRequest = useAcceptFriendshipRequestMutation({
+    queryClient,
+    friendshipId: friendship.data?.id ?? "",
+    queryKey: ["friendship", `${friendship.data?.id}`],
+    refetchOption: "reset",
+  });
+
+  useEffect(() => {
+    if (!currentUserInfo) return;
+    if (!friendship.data) return;
+    pusher.subscribe(friendship.data.id);
+    pusher.bind("all", () => {
       friendship.refetch();
-    },
-    onError: (e: Error) => errorHandlerWithToast(e),
-  });
+    });
+    return () => {
+      if (!friendship.data) return;
+      pusher.unsubscribe(friendship.data.id);
+    };
+  }, [currentUserInfo, friendship.data]);
 
-  const handleRemoveFriendshipRequest = useMutation({
-    mutationFn: async () => {
-      return await removeFriendshipRequest({ data: { receiverId: targetedUserId } });
-    },
-    onSuccess: () => {
-      successHandlerWithToast("info", "Friendship Cancelled.");
-      queryClient.resetQueries({
-        queryKey: ["friendship", `${currentUserInfo?.dB.id}${targetedUserId}`],
-      });
-    },
-    onError: (e: Error) => errorHandlerWithToast(e),
-  });
-
-  const handleAcceptFriendshipRequest = useMutation({
-    mutationFn: async () => {
-      return await removeFriendshipRequest({ data: { receiverId: targetedUserId } });
-    },
-    onSuccess: () => {
-      successHandlerWithToast("info", "Friendship Cancelled.");
-      queryClient.resetQueries({
-        queryKey: ["friendship", `${currentUserInfo?.dB.id}${targetedUserId}`],
-      });
-    },
-    onError: (e: Error) => errorHandlerWithToast(e),
-  });
   return (
-    <div className={cn("flex gap-2", className)}>
-      <Button
-        disabled={friendship.isFetching}
-        className={`${friendship.isFetching ? "animate-pulse " : ""} flex-1`}
-        onClick={() => {
-          if (friendshipStatus === "pending") {
-            if (iAmTheReceiver) {
-              handleAcceptFriendshipRequest.mutate();
+    <div className={cn("flex rounded-md gap-[1px]", className)}>
+      {friendshipStatus === "accepted" ? (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button className="flex-1 rounded-r-none">
+              <Check />
+              Friends
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            <DropdownMenuItem onClick={() => handleRemoveFriendship.mutate()}>
+              <X />
+              Unfriend
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Star />
+              Favorite
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : (
+        <Button
+          disabled={friendship.isFetching}
+          className={`${friendship.isFetching ? "animate-pulse " : ""} flex-1 rounded-r-none`}
+          onClick={() => {
+            if (friendshipStatus === "pending") {
+              if (iAmTheReceiver) {
+                handleAcceptFriendshipRequest.mutate();
+              } else {
+                handleRemoveFriendship.mutate();
+              }
             } else {
-              handleRemoveFriendshipRequest.mutate();
+              handleAddFriendshipRequest.mutate();
             }
-          } else if (friendshipStatus === "accepted") {
-            handleRemoveFriendshipRequest.mutate();
-          } else {
-            handleAddFriendshipRequest.mutate();
-          }
-        }}
-      >
-        {(() => {
-          if (!friendshipStatus) return <Plus />;
-          if (friendshipStatus === "accepted") return <X />;
-          if (friendshipStatus === "pending") {
-            return iAmTheReceiver ? <Check /> : <X />;
-          }
-          return <Plus />;
-        })()}
+          }}
+        >
+          {(() => {
+            if (!friendshipStatus) return <Plus />;
+            if (friendshipStatus === "pending") {
+              return iAmTheReceiver ? <Check /> : <X />;
+            }
+            return <Plus />;
+          })()}
 
-        {(() => {
-          if (!friendshipStatus) return "Add Friend";
-          if (friendshipStatus === "accepted") return "Remove Friend";
-          if (friendshipStatus === "pending") {
-            return iAmTheReceiver ? "Accept Friend" : "Cancel Request";
-          }
-          return "Add Friend";
-        })()}
-      </Button>
-      <Button variant={"secondary"} className="  flex-1">
+          {(() => {
+            if (!friendshipStatus) return "Add Friend";
+            if (friendshipStatus === "pending") {
+              return iAmTheReceiver ? "Accept Friend" : "Cancel Request";
+            }
+            return "Add Friend";
+          })()}
+        </Button>
+      )}
+
+      <Button variant={"secondary"} className="rounded-none flex-1">
         <MessageCircle />
         Message
       </Button>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant={"secondary"}>
+          <Button variant={"secondary"} className="rounded-l-none">
             <Ellipsis />
           </Button>
         </DropdownMenuTrigger>

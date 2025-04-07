@@ -167,6 +167,7 @@ export const addPost = createServerFn({
         privacy: data.privacy,
       })
       .returning();
+
     return postData[0];
   });
 

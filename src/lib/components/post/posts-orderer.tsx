@@ -27,7 +27,10 @@ export function PostsOrderer({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button className="text-sm text-muted-foreground w-fit" variant={"ghost"}>
+        <Button
+          className="text-sm text-muted-foreground w-fit rounded-r-none"
+          variant={"ghost"}
+        >
           <p>
             {(postsOrderBy === "likes"
               ? flow === "asc"

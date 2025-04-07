@@ -1,13 +1,13 @@
 import PostsMapper from "@/lib/components/post/posts-mapper";
 import { PostsOrderer } from "@/lib/components/post/posts-orderer";
 import { Button } from "@/lib/components/ui/button";
-import UserAvatar from "@/lib/components/user-avatar";
+import UserBar from "@/lib/components/user-bar";
 import { UsersOrderer } from "@/lib/components/users-orderer";
 import { searchPostsQueryOptions, searchUsersQueryOptions } from "@/lib/queries/search";
 import { searchSearchSchema } from "@/lib/search-schema";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, redirect, useRouter } from "@tanstack/react-router";
-import { ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
+import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 
 export const Route = createFileRoute("/search")({
@@ -162,34 +162,7 @@ function RouteComponent() {
           {!showUsers
             ? null
             : _users.map((u) => {
-                return (
-                  <div
-                    key={u.id}
-                    className="sm:rounded-md bg-muted py-4 px-2 sm:px-4 flex gap-2 justify-between"
-                  >
-                    <div className="flex gap-2 items-center">
-                      <UserAvatar
-                        className="size-14"
-                        alt={u.username ?? u.email}
-                        url={u.image}
-                      />
-                      <div>
-                        <p className="font-semibold text-lg">{u.name}</p>
-                        <p className="text-muted-foreground text-sm">@{u.username}</p>
-                        <p className="text-muted-foreground text-sm">
-                          Joined:{u.createdAt.toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-                    <Link
-                      to="/$username"
-                      search={{ postsOrderBy: "recent", flow: "desc" }}
-                      params={{ username: u.username ?? "" }}
-                    >
-                      <ExternalLink className="text-muted-foreground size-5" />
-                    </Link>
-                  </div>
-                );
+                return <UserBar u={u} key={`${u}-search`} />;
               })}
         </>
       ) : null}

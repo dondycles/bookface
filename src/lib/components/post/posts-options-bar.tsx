@@ -18,7 +18,7 @@ export default function PostsOptionsBar({
   useEffect(() => reset(), [reset, router.state.location.pathname]);
 
   return (
-    <div className="sm:rounded-md bg-muted flex justify-between text-muted-foreground gap-2">
+    <div className="sm:rounded-md flex justify-between text-muted-foreground gap-[1px]">
       {children}
       <Button
         onClick={() => {
@@ -29,6 +29,7 @@ export default function PostsOptionsBar({
         hidden={!isMyProfile || router.state.location.pathname === "feed"}
         variant={"ghost"}
         size={"icon"}
+        className="rounded-l-none"
       >
         {isSelecting ? <X /> : <ListChecks />}
       </Button>

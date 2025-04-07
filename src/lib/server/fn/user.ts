@@ -61,6 +61,7 @@ export const getUserInfo = createServerFn({ method: "GET" })
       where: (user, { eq }) => eq(user.username, username),
     });
   });
+export type UserInfo = NonNullable<Awaited<ReturnType<typeof getUserInfo>>>;
 
 export const editProfile = createServerFn({ method: "POST" })
   .middleware([authMiddleware])

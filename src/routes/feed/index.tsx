@@ -55,6 +55,18 @@ function FeedIndex() {
   const posts = useInfiniteQuery(postsQueryOptions(currentUserInfo, postsOrderBy, flow));
   const _posts = posts.data?.pages.flatMap((page) => page);
   const router = useRouter();
+
+  // useEffect(() => {
+  //   if (!currentUserInfo) return;
+  //   pusher.subscribe("posts");
+
+  //   pusher.bind("addPost", () => {
+  //     posts.refetch();
+  //   });
+  //   return () => {
+  //     pusher.unsubscribe("posts");
+  //   };
+  // }, [currentUserInfo]);
   return (
     <div className="flex flex-col gap-4 py-24 sm:max-w-[512px] mx-auto">
       <AddPostBar currentUserInfo={currentUserInfo} />

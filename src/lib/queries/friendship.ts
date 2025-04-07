@@ -1,5 +1,9 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getCurrentUserFriendships, getThisFriendship } from "../server/fn/friendships";
+import {
+  getCurrentUserFriendships,
+  getThisFriendship,
+  getThisUserAcceptedFriendships,
+} from "../server/fn/friendships";
 
 export const currentUserFriendshipsQueryOptions = () =>
   queryOptions({
@@ -10,5 +14,12 @@ export const currentUserFriendshipsQueryOptions = () =>
 export const thisFriendshipQueryOptions = (userId: string, currentUserId: string) =>
   queryOptions({
     queryKey: ["friendship", `${currentUserId}${userId}`],
-    queryFn: ({ signal }) => getThisFriendship({ signal, data: { userId } }),
+    queryFn: ({ signal }) =>
+      getThisFriendship({ signal, data: { userId, currentUserId } }),
+  });
+
+export const thisUserAcceptedfriendshipsQueryOptions = (username: string) =>
+  queryOptions({
+    queryKey: ["acceptdFriendships", username],
+    queryFn: ({ signal }) => getThisUserAcceptedFriendships({ signal, data: username }),
   });

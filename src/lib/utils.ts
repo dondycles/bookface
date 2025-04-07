@@ -24,8 +24,6 @@ export function useDebounce<T>(value: T, delay: number = 500): T {
 }
 
 export const errorHandlerWithToast = (e: Error) => {
-  console.log("Error Name: ", e.name);
-  console.log("Error Message: ", e.message);
   if (e.name === "PostgresError") {
     toast.error(e.message);
   }

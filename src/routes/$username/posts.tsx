@@ -54,22 +54,27 @@ export const Route = createFileRoute("/$username/posts")({
 
 function RouteComponent() {
   const router = useRouter();
-  const { username, isMyProfile, currentUserInfo, postsOrderBy, flow } =
-    Route.useLoaderData();
+  const { username, isMyProfile, currentUserInfo } = Route.useLoaderData();
+
+  if (!isMyProfile)
+    return (
+      <OtherUserPosts
+        currentUserInfo={currentUserInfo}
+        username={username}
+        router={router}
+      />
+    );
+  return <MyPosts />;
+}
+function MyPosts() {
+  const router = useRouter();
+  const { isMyProfile, currentUserInfo, postsOrderBy, flow } = Route.useLoaderData();
 
   const myPosts = useInfiniteQuery({
     ...currentUserPostsQueryOptions(postsOrderBy, flow),
   });
   const _myPosts = myPosts.data?.pages.flatMap((page) => page);
 
-  if (!isMyProfile)
-    return (
-      <OtherUserProfile
-        currentUserInfo={currentUserInfo}
-        username={username}
-        router={router}
-      />
-    );
   return (
     <>
       <AddPostBar currentUserInfo={currentUserInfo} />
@@ -99,7 +104,7 @@ function RouteComponent() {
     </>
   );
 }
-function OtherUserProfile({
+function OtherUserPosts({
   username,
   currentUserInfo,
   router,
