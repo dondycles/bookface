@@ -44,16 +44,23 @@ export const addFriendshipRequest = createServerFn({
   .validator(friendSchema)
   .handler(async ({ data, context: { dB: user } }) => {
     if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
-    const friendshipData = await db
-      .insert(friendship)
-      .values({
-        requester: user.id,
-        receiver: data.receiverId,
-        id: `${user.id}${data.receiverId}`,
-        status: "pending",
-      })
-      .returning();
-    await pusher.trigger(friendshipData[0].id, "all", friendshipData[0].id);
+    const status = await checkFriendshipStatus({
+      data: { recieverId: data.receiverId, requesterId: user.id, friendshipId: "" },
+    });
+
+    if (!status) {
+      const friendshipData = await db
+        .insert(friendship)
+        .values({
+          requester: user.id,
+          receiver: data.receiverId,
+          id: `${user.id}${data.receiverId}`,
+          status: "pending",
+        })
+        .returning();
+      await pusher.trigger(friendshipData[0].id, "all", friendshipData[0].id);
+    } else if (status.status === "pending")
+      throw new Error(`[{ "message": "Already Pending." }]`);
   });
 export const removeFriendship = createServerFn({
   method: "POST",
