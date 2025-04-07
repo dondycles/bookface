@@ -61,13 +61,8 @@ export default function UserOptionsBtns({
 
   useEffect(() => {
     pusher.subscribe(friendship.data?.id ?? `${currentUserInfo?.dB.id}${targetedUserId}`);
-    pusher.bind("all", (e: { message: string }) => {
-      queryClient.resetQueries({
-        queryKey: [
-          "friendship",
-          e.message ?? `${currentUserInfo?.dB.id}${targetedUserId}`,
-        ],
-      });
+    pusher.bind("all", () => {
+      friendship.refetch();
     });
     return () => {
       pusher.unsubscribe(
