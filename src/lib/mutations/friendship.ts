@@ -1,4 +1,4 @@
-import { QueryClient, useMutation } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import {
   acceptFriendshipRequest,
   addFriendshipRequest,
@@ -8,11 +8,11 @@ import { errorHandlerWithToast, successHandlerWithToast } from "../utils";
 export const useAddFriendshipRequestMutation = ({
   currentUserId,
   targetedUserId,
-  queryClient,
+  refetch,
 }: {
   currentUserId: string;
   targetedUserId: string;
-  queryClient: QueryClient;
+  refetch: () => void;
 }) => {
   return useMutation({
     mutationFn: async () => {
@@ -20,11 +20,12 @@ export const useAddFriendshipRequestMutation = ({
     },
     onSuccess: () => {
       successHandlerWithToast("info", "Friendship Requested.");
-      queryClient.resetQueries({
-        queryKey: ["friendship", `${currentUserId}${targetedUserId}`],
-      });
+      refetch();
     },
-    onError: (e: Error) => errorHandlerWithToast(e),
+    onError: (e: Error) => {
+      errorHandlerWithToast(e);
+      refetch();
+    },
     mutationKey: ["addFriendship", `${currentUserId}${targetedUserId}`],
   });
 };

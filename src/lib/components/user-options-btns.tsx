@@ -34,12 +34,13 @@ export default function UserOptionsBtns({
   );
 
   const friendshipStatus = friendship.data?.status;
+
   const iAmTheReceiver = friendship.data?.receiver === currentUserInfo?.dB.id;
 
   const handleAddFriendshipRequest = useAddFriendshipRequestMutation({
     currentUserId: currentUserInfo?.dB.id as string,
     targetedUserId,
-    queryClient,
+    refetch: friendship.refetch,
   });
 
   const handleRemoveFriendship = useRemoveFriendshipMutation({

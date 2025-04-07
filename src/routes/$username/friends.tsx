@@ -52,7 +52,7 @@ function RouteComponent() {
 
 function MyFriends() {
   const { currentUserInfo } = Route.useRouteContext();
-  const friendships = useQuery({ ...currentUserFriendshipsQueryOptions(), staleTime: 0 });
+  const friendships = useQuery({ ...currentUserFriendshipsQueryOptions() });
   const _friendships = getModifiedFriendships(
     friendships.data ?? [],
     currentUserInfo?.dB.username ?? "",
@@ -71,7 +71,6 @@ function OtherUserFriends() {
   const { username } = Route.useLoaderData();
   const friendships = useQuery({
     ...thisUserAcceptedfriendshipsQueryOptions(username),
-    staleTime: 0,
   });
   const _friendships = getModifiedFriendships(friendships.data ?? [], username);
   return (
