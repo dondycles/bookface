@@ -61,6 +61,9 @@ export default function UserOptionsBtns({
 
   useEffect(() => {
     pusher.subscribe(friendship.data?.id ?? `${currentUserInfo?.dB.id}${targetedUserId}`);
+    pusher.bind("addFriend", () => {
+      friendship.refetch();
+    });
     pusher.bind("acceptFriend", () => {
       queryClient.resetQueries({
         queryKey: ["friendship", `${friendship.data?.id}`],
@@ -76,7 +79,7 @@ export default function UserOptionsBtns({
         friendship.data?.id ?? `${currentUserInfo?.dB.id}${targetedUserId}`,
       );
     };
-  }, []);
+  }, [friendship.data]);
 
   return (
     <div className={cn("flex rounded-md gap-[1px]", className)}>

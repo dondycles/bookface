@@ -89,7 +89,7 @@ export const useAcceptFriendshipRequestMutation = ({
       return await acceptFriendshipRequest({ data: friendshipId });
     },
     onSuccess: () => {
-      successHandlerWithToast("info", "Friendship Cancelled.");
+      successHandlerWithToast("info", "Friendship Accepted.");
       if (refetchOption === "invalidate")
         queryClient.invalidateQueries({
           queryKey,
