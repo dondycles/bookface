@@ -27,8 +27,7 @@ export const addFriendshipRequest = createServerFn({
         status: "pending",
       })
       .returning();
-    console.log(friendshipData[0]);
-    await pusher.trigger(friendshipData[0].id, "all", {
+    await pusher.trigger(friendshipData[0].id, "addFriend", {
       message: friendshipData[0].id,
     });
   });
@@ -40,7 +39,7 @@ export const removeFriendship = createServerFn({
   .handler(async ({ data: friendshipId, context: { dB: user } }) => {
     if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
     await db.delete(friendship).where(eq(friendship.id, friendshipId));
-    await pusher.trigger(friendshipId, "all", {
+    await pusher.trigger(friendshipId, "removeFriend", {
       message: friendshipId,
     });
   });
@@ -58,7 +57,7 @@ export const acceptFriendshipRequest = createServerFn({
         acceptedAt: new Date(),
       })
       .where(eq(friendship.id, friendshipId));
-    await pusher.trigger(friendshipId, "all", {
+    await pusher.trigger(friendshipId, "acceptFriend", {
       message: friendshipId,
     });
   });
