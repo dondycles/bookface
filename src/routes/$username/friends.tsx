@@ -88,20 +88,12 @@ function FriendshipBar({
 }: {
   friendship: ReturnType<typeof getModifiedFriendships>[0];
 }) {
-  const { queryClient } = Route.useRouteContext();
-
   const handleRemoveFriendship = useRemoveFriendshipMutation({
-    queryClient,
     ids: { friendshipId: friendship.id, updateReceiverId: friendship.info.id },
-    queryKey: ["currentUserFriendships"],
-    refetchOption: "invalidate",
   });
 
   const handleAcceptFriendship = useAcceptFriendshipRequestMutation({
-    queryClient,
     ids: { friendshipId: friendship.id, updateReceiverId: friendship.info.id },
-    queryKey: ["currentUserFriendships"],
-    refetchOption: "invalidate",
   });
   return (
     <div

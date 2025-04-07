@@ -42,42 +42,28 @@ export default function UserOptionsBtns({
 
   const handleAddFriendshipRequest = useAddFriendshipRequestMutation({
     currentUserId: currentUserInfo?.dB.id ?? "",
-    queryClient,
-    refetch: () => friendship.refetch(),
     targetedUserId,
-    queryKey: ["friendship", `${currentUserInfo?.dB.id}${targetedUserId}`],
-    refetchOption: "reset",
   });
 
   const handleRemoveFriendship = useRemoveFriendshipMutation({
-    queryClient,
     ids: {
       friendshipId: friendship.data?.id ?? "",
       updateReceiverId,
     },
-    queryKey: ["friendship", `${friendship.data?.id}`],
-    refetchOption: "reset",
   });
 
   const handleAcceptFriendshipRequest = useAcceptFriendshipRequestMutation({
-    queryClient,
     ids: {
       friendshipId: friendship.data?.id ?? "",
       updateReceiverId,
     },
-    queryKey: ["friendship", `${friendship.data?.id}`],
-    refetchOption: "reset",
   });
 
   useEffect(() => {
-    if (!currentUserInfo) return;
-
     pusher.subscribe("friendships");
 
     pusher.bind("all", () => {
-      queryClient.resetQueries({
-        queryKey: ["friendship", `${friendship.data?.id}`],
-      });
+      queryClient.refetchQueries(friendship);
     });
 
     return () => {
