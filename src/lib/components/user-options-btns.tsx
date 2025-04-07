@@ -60,17 +60,21 @@ export default function UserOptionsBtns({
   });
 
   useEffect(() => {
-    if (!currentUserInfo) return;
-    if (!friendship.data) return;
-    pusher.subscribe(friendship.data.id);
-    pusher.bind("all", () => {
-      friendship.refetch();
+    pusher.subscribe(friendship.data?.id ?? `${currentUserInfo?.dB.id}${targetedUserId}`);
+    pusher.bind("all", (e: { message: string }) => {
+      queryClient.resetQueries({
+        queryKey: [
+          "friendship",
+          e.message ?? `${currentUserInfo?.dB.id}${targetedUserId}`,
+        ],
+      });
     });
     return () => {
-      if (!friendship.data) return;
-      pusher.unsubscribe(friendship.data.id);
+      pusher.unsubscribe(
+        friendship.data?.id ?? `${currentUserInfo?.dB.id}${targetedUserId}`,
+      );
     };
-  }, [currentUserInfo, friendship.data]);
+  }, []);
 
   return (
     <div className={cn("flex rounded-md gap-[1px]", className)}>

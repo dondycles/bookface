@@ -27,7 +27,7 @@ export const addFriendshipRequest = createServerFn({
         status: "pending",
       })
       .returning();
-
+    console.log(friendshipData[0]);
     await pusher.trigger(friendshipData[0].id, "all", {
       message: friendshipData[0].id,
     });
@@ -51,7 +51,6 @@ export const acceptFriendshipRequest = createServerFn({
   .validator((friendshipId: string) => friendshipId)
   .handler(async ({ data: friendshipId, context: { dB: user } }) => {
     if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
-
     await db
       .update(friendship)
       .set({
