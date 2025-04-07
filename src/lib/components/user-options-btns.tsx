@@ -51,7 +51,7 @@ export default function UserOptionsBtns({
       friendshipId: friendship.data?.id ?? "",
       updateReceiverId: iAmTheReceiver
         ? (friendship.data?.requester ?? "")
-        : (friendship.data?.requester ?? ""),
+        : (friendship.data?.receiver ?? ""),
     },
     queryKey: ["friendship", `${friendship.data?.id}`],
     refetchOption: "reset",
@@ -94,7 +94,7 @@ export default function UserOptionsBtns({
         friendship.data?.id ?? `${currentUserInfo?.dB.id}${targetedUserId}`,
       );
     };
-  }, [friendship.data, currentUserInfo]);
+  }, []);
 
   return (
     <div className={cn("flex rounded-md gap-[1px]", className)}>
