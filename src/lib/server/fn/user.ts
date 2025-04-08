@@ -55,10 +55,10 @@ export const getCurrentUserInfo = createServerFn({ method: "GET" }).handler(asyn
 export type CurrentUserInfo = Awaited<ReturnType<typeof getCurrentUserInfo>>;
 
 export const getUserInfo = createServerFn({ method: "GET" })
-  .validator((data: { username: string }) => data)
-  .handler(async ({ data: { username } }) => {
+  .validator((data: { username: string; id?: string }) => data)
+  .handler(async ({ data: { username, id } }) => {
     return await db.query.user.findFirst({
-      where: (user, { eq }) => eq(user.username, username),
+      where: (user, { eq, or }) => or(eq(user.username, username), eq(user.id, id ?? "")),
     });
   });
 export type UserInfo = NonNullable<Awaited<ReturnType<typeof getUserInfo>>>;

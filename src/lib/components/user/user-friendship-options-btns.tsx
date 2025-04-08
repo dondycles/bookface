@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Ban, Check, Ellipsis, Flag, MessageCircle, Plus, Star, X } from "lucide-react";
+import { Ban, Check, Ellipsis, Flag, Plus, Star, X } from "lucide-react";
 import { useEffect } from "react";
 import {
   useAcceptFriendshipRequestMutation,
@@ -10,6 +10,7 @@ import { pusher } from "../../pusher-client";
 import { thisFriendshipQueryOptions } from "../../queries/friendship";
 import { CurrentUserInfo } from "../../server/fn/user";
 import { cn } from "../../utils";
+import MessageBtn from "../message-btn";
 import { Button } from "../ui/button";
 import {
   DropdownMenu,
@@ -158,10 +159,11 @@ export default function UserFriendshipOptionsBtns({
         </Button>
       )}
 
-      <Button variant={"secondary"} className="rounded-none flex-1">
-        <MessageCircle />
-        Message
-      </Button>
+      <MessageBtn
+        targetedUserId={targetedUserId}
+        variant={"secondary"}
+        className="rounded-none flex-1"
+      />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant={"secondary"} className="rounded-l-none">

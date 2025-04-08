@@ -57,6 +57,13 @@
       "when": 1743494236476,
       "tag": "0007_friendly_gideon",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1744125171331,
+      "tag": "0008_cool_gressill",
+      "breakpoints": true
     }
   ]
 }

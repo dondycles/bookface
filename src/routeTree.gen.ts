@@ -14,9 +14,11 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as SignInImport } from './routes/sign-in'
 import { Route as SettingsRouteImport } from './routes/settings/route'
 import { Route as SearchRouteImport } from './routes/search/route'
+import { Route as MRouteImport } from './routes/m/route'
 import { Route as UsernameRouteImport } from './routes/$username/route'
 import { Route as IndexImport } from './routes/index'
 import { Route as FeedIndexImport } from './routes/feed/index'
+import { Route as MIdImport } from './routes/m/$id'
 import { Route as FeedIdImport } from './routes/feed/$id'
 import { Route as UsernamePostsImport } from './routes/$username/posts'
 import { Route as UsernameFriendsImport } from './routes/$username/friends'
@@ -41,6 +43,12 @@ const SearchRouteRoute = SearchRouteImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const MRouteRoute = MRouteImport.update({
+  id: '/m',
+  path: '/m',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const UsernameRouteRoute = UsernameRouteImport.update({
   id: '/$username',
   path: '/$username',
@@ -57,6 +65,12 @@ const FeedIndexRoute = FeedIndexImport.update({
   id: '/feed/',
   path: '/feed/',
   getParentRoute: () => rootRoute,
+} as any)
+
+const MIdRoute = MIdImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => MRouteRoute,
 } as any)
 
 const FeedIdRoute = FeedIdImport.update({
@@ -93,6 +107,13 @@ declare module '@tanstack/react-router' {
       path: '/$username'
       fullPath: '/$username'
       preLoaderRoute: typeof UsernameRouteImport
+      parentRoute: typeof rootRoute
+    }
+    '/m': {
+      id: '/m'
+      path: '/m'
+      fullPath: '/m'
+      preLoaderRoute: typeof MRouteImport
       parentRoute: typeof rootRoute
     }
     '/search': {
@@ -137,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeedIdImport
       parentRoute: typeof rootRoute
     }
+    '/m/$id': {
+      id: '/m/$id'
+      path: '/$id'
+      fullPath: '/m/$id'
+      preLoaderRoute: typeof MIdImport
+      parentRoute: typeof MRouteImport
+    }
     '/feed/': {
       id: '/feed/'
       path: '/feed'
@@ -163,27 +191,42 @@ const UsernameRouteRouteWithChildren = UsernameRouteRoute._addFileChildren(
   UsernameRouteRouteChildren,
 )
 
+interface MRouteRouteChildren {
+  MIdRoute: typeof MIdRoute
+}
+
+const MRouteRouteChildren: MRouteRouteChildren = {
+  MIdRoute: MIdRoute,
+}
+
+const MRouteRouteWithChildren =
+  MRouteRoute._addFileChildren(MRouteRouteChildren)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$username': typeof UsernameRouteRouteWithChildren
+  '/m': typeof MRouteRouteWithChildren
   '/search': typeof SearchRouteRoute
   '/settings': typeof SettingsRouteRoute
   '/sign-in': typeof SignInRoute
   '/$username/friends': typeof UsernameFriendsRoute
   '/$username/posts': typeof UsernamePostsRoute
   '/feed/$id': typeof FeedIdRoute
+  '/m/$id': typeof MIdRoute
   '/feed': typeof FeedIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$username': typeof UsernameRouteRouteWithChildren
+  '/m': typeof MRouteRouteWithChildren
   '/search': typeof SearchRouteRoute
   '/settings': typeof SettingsRouteRoute
   '/sign-in': typeof SignInRoute
   '/$username/friends': typeof UsernameFriendsRoute
   '/$username/posts': typeof UsernamePostsRoute
   '/feed/$id': typeof FeedIdRoute
+  '/m/$id': typeof MIdRoute
   '/feed': typeof FeedIndexRoute
 }
 
@@ -191,12 +234,14 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/$username': typeof UsernameRouteRouteWithChildren
+  '/m': typeof MRouteRouteWithChildren
   '/search': typeof SearchRouteRoute
   '/settings': typeof SettingsRouteRoute
   '/sign-in': typeof SignInRoute
   '/$username/friends': typeof UsernameFriendsRoute
   '/$username/posts': typeof UsernamePostsRoute
   '/feed/$id': typeof FeedIdRoute
+  '/m/$id': typeof MIdRoute
   '/feed/': typeof FeedIndexRoute
 }
 
@@ -205,34 +250,40 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/$username'
+    | '/m'
     | '/search'
     | '/settings'
     | '/sign-in'
     | '/$username/friends'
     | '/$username/posts'
     | '/feed/$id'
+    | '/m/$id'
     | '/feed'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/$username'
+    | '/m'
     | '/search'
     | '/settings'
     | '/sign-in'
     | '/$username/friends'
     | '/$username/posts'
     | '/feed/$id'
+    | '/m/$id'
     | '/feed'
   id:
     | '__root__'
     | '/'
     | '/$username'
+    | '/m'
     | '/search'
     | '/settings'
     | '/sign-in'
     | '/$username/friends'
     | '/$username/posts'
     | '/feed/$id'
+    | '/m/$id'
     | '/feed/'
   fileRoutesById: FileRoutesById
 }
@@ -240,6 +291,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   UsernameRouteRoute: typeof UsernameRouteRouteWithChildren
+  MRouteRoute: typeof MRouteRouteWithChildren
   SearchRouteRoute: typeof SearchRouteRoute
   SettingsRouteRoute: typeof SettingsRouteRoute
   SignInRoute: typeof SignInRoute
@@ -250,6 +302,7 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   UsernameRouteRoute: UsernameRouteRouteWithChildren,
+  MRouteRoute: MRouteRouteWithChildren,
   SearchRouteRoute: SearchRouteRoute,
   SettingsRouteRoute: SettingsRouteRoute,
   SignInRoute: SignInRoute,
@@ -269,6 +322,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/$username",
+        "/m",
         "/search",
         "/settings",
         "/sign-in",
@@ -284,6 +338,12 @@ export const routeTree = rootRoute
       "children": [
         "/$username/friends",
         "/$username/posts"
+      ]
+    },
+    "/m": {
+      "filePath": "m/route.tsx",
+      "children": [
+        "/m/$id"
       ]
     },
     "/search": {
@@ -305,6 +365,10 @@ export const routeTree = rootRoute
     },
     "/feed/$id": {
       "filePath": "feed/$id.tsx"
+    },
+    "/m/$id": {
+      "filePath": "m/$id.tsx",
+      "parent": "/m"
     },
     "/feed/": {
       "filePath": "feed/index.tsx"

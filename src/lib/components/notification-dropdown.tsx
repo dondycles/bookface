@@ -14,7 +14,6 @@ import { Button } from "./ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
@@ -81,7 +80,7 @@ export default function NotificationDropdown({
             })}
           </div>
         ) : (
-          <DropdownMenuItem>No notifications...</DropdownMenuItem>
+          <p className="p-2 text-sm text-center text-muted-foreground">Empty</p>
         )}
       </DropdownMenuContent>
     </DropdownMenu>

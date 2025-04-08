@@ -83,6 +83,15 @@ export default function UserDropdownMenu({
             await queryClient.invalidateQueries({
               queryKey: ["currentUserFriendships"],
             });
+            await queryClient.invalidateQueries({
+              queryKey: ["currentUserChatRoomIds"],
+            });
+            await queryClient.invalidateQueries({
+              queryKey: ["chatRoom"],
+            });
+            await queryClient.invalidateQueries({
+              queryKey: ["chatRoomChats"],
+            });
             await router.invalidate();
           }}
         >

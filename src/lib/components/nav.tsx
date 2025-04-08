@@ -2,7 +2,7 @@ import authClient from "@/lib/auth-client";
 import { Button } from "@/lib/components/ui/button";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useRouter } from "@tanstack/react-router";
-import { LogIn, Search, X } from "lucide-react";
+import { LogIn, MessageCircleMore, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { currentUserInfoQueryOptions } from "../queries/user";
 import { CurrentUserInfo } from "../server/fn/user";
@@ -100,6 +100,9 @@ export default function Nav({
         </div>
         {currentUserInfo ? (
           <>
+            <Button size={"icon"} variant={"ghost"}>
+              <MessageCircleMore className="size-6" />
+            </Button>
             <NotificationDropdown currentUserInfo={currentUserInfo} />
             <UserDropdownMenu currentUserInfo={currentUserInfo} />
           </>

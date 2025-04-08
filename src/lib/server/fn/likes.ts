@@ -10,7 +10,7 @@ export const addLikePost = createServerFn({
   .middleware([authMiddleware])
   .validator((data: { postId: string }) => data)
   .handler(async ({ data: { postId }, context: { dB: user } }) => {
-    if (!user.id) throw new Error("No User!");
+    if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
     await db.insert(postLikes).values({
       likerId: user.id,
       postId: postId,
