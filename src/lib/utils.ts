@@ -104,5 +104,7 @@ export const getPendingReceivedFriendships = (
   friendships: Friendships,
   username: string,
 ) => {
-  return friendships.filter((f) => f.requesterInfo.username !== username);
+  return friendships.filter(
+    (f) => f.requesterInfo.username !== username && f.status === "pending",
+  );
 };

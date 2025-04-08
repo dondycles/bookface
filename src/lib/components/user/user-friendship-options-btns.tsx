@@ -5,18 +5,18 @@ import {
   useAcceptFriendshipRequestMutation,
   useAddFriendshipRequestMutation,
   useRemoveFriendshipMutation,
-} from "../mutations/friendship";
-import { pusher } from "../pusher-client";
-import { thisFriendshipQueryOptions } from "../queries/friendship";
-import { CurrentUserInfo } from "../server/fn/user";
-import { cn } from "../utils";
-import { Button } from "./ui/button";
+} from "../../mutations/friendship";
+import { pusher } from "../../pusher-client";
+import { thisFriendshipQueryOptions } from "../../queries/friendship";
+import { CurrentUserInfo } from "../../server/fn/user";
+import { cn } from "../../utils";
+import { Button } from "../ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from "../ui/dropdown-menu";
 
 export default function UserFriendshipOptionsBtns({
   currentUserInfo,

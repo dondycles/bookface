@@ -10,7 +10,7 @@ import { useDebounce } from "../utils";
 import NotificationDropdown from "./notification-dropdown";
 import SetUsernameDialog from "./set-username-dialog";
 import { Input } from "./ui/input";
-import UserDropdownMenu from "./user-dropdown-menu";
+import UserDropdownMenu from "./user/user-dropdown-menu";
 
 export default function Nav({
   currentUserInfo: currentUserInfoInitialData,

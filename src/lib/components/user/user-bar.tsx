@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
-import { UserInfo } from "../server/fn/user";
+import { UserInfo } from "../../server/fn/user";
 import UserAvatar from "./user-avatar";
+import UserLink from "./user-link";
 
 export default function UserBar({ u }: { u: UserInfo }) {
   if (u)
@@ -11,30 +12,18 @@ export default function UserBar({ u }: { u: UserInfo }) {
         className="sm:rounded-md bg-muted py-4 px-2 sm:px-4 flex gap-2 justify-between"
       >
         <div className="flex gap-2 items-center">
-          <Link
-            to="/$username/posts"
-            params={{ username: u.username! }}
-            search={{ flow: "desc", postsOrderBy: "recent" }}
-          >
-            <UserAvatar className="size-14" alt={u.username ?? u.email} url={u.image} />
-          </Link>
+          <UserAvatar className="size-14" username={u.username} url={u.image} />
           <div>
-            <Link
-              to="/$username/posts"
-              params={{ username: u.username! }}
-              search={{ flow: "desc", postsOrderBy: "recent" }}
+            <UserLink
               className="font-semibold text-lg"
-            >
-              <p>{u.name}</p>
-            </Link>
-            <Link
-              to="/$username/posts"
-              params={{ username: u.username! }}
-              search={{ flow: "desc", postsOrderBy: "recent" }}
+              username={u.username ?? ""}
+              text={u.name}
+            />
+            <UserLink
               className="text-muted-foreground text-sm"
-            >
-              <p>@{u.username}</p>
-            </Link>
+              username={u.username ?? ""}
+              text={u.username ?? ""}
+            />
             <p className="text-muted-foreground text-sm">
               Joined: {u.createdAt.toLocaleString()}
             </p>

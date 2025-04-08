@@ -3,7 +3,7 @@ import { Button } from "@/lib/components/ui/button";
 import { Input } from "@/lib/components/ui/input";
 import { Label } from "@/lib/components/ui/label";
 import { Textarea } from "@/lib/components/ui/textarea";
-import UserAvatar from "@/lib/components/user-avatar";
+import UserAvatar from "@/lib/components/user/user-avatar";
 import { currentUserInfoQueryOptions } from "@/lib/queries/user";
 import { editProfile, settingsSchema } from "@/lib/server/fn/user";
 import { errorHandlerWithToast, successHandlerWithToast } from "@/lib/utils";
@@ -60,7 +60,7 @@ function RouteComponent() {
       className="flex flex-col gap-4 py-24 sm:max-w-[512px] mx-auto px-2 sm:px-0"
     >
       <UserAvatar
-        alt={currentUserInfo?.dB.username ?? "User PFP"}
+        username={currentUserInfo?.dB.username}
         url={currentUserInfo?.dB.image}
         className="size-32 mx-auto"
       />

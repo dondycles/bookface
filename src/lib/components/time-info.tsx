@@ -6,7 +6,7 @@ import {
   getYear,
 } from "date-fns";
 
-export default function PostTimeInfo({ createdAt }: { createdAt: Date }) {
+export default function TimeInfo({ createdAt }: { createdAt: Date }) {
   const minsDiff = differenceInMinutes(createdAt, new Date());
   const hrsDiff = differenceInHours(createdAt, new Date());
   const monthNames = [
@@ -28,9 +28,9 @@ export default function PostTimeInfo({ createdAt }: { createdAt: Date }) {
       return `${Math.abs(minsDiff)}m`;
     }
     if (Math.abs(hrsDiff) < 24) {
-      return `${Math.abs(hrsDiff)}d`;
+      return `${Math.abs(hrsDiff)}h`;
     }
     return `${monthNames[getMonth(createdAt)]} ${getDay(createdAt)} ${getYear(createdAt) !== getYear(new Date()) ? getYear(createdAt) : ""} at ${createdAt.toLocaleTimeString()}`;
   };
-  return <p className="text-xs">{getDiff()}</p>;
+  return <p className="text-xs text-muted-foreground">{getDiff()}</p>;
 }

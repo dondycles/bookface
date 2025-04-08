@@ -1,15 +1,15 @@
 import { SearchFlow, UsersOrderBy } from "@/lib/search-schema";
 import { AnyRouter, NavigateOptions } from "@tanstack/react-router";
 import { ArrowDown, ArrowUp, Check, ChevronDown, LetterText, Timer } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import {
   Command,
   CommandGroup,
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "./ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+} from "../ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 export function UsersOrderer({
   usersOrderByState,

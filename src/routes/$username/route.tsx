@@ -1,6 +1,6 @@
 import { Button } from "@/lib/components/ui/button";
-import UserAvatar from "@/lib/components/user-avatar";
-import UserFriendshipOptionsBtns from "@/lib/components/user-friendship-options-btns";
+import UserAvatar from "@/lib/components/user/user-avatar";
+import UserFriendshipOptionsBtns from "@/lib/components/user/user-friendship-options-btns";
 import { currentUserInfoQueryOptions, userInfoQueryOptions } from "@/lib/queries/user";
 import { CurrentUserInfo } from "@/lib/server/fn/user";
 import { useQuery } from "@tanstack/react-query";
@@ -44,7 +44,7 @@ function MyProfile() {
               <UserAvatar
                 className="size-24"
                 url={myProfile?.dB.image}
-                alt={myProfile?.dB.username ?? myProfile?.dB.name ?? "User PFP"}
+                username={myProfile?.dB.username}
               />
               <div className="flex flex-col ">
                 <p className="text-2xl font-bold text-foreground">{myProfile?.dB.name}</p>
@@ -93,7 +93,7 @@ function OtherUserInfo({
                 <UserAvatar
                   className="size-24"
                   url={profile.data.image}
-                  alt={profile.data.username ?? profile.data.name}
+                  username={profile.data.username}
                 />
                 <div className="flex flex-col ">
                   <p className="text-2xl font-bold text-foreground">

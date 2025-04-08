@@ -1,10 +1,10 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useRouter } from "@tanstack/react-router";
 import { LogOut, Plus, Settings } from "lucide-react";
-import authClient from "../auth-client";
-import { CurrentUserInfo } from "../server/fn/user";
-import UpsertPostDialog from "./post/upsert-post-dialog";
-import ThemeToggle from "./ThemeToggle";
+import authClient from "../../auth-client";
+import { CurrentUserInfo } from "../../server/fn/user";
+import UpsertPostDialog from "../post/upsert-post-dialog";
+import ThemeToggle from "../ThemeToggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +13,7 @@ import {
   DropdownMenuSub,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from "../ui/dropdown-menu";
 import UserAvatar from "./user-avatar";
 
 export default function UserDropdownMenu({
@@ -29,22 +29,29 @@ export default function UserDropdownMenu({
         <UserAvatar
           url={currentUserInfo.dB.image}
           className="size-12"
-          alt={currentUserInfo.dB.username ?? currentUserInfo.dB.email}
+          username={currentUserInfo.dB.username}
         />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem asChild>
-          <Link
-            to="/$username/posts"
-            search={{ postsOrderBy: "recent", flow: "desc" }}
-            params={{ username: currentUserInfo.dB.username as string }}
-          >
-            <UserAvatar
-              url={currentUserInfo.dB.image}
-              alt={currentUserInfo.dB.username ?? currentUserInfo.dB.email}
-            />
-            <p>{currentUserInfo.dB.name}</p>
-          </Link>
+        <DropdownMenuItem
+          onClick={() =>
+            router.navigate({
+              to: "/$username/posts",
+              params: {
+                username: currentUserInfo.dB.username ?? "",
+              },
+              search: {
+                flow: "desc",
+                postsOrderBy: "recent",
+              },
+            })
+          }
+        >
+          <UserAvatar
+            url={currentUserInfo.dB.image}
+            username={currentUserInfo.dB.username}
+          />
+          <p>{currentUserInfo.dB.name}</p>
         </DropdownMenuItem>
         <DropdownMenuSub>
           <UpsertPostDialog>

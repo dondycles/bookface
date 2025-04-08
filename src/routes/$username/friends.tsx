@@ -1,7 +1,8 @@
 import { Button } from "@/lib/components/ui/button";
 import { Skeleton } from "@/lib/components/ui/skeleton";
-import UserAvatar from "@/lib/components/user-avatar";
-import UserBar from "@/lib/components/user-bar";
+import UserAvatar from "@/lib/components/user/user-avatar";
+import UserBar from "@/lib/components/user/user-bar";
+import UserLink from "@/lib/components/user/user-link";
 import {
   useAcceptFriendshipRequestMutation,
   useRemoveFriendshipMutation,
@@ -140,34 +141,23 @@ function FriendshipBar({
       className="sm:rounded-md bg-muted py-4 px-2 sm:px-4 flex gap-2 justify-between"
     >
       <div className="flex gap-2 items-center">
-        <Link
-          to="/$username/posts"
-          params={{ username: friendship.info.username ?? "" }}
-          search={{ flow: "desc", postsOrderBy: "recent" }}
-        >
-          <UserAvatar
-            className="size-14"
-            alt={friendship.info.username ?? friendship.info.email}
-            url={friendship.info.image}
-          />
-        </Link>
+        <UserAvatar
+          className="size-14"
+          username={friendship.info.username}
+          url={friendship.info.image}
+        />
         <div>
-          <Link
-            to="/$username/posts"
-            params={{ username: friendship.info.username! }}
-            search={{ flow: "desc", postsOrderBy: "recent" }}
+          <UserLink
             className="font-semibold text-lg"
-          >
-            <p>{friendship.info.name}</p>
-          </Link>
-          <Link
-            to="/$username/posts"
-            params={{ username: friendship.info.username! }}
-            search={{ flow: "desc", postsOrderBy: "recent" }}
+            text={`@${friendship.info.name}`}
+            username={friendship.info.username ?? ""}
+          />
+          <UserLink
             className="text-muted-foreground text-sm"
-          >
-            <p>@{friendship.info.username}</p>
-          </Link>
+            text={`@${friendship.info.username}`}
+            username={friendship.info.username ?? ""}
+          />
+
           <p className="text-muted-foreground text-sm">
             Joined: {friendship.createdAt.toLocaleString()}
           </p>

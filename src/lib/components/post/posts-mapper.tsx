@@ -23,7 +23,7 @@ export default function PostsMapper({
   if (!_posts) return null;
   return (
     <div className="flex flex-1 flex-col gap-4">
-      <div className="flex flex-col gap-4 h-full w-full ">
+      <div className="flex flex-col sm:gap-4 h-full w-full ">
         {_posts.map((post, i) => {
           if (i === _posts.length - 1)
             return (

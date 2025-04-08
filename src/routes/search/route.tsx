@@ -1,8 +1,8 @@
 import PostsMapper from "@/lib/components/post/posts-mapper";
 import { PostsOrderer } from "@/lib/components/post/posts-orderer";
 import { Button } from "@/lib/components/ui/button";
-import UserBar from "@/lib/components/user-bar";
-import { UsersOrderer } from "@/lib/components/users-orderer";
+import UserBar from "@/lib/components/user/user-bar";
+import { UsersOrderer } from "@/lib/components/user/users-orderer";
 import { searchPostsQueryOptions, searchUsersQueryOptions } from "@/lib/queries/search";
 import { searchSearchSchema } from "@/lib/search-schema";
 import { useInfiniteQuery } from "@tanstack/react-query";

@@ -22,6 +22,7 @@ import { CurrentUserInfo } from "../../server/fn/user";
 import { useSelectedPostsStore } from "../../stores/selected-posts";
 import AddCommentForm from "../comment/add-comment-form";
 import CommentsSection from "../comment/comments-section";
+import TimeInfo from "../time-info";
 import { Button } from "../ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 import {
@@ -34,9 +35,9 @@ import {
 } from "../ui/dropdown-menu";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "../ui/hover-card";
 import { Skeleton } from "../ui/skeleton";
-import UserAvatar from "../user-avatar";
-import UserFriendshipOptionsBtns from "../user-friendship-options-btns";
-import PostTimeInfo from "./post-time-info";
+import UserAvatar from "../user/user-avatar";
+import UserFriendshipOptionsBtns from "../user/user-friendship-options-btns";
+import UserLink from "../user/user-link";
 import UpsertPostDialog from "./upsert-post-dialog";
 export default function PostCard({
   postId,
@@ -126,36 +127,30 @@ export default function PostCard({
     );
   if (!post) return null;
   return (
-    <div key={post.id} className={`${!deepView && ""} sm:rounded-lg bg-muted`}>
+    <div
+      key={post.id}
+      className={`${!deepView && ""} sm:rounded-lg bg-muted border-b-1 sm:border-b-0`}
+    >
       <div
         className={`flex flex-col gap-4 py-4 px-2  ${handleRemovePost.isPending && "animate-pulse"}`}
       >
         <div className="flex gap-4 justify-between items-start">
           <div className="flex gap-2 items-stretch">
-            <Link
-              className="font-semibold text-foreground"
-              to="/$username"
-              search={{ postsOrderBy: "recent", flow: "desc" }}
-              params={{ username: post.author.username ?? "" }}
-            >
-              <UserAvatar
-                className=" size-9"
-                url={post.author.image}
-                alt={post.author.username ?? post.author.email}
-              />
-            </Link>
-
+            <UserAvatar
+              className=" size-9"
+              url={post.author.image}
+              username={post.author.username}
+            />
             <div className="text-muted-foreground leading-tight flex flex-col gap-1">
               <HoverCard openDelay={500}>
-                <HoverCardTrigger>
-                  <Link
-                    to="/$username/posts"
-                    params={{ username: post.author.username ?? "" }}
-                    search={{ postsOrderBy: "recent", flow: "desc" }}
-                    className="font-semibold text-foreground"
-                  >
-                    @{post.author.username ?? post.author.name}
-                  </Link>
+                <HoverCardTrigger asChild>
+                  <div>
+                    <UserLink
+                      text={`@${post.author.username}`}
+                      username={post.author.username ?? ""}
+                      className="font-semibold text-foreground"
+                    />
+                  </div>
                 </HoverCardTrigger>
                 {!isMyPost ? (
                   <HoverCardContent
@@ -164,35 +159,26 @@ export default function PostCard({
                     className="flex flex-col gap-2 w-fit"
                   >
                     <div className="flex flex-row gap-2">
-                      <Link
-                        to="/$username/posts"
-                        params={{ username: post.author.username ?? "" }}
-                        search={{ postsOrderBy: "recent", flow: "desc" }}
-                        className="text-lg"
-                      >
-                        <UserAvatar
-                          className="size-20"
-                          url={post.author.image}
-                          alt={post.author.username ?? post.author.email}
-                        />
-                      </Link>
-                      <div className="flex-1">
-                        <Link
-                          to="/$username/posts"
-                          params={{ username: post.author.username ?? "" }}
-                          search={{ postsOrderBy: "recent", flow: "desc" }}
-                          className="text-lg"
-                        >
-                          <p>{post.author.name}</p>
-                        </Link>
-                        <Link
-                          to="/$username/posts"
-                          params={{ username: post.author.username ?? "" }}
-                          search={{ postsOrderBy: "recent", flow: "desc" }}
-                          className="font-semibold text-muted-foreground text-sm"
-                        >
-                          <p>@{post.author.username ?? post.author.name}</p>
-                        </Link>
+                      <UserAvatar
+                        className="size-20"
+                        url={post.author.image}
+                        username={post.author.username}
+                      />
+                      <div className="flex-1 flex-col">
+                        <div>
+                          <UserLink
+                            text={post.author.name}
+                            username={post.author.username ?? ""}
+                            className="text-lg"
+                          />
+                        </div>
+                        <div>
+                          <UserLink
+                            text={`@${post.author.username}`}
+                            username={post.author.username ?? ""}
+                            className="font-semibold text-muted-foreground text-sm"
+                          />
+                        </div>
                       </div>
                     </div>
                     <UserFriendshipOptionsBtns
@@ -204,7 +190,7 @@ export default function PostCard({
               </HoverCard>
 
               <div className="flex gap-2 items-center">
-                <PostTimeInfo createdAt={post.createdAt} />
+                <TimeInfo createdAt={post.createdAt} />
                 {post.privacy === "private" && <Lock className="size-3 " />}
                 {post.privacy === "public" && <Globe className="size-3" />}
               </div>

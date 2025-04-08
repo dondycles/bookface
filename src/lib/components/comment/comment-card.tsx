@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/lib/components/ui/dropdown-menu";
 import { Skeleton } from "@/lib/components/ui/skeleton";
-import UserAvatar from "@/lib/components/user-avatar";
+import UserAvatar from "@/lib/components/user/user-avatar";
 import { commentQueryOptions } from "@/lib/queries/comments";
 import { Comment, removeComment } from "@/lib/server/fn/comments";
 import { Post } from "@/lib/server/fn/posts";
@@ -61,7 +61,7 @@ export default function CommentCard({
       key={comment.id}
       className={`${handleRemoveComment.isPending && "animate-pulse "} last:mb-2 flex gap-2`}
     >
-      <UserAvatar url={comment.commenter.image} alt={comment.commenter.name} />
+      <UserAvatar url={comment.commenter.image} username={comment.commenter.username} />
       <div className="rounded-md bg-accent p-2">
         <div className="flex flex-1 gap-2">
           <div className="flex-1">

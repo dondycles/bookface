@@ -1,6 +1,6 @@
 import { CurrentUserInfo } from "../../server/fn/user";
 import { Input } from "../ui/input";
-import UserAvatar from "../user-avatar";
+import UserAvatar from "../user/user-avatar";
 import UpsertPostDialog from "./upsert-post-dialog";
 
 export default function AddPostBar({
@@ -13,7 +13,7 @@ export default function AddPostBar({
       <UpsertPostDialog>
         <div className="flex flex-row gap-2 flex-1 p-2 bg-muted sm:rounded-md">
           <UserAvatar
-            alt={currentUserInfo?.dB.username ?? "User PFP"}
+            username={currentUserInfo?.dB.username}
             url={currentUserInfo?.dB.image}
           />
           <Input
