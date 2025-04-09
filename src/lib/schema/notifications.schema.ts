@@ -1,4 +1,4 @@
-import { pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { friendship } from "./friendship.schema";
 import { post, postComments, postLikes } from "./post.schema";
 import { user } from "./user.schema";
@@ -31,4 +31,5 @@ export const notification = pgTable("notification", {
   commentId: text("commentId").references(() => postComments.id, {
     onDelete: "cascade",
   }),
+  isRead: boolean("isRead").default(false),
 });

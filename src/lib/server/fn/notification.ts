@@ -1,6 +1,7 @@
 import { authMiddleware } from "@/lib/middleware/auth-guard";
 import { notification } from "@/lib/schema";
 import { createServerFn } from "@tanstack/react-start";
+import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { pusher } from "../pusher";
 
@@ -51,4 +52,19 @@ export const getCurrentUserNotifications = createServerFn({
         notifierData: true,
       },
     });
+  });
+
+export const readNotification = createServerFn({
+  method: "POST",
+})
+  .middleware([authMiddleware])
+  .validator((data: { id: string }) => data)
+  .handler(async ({ context: { dB: user }, data: { id } }) => {
+    if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
+    await db
+      .update(notification)
+      .set({
+        isRead: true,
+      })
+      .where(eq(notification.id, id));
   });

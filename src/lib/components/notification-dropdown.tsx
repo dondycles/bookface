@@ -3,6 +3,7 @@ import { Bell } from "lucide-react";
 import { useEffect } from "react";
 import { pusher } from "../pusher-client";
 import { currentUserNotificationsQueryOptions } from "../queries/notifications";
+import { readNotification } from "../server/fn/notification";
 import { CurrentUserInfo } from "../server/fn/user";
 import { Button } from "./ui/button";
 import {
@@ -22,7 +23,7 @@ export default function NotificationDropdown({
   const queryClient = useQueryClient();
 
   const notifications = useQuery(currentUserNotificationsQueryOptions());
-
+  const unread = notifications.data?.filter((u) => u.isRead === false);
   useEffect(() => {
     if (!currentUserInfo) return;
     pusher.subscribe(currentUserInfo.dB.id);
@@ -40,23 +41,38 @@ export default function NotificationDropdown({
   return (
     <DropdownMenu key={"bell"}>
       <DropdownMenuTrigger asChild>
-        <Button size={"icon"} variant={"ghost"}>
+        <Button size={"icon"} variant={"ghost"} className="relative">
           <Bell className="size-6" />
+          <p
+            hidden={unread?.length === 0}
+            className="absolute -top-1 right-1 text-destructive text-xs"
+          >
+            {unread?.length}
+          </p>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[256px]">
-        <p className="p-2">Notifications</p>
+        <p className="p-2">Notifications ({unread?.length})</p>
         <DropdownMenuSeparator />
-
         {notifications.data?.map((n) => {
           return (
-            <DropdownMenuItem key={n.id}>
+            <DropdownMenuItem
+              onClick={async () => {
+                await readNotification({ data: { id: n.id } });
+                queryClient.invalidateQueries({
+                  queryKey: ["currentUserNotifications"],
+                });
+              }}
+              key={n.id}
+            >
               <UserAvatar
                 linkable={false}
                 username={n.notifierData.username}
                 url={n.notifierData.image}
               />
-              <p className="text-muted-foreground">
+              <p
+                className={`${n.isRead === false ? "text-foreground" : "text-muted-foreground"} `}
+              >
                 {n.notifierData.username}
                 {n.type === "addfriendship" && " sent your friendship request."}
                 {n.type === "acceptedfriendship" && " accepted your friendship request."}
