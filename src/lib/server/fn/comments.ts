@@ -40,7 +40,7 @@ export const addComment = createServerFn({
 
     await sendNotification({
       data: {
-        receiverId: data.post.id,
+        receiverId: data.post.userId,
         type: "comment",
         commentId: commentData[0].id,
       },

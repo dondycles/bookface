@@ -106,7 +106,7 @@ export default function NotificationDropdown({
                     if (n.type === "comment") {
                       router.navigate({
                         to: "/feed/$id",
-                        params: { id: n.commentPostId },
+                        params: { id: n.commentData.postId },
                       });
                     }
                     if (n.type === "like") {

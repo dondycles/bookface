@@ -52,10 +52,12 @@ export const getCurrentUserNotifications = createServerFn({
       },
       limit: 10,
       extras: ({ likeId, commentId }, { sql }) => ({
-        commentPostId:
-          sql<string>`(SELECT "postId" FROM "postComments" WHERE "id" = ${commentId})`.as(
-            "commentLikePostId",
-          ),
+        commentData: sql<{
+          postId: string;
+          message: string;
+        }>`(SELECT "postId, message" FROM "postComments" WHERE "id" = ${commentId})`.as(
+          "commentLikePostId",
+        ),
         likePostId:
           sql<string>`(SELECT "postId" FROM "postLikes" WHERE "id" = ${likeId})`.as(
             "commentLikePostId",
