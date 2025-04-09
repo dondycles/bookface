@@ -19,10 +19,7 @@ export const addComment = createServerFn({
 })
   .middleware([authMiddleware])
   .validator(
-    (data: {
-      message: typeof postComments.$inferInsert.message;
-      post: typeof post.$inferSelect;
-    }) => data,
+    (data: { message: typeof postComments.$inferInsert.message; post: Post }) => data,
   )
   .handler(async ({ data, context: { dB: user } }) => {
     if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
@@ -44,6 +41,8 @@ export const addComment = createServerFn({
           receiverId: data.post.userId,
           type: "comment",
           commentId: commentData[0].id,
+          receiverUsername: data.post.author.username ?? data.post.author.name,
+          commentMessage: data.message,
         },
       });
   });

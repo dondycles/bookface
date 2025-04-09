@@ -30,39 +30,59 @@ export default function NotificationDropdown({
   const notifications = useQuery({ ...currentUserTenNotificationsQueryOptions() });
   const unread = notifications.data?.filter((u) => u.isRead === false);
 
-  // const [readyToNotify, setReadyToNotift] = useState(false);
-
-  // useEffect(() => {
-  //   if (!readyToNotify) return;
-  //   if (!unread) return;
-  //   const latestNotif = unread[0];
-  //   toast(latestNotif.type);
-  // }, [readyToNotify, unread]);
+  const getPhrase = ({
+    username,
+    type,
+    commentMessage,
+  }: {
+    username: string;
+    type: typeof notification.$inferInsert.type;
+    commentMessage?: string;
+  }) => {
+    return `${username}
+    ${type === "addfriendship" ? " sent you friendship request." : ""}
+    ${type === "acceptedfriendship" ? " accepted you friendship request." : ""}
+    ${
+      type === "comment"
+        ? ` commented "${commentMessage?.slice(0, 10)}..." on your post.`
+        : ""
+    }
+    ${type === "like" ? " liked your post." : ""}`;
+  };
 
   useEffect(() => {
     if (!currentUserInfo) return;
     pusher.subscribe(currentUserInfo.dB.id);
     pusher.bind(
       "notification",
-      (data: {
-        receiverId: string;
-        type: typeof notification.$inferInsert.type;
-        postId?: string;
-        friendshipId?: string;
-        commentId?: string;
-        likeId?: string;
-      }) => {
+      (
+        data: {
+          receiverId: string;
+          receiverUsername: string;
+          type: typeof notification.$inferInsert.type;
+          postId?: string;
+          friendshipId?: string;
+          commentId?: string;
+          likeId?: string;
+          commentMessage?: string;
+        } | null,
+      ) => {
         queryClient.invalidateQueries({
           queryKey: ["currentUserTenNotifications"],
         });
-        // setReadyToNotift(true);
-        toast(data.type);
+        if (data)
+          toast(
+            getPhrase({
+              type: data.type,
+              username: data.receiverUsername,
+              commentMessage: data.commentMessage,
+            }),
+          );
       },
     );
 
     return () => {
       pusher.unsubscribe(currentUserInfo.dB.id);
-      // setReadyToNotift(false);
     };
   }, [currentUserInfo, queryClient]);
 
@@ -159,13 +179,11 @@ export default function NotificationDropdown({
                     <p
                       className={`${n.isRead === false ? "text-foreground" : "text-muted-foreground"} `}
                     >
-                      {n.notifierData.username}
-                      {n.type === "addfriendship" && " sent your friendship request."}
-                      {n.type === "acceptedfriendship" &&
-                        " accepted your friendship request."}
-                      {n.type === "comment" &&
-                        ` commented "${n.commentMessage.slice(0, 10)}..." on your post.`}
-                      {n.type === "like" && " liked on your post."}
+                      {getPhrase({
+                        type: n.type,
+                        username: n.notifierData.username ?? n.notifierData.name,
+                        commentMessage: n.commentMessage,
+                      })}
                     </p>
                     <TimeInfo createdAt={n.createdAt} />
                   </div>

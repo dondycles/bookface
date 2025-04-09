@@ -5,12 +5,13 @@ import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { pusher } from "../pusher";
 import { sendNotification } from "./notification";
+import { Post } from "./posts";
 
 export const addLikePost = createServerFn({
   method: "POST",
 })
   .middleware([authMiddleware])
-  .validator((data: { post: typeof post.$inferSelect }) => data)
+  .validator((data: { post: Post }) => data)
   .handler(async ({ data: { post }, context: { dB: user } }) => {
     if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
     const likeData = await db
@@ -26,6 +27,7 @@ export const addLikePost = createServerFn({
         receiverId: post.userId,
         type: "like",
         likeId: likeData[0].id,
+        receiverUsername: post.author.username ?? post.author.name,
       },
     });
   });
