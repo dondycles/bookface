@@ -81,7 +81,6 @@ export const removeFriendship = createServerFn({
       data: { recieverId: "", requesterId: "", friendshipId },
     });
     if (!status) throw new Error(`[{ "message": "Request First." }]`);
-
     await db.delete(friendship).where(eq(friendship.id, friendshipId));
     await pusher.trigger(targetedUserId, "notification", null);
   });

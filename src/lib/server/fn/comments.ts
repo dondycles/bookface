@@ -4,6 +4,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db";
+import { pusher } from "../pusher";
 import { Post } from "./posts";
 export const commentSchema = z.object({
   message: z
@@ -19,7 +20,7 @@ export const addComment = createServerFn({
   .validator(
     (data: {
       message: typeof postComments.$inferInsert.message;
-      postId: typeof post.$inferSelect.id;
+      post: typeof post.$inferSelect;
     }) => data,
   )
   .handler(async ({ data, context: { dB: user } }) => {
@@ -30,8 +31,9 @@ export const addComment = createServerFn({
     await db.insert(postComments).values({
       commenterId: user.id,
       message: data.message,
-      postId: data.postId,
+      postId: data.post.id,
     });
+    await pusher.trigger(data.post.userId, "notification", null);
   });
 
 export const editComment = createServerFn({
@@ -73,6 +75,7 @@ export const removeComment = createServerFn({
     if (comment.commenterId !== user.id && post.userId !== user.id)
       throw new Error(`[{ "message": "Not Authorized for Deletion." }]`);
     await db.delete(postComments).where(eq(postComments.id, comment.id));
+    await pusher.trigger(post.userId, "notification", null);
   });
 
 export const getComments = createServerFn({

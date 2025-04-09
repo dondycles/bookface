@@ -79,7 +79,7 @@ export default function PostCard({
     onError: (e: Error) => errorHandlerWithToast(e),
   });
   const handleLikePost = useMutation({
-    mutationFn: async () => await addLikePost({ data: { postId } }),
+    mutationFn: async () => await addLikePost({ data: { post: post! } }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["post", postId],
@@ -96,7 +96,7 @@ export default function PostCard({
     onError: (e: Error) => errorHandlerWithToast(e),
   });
   const handleUnlikePost = useMutation({
-    mutationFn: async () => await removeLikePost({ data: { postId } }),
+    mutationFn: async () => await removeLikePost({ data: { post: post! } }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["post", postId],
@@ -272,7 +272,7 @@ export default function PostCard({
           </Button>
           {collapseComments ? (
             <AddCommentForm
-              postId={postId}
+              post={post}
               children={
                 <CollapsibleTrigger asChild>
                   <Button variant={"secondary"} size={"icon"}>

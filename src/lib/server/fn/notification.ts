@@ -14,11 +14,13 @@ export const sendNotification = createServerFn({
       type: typeof notification.$inferInsert.type;
       postId?: string;
       friendshipId?: string;
+      commentId?: string;
+      likeId?: string;
     }) => data,
   )
   .handler(
     async ({
-      data: { receiverId, type, postId, friendshipId },
+      data: { receiverId, type, postId, friendshipId, commentId, likeId },
       context: { dB: user },
     }) => {
       if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
@@ -28,6 +30,8 @@ export const sendNotification = createServerFn({
         receiverId,
         postId,
         friendshipId,
+        commentId,
+        likeId,
       });
       await pusher.trigger(receiverId, "notification", null);
     },
@@ -43,5 +47,8 @@ export const getCurrentUserNotifications = createServerFn({
     return await db.query.notification.findMany({
       orderBy: (notification, { desc }) => desc(notification.createdAt),
       where: (notification, { eq }) => eq(notification.receiverId, user.id),
+      with: {
+        notifierData: true,
+      },
     });
   });

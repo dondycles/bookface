@@ -1,6 +1,7 @@
 import { relations } from "drizzle-orm";
 import { friendship } from "./friendship.schema";
 import { chat, chatRoom } from "./messages.schema";
+import { notification } from "./notifications.schema";
 import { post, postComments, postLikes } from "./post.schema";
 import { user } from "./user.schema";
 
@@ -50,4 +51,13 @@ export const chatRelations = relations(chat, ({ one }) => ({
   }),
   senderData: one(user, { fields: [chat.senderId], references: [user.id] }),
   receiverData: one(user, { fields: [chat.receiverId], references: [user.id] }),
+}));
+
+export const notificationRelations = relations(notification, ({ one }) => ({
+  notifierData: one(user, { fields: [notification.notifierId], references: [user.id] }),
+  postData: one(post, { fields: [notification.notifierId], references: [post.id] }),
+  friendshipData: one(friendship, {
+    fields: [notification.notifierId],
+    references: [friendship.id],
+  }),
 }));

@@ -1,4 +1,5 @@
 import { addComment } from "@/lib/server/fn/comments";
+import { Post } from "@/lib/server/fn/posts";
 import { errorHandlerWithToast, successHandlerWithToast } from "@/lib/utils";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -11,10 +12,10 @@ export const commentSchema = z.object({
   message: z.string(),
 });
 export default function AddCommentForm({
-  postId,
+  post,
   children,
 }: {
-  postId: string;
+  post: Post;
   children: React.ReactNode;
 }) {
   const queryClient = useQueryClient();
@@ -28,10 +29,10 @@ export default function AddCommentForm({
 
   const handleAddCommentToPost = useMutation({
     mutationFn: async (data: { message: z.infer<typeof commentSchema>["message"] }) =>
-      await addComment({ data: { ...data, postId } }),
+      await addComment({ data: { ...data, post } }),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["comments", postId],
+        queryKey: ["comments", post.id],
       });
       form.reset();
       successHandlerWithToast("success", "Comment added");
