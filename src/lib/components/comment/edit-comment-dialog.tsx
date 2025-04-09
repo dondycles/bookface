@@ -55,7 +55,6 @@ export default function EditCommentDialog({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Edit Comment</DialogTitle>
-          {/* <DialogDescription>Tell 'em what's new.</DialogDescription> */}
         </DialogHeader>
         <form.Field
           name="message"

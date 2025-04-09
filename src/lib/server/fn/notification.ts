@@ -34,7 +34,15 @@ export const sendNotification = createServerFn({
         commentId,
         likeId,
       });
-      if (receiverId !== user.id) await pusher.trigger(receiverId, "notification", null);
+      if (receiverId !== user.id)
+        await pusher.trigger(receiverId, "notification", {
+          type,
+          receiverId,
+          postId,
+          friendshipId,
+          commentId,
+          likeId,
+        });
     },
   );
 

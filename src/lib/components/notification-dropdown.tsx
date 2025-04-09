@@ -1,9 +1,11 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
-import { Bell, CheckCheck, Ellipsis, ExternalLink } from "lucide-react";
+import { Bell, CheckCheck, Ellipsis, ExternalLink, RotateCw } from "lucide-react";
 import { useEffect } from "react";
+import { toast } from "sonner";
 import { pusher } from "../pusher-client";
 import { currentUserTenNotificationsQueryOptions } from "../queries/notifications";
+import { notification } from "../schema";
 import { readNotification } from "../server/fn/notification";
 import { CurrentUserInfo } from "../server/fn/user";
 import TimeInfo from "./time-info";
@@ -13,11 +15,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import UserAvatar from "./user/user-avatar";
 
 export default function NotificationDropdown({
@@ -27,19 +27,42 @@ export default function NotificationDropdown({
 }) {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const notifications = useQuery(currentUserTenNotificationsQueryOptions());
+  const notifications = useQuery({ ...currentUserTenNotificationsQueryOptions() });
   const unread = notifications.data?.filter((u) => u.isRead === false);
+
+  // const [readyToNotify, setReadyToNotift] = useState(false);
+
+  // useEffect(() => {
+  //   if (!readyToNotify) return;
+  //   if (!unread) return;
+  //   const latestNotif = unread[0];
+  //   toast(latestNotif.type);
+  // }, [readyToNotify, unread]);
+
   useEffect(() => {
     if (!currentUserInfo) return;
     pusher.subscribe(currentUserInfo.dB.id);
-    pusher.bind("notification", () => {
-      queryClient.invalidateQueries({
-        queryKey: ["currentUserTenNotifications"],
-      });
-    });
+    pusher.bind(
+      "notification",
+      (data: {
+        receiverId: string;
+        type: typeof notification.$inferInsert.type;
+        postId?: string;
+        friendshipId?: string;
+        commentId?: string;
+        likeId?: string;
+      }) => {
+        queryClient.invalidateQueries({
+          queryKey: ["currentUserTenNotifications"],
+        });
+        // setReadyToNotift(true);
+        toast(data.type);
+      },
+    );
 
     return () => {
       pusher.unsubscribe(currentUserInfo.dB.id);
+      // setReadyToNotift(false);
     };
   }, [currentUserInfo, queryClient]);
 
@@ -62,22 +85,29 @@ export default function NotificationDropdown({
       >
         <div className="p-2 flex items-center justify-between gap-2 text-muted-foreground ">
           <p>Notifications ({unread?.length})</p>
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger
-              hidden={notifications.data?.length === 0}
-              showIcon={false}
-            >
+          <Popover>
+            <PopoverTrigger hidden={notifications.data?.length === 0}>
               <Ellipsis className="size-5" />
-            </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent>
-              <DropdownMenuItem>
+            </PopoverTrigger>
+            <PopoverContent className="flex flex-col gap-0 p-1 w-fit">
+              <Button variant={"ghost"} className="justify-start">
                 <CheckCheck /> Mark all as read
-              </DropdownMenuItem>
-              <DropdownMenuItem>
+              </Button>
+              <Button
+                disabled={notifications.isFetching}
+                variant={"ghost"}
+                className="justify-start"
+                onClick={() => {
+                  notifications.refetch();
+                }}
+              >
+                <RotateCw /> Refresh
+              </Button>
+              <Button variant={"ghost"} className="justify-start">
                 <ExternalLink /> View all notifications
-              </DropdownMenuItem>
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
+              </Button>
+            </PopoverContent>
+          </Popover>
         </div>
         {notifications.data?.length === 0 ? (
           <p className="text-center p-1 text-muted-foreground">...</p>

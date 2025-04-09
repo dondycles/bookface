@@ -1,12 +1,13 @@
 import { authMiddleware } from "@/lib/middleware/auth-guard";
 import { friendship, notification } from "@/lib/schema";
+import { redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db";
 import { pusher } from "../pusher";
+import { createOrGetChatRoomId } from "./messages";
 import { sendNotification } from "./notification";
-
 const friendSchema = z.object({
   receiverId: z.string(),
 });
@@ -100,7 +101,6 @@ export const acceptFriendshipRequest = createServerFn({
     if (!status) throw new Error(`[{ "message": "Request First." }]`);
     if (status.status === "accepted")
       throw new Error(`[{ "message": "Already Friend." }]`);
-
     await db
       .update(friendship)
       .set({
@@ -114,7 +114,10 @@ export const acceptFriendshipRequest = createServerFn({
       type: "acceptedfriendship",
       friendshipId,
     });
-    await pusher.trigger(targetedUserId, "notification", null);
+    const chatRoomId = await createOrGetChatRoomId({
+      data: { receiverId: targetedUserId },
+    });
+    if (chatRoomId) throw redirect({ to: "/m/$id", params: { id: chatRoomId } });
   });
 export const getCurrentUserFriendships = createServerFn({
   method: "GET",
