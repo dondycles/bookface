@@ -24,7 +24,7 @@ function RouteComponent() {
   const { currentUserInfo, postId } = Route.useLoaderData();
 
   return (
-    <div className="py-24 sm:max-w-[512px] mx-auto">
+    <div className="pt-20 sm:pt-24 sm:max-w-[512px] mx-auto">
       <PostCard currentUserInfo={currentUserInfo} deepView={true} postId={postId} />
     </div>
   );

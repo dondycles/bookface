@@ -68,7 +68,7 @@ function FeedIndex() {
   //   };
   // }, [currentUserInfo]);
   return (
-    <div className="flex flex-col gap-4 py-24 sm:max-w-[512px] mx-auto">
+    <div className="flex flex-col sm:gap-4 pt-20 sm:pt-24 pb-24 sm:max-w-[512px] mx-auto">
       <AddPostBar currentUserInfo={currentUserInfo} />
       <PostsOptionsBar router={router} isMyProfile={false}>
         <PostsOrderer
