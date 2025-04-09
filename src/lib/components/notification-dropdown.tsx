@@ -1,4 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "@tanstack/react-router";
 import { Bell } from "lucide-react";
 import { useEffect } from "react";
 import { pusher } from "../pusher-client";
@@ -21,7 +22,7 @@ export default function NotificationDropdown({
   currentUserInfo: NonNullable<CurrentUserInfo>;
 }) {
   const queryClient = useQueryClient();
-
+  const router = useRouter();
   const notifications = useQuery(currentUserNotificationsQueryOptions());
   const unread = notifications.data?.filter((u) => u.isRead === false);
   useEffect(() => {
@@ -62,6 +63,23 @@ export default function NotificationDropdown({
                 queryClient.invalidateQueries({
                   queryKey: ["currentUserNotifications"],
                 });
+
+                if (n.type === "acceptedfriendship" || n.type === "addfriendship") {
+                  router.navigate({
+                    to: "/$username/posts",
+                    params: { username: n.notifierData.username! },
+                    search: {
+                      flow: "desc",
+                      postsOrderBy: "recent",
+                    },
+                  });
+                }
+                if (n.type === "comment" || n.type === "like") {
+                  router.navigate({
+                    to: "/feed/$id",
+                    params: { id: n.postId! },
+                  });
+                }
               }}
               key={n.id}
             >
