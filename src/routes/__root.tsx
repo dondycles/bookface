@@ -83,7 +83,7 @@ function RootDocument({ children }: { readonly children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body className="roboto">
+      <body className="roboto h-[100dvh]">
         <ScriptOnce>
           {`document.documentElement.classList.toggle(
             'dark',

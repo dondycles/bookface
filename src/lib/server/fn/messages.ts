@@ -3,6 +3,7 @@ import { chat, chatRoom } from "@/lib/schema";
 import { createServerFn } from "@tanstack/react-start";
 import { arrayContains } from "drizzle-orm";
 import { db } from "../db";
+import { pusher } from "../pusher";
 
 export const createOrGetChatRoomId = createServerFn({
   method: "GET",
@@ -79,5 +80,6 @@ export const sendMessage = createServerFn({ method: "POST" })
       await db
         .insert(chat)
         .values({ message, receiverId, roomId: chatRoomId, senderId: user.id });
+      await pusher.trigger(chatRoomId, "messages", null);
     },
   );

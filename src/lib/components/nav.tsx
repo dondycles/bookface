@@ -100,9 +100,11 @@ export default function Nav({
         </div>
         {currentUserInfo ? (
           <>
-            <Button size={"icon"} variant={"ghost"}>
-              <MessageCircleMore className="size-6" />
-            </Button>
+            <Link to="/m">
+              <Button size={"icon"} variant={"ghost"}>
+                <MessageCircleMore className="size-6" />
+              </Button>
+            </Link>
             <NotificationDropdown currentUserInfo={currentUserInfo} />
             <UserDropdownMenu currentUserInfo={currentUserInfo} />
           </>
