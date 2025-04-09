@@ -48,16 +48,17 @@ function RouteComponent() {
   }, [chatRoomChats.isFetching]);
 
   useEffect(() => {
-    pusher.subscribe(id);
-    pusher.bind("message", () => {
+    if (!currentUserInfo) return;
+    pusher.subscribe(currentUserInfo.dB.id);
+    pusher.bind(id, () => {
       queryClient.invalidateQueries({
         queryKey: ["chatRoomChats", id],
       });
     });
     return () => {
-      pusher.unsubscribe(id);
+      pusher.unsubscribe(currentUserInfo.dB.id);
     };
-  }, [id, queryClient]);
+  }, [id, queryClient, currentUserInfo]);
 
   return (
     <div className="grid grid-flow-row-dense grid-rows-[81px_minmax(0px,1fr)_69px]   grid-cols-none flex-1 bg-muted rounded-md overflow-hidden">
