@@ -37,25 +37,27 @@ function RouteComponent() {
         data: { chatRoomId: id, message, receiverId: chatMateId ?? "" },
       }),
     onSuccess: () => {
-      queryClient.refetchQueries(chatRoomChats);
+      // queryClient.refetchQueries(chatRoomChats);
       setMessage("");
     },
   });
+
   useEffect(() => {
     if (!chatRoomChats.isFetching)
       chatArea.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatRoomChats.isFetching]);
 
   useEffect(() => {
-    if (!currentUserInfo) return;
-    pusher.subscribe(currentUserInfo.dB.id);
-    pusher.bind(id, () => {
-      queryClient.refetchQueries(chatRoomChats);
+    pusher.subscribe(id);
+    pusher.bind("message", () => {
+      queryClient.invalidateQueries({
+        queryKey: ["chatRoomChats", id],
+      });
     });
     return () => {
-      pusher.unsubscribe(currentUserInfo.dB.id);
+      pusher.unsubscribe(id);
     };
-  }, [currentUserInfo, id, queryClient]);
+  }, [id, queryClient]);
 
   return (
     <div className="grid grid-flow-row-dense grid-rows-[81px_minmax(0px,1fr)_69px]   grid-cols-none flex-1 bg-muted rounded-md overflow-hidden">
