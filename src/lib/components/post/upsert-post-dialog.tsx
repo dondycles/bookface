@@ -92,6 +92,8 @@ export default function UpsertPostDialog({
     onError: (e: Error) => errorHandlerWithToast(e),
   });
 
+  const pending = handleEditPost.isPending || handleSubmitPost.isPending;
+
   return (
     <Dialog open={openDialog} onOpenChange={setOpenDialog}>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -112,6 +114,7 @@ export default function UpsertPostDialog({
                 onBlur={field.handleBlur}
                 onChange={(e) => field.handleChange(e.target.value)}
                 className="max-h-[35dvh] scrollbar scrollbar-thumb-muted"
+                disabled={pending}
               />
               <em className="text-muted-foreground text-xs">
                 {field.state.value.length}/512
@@ -126,7 +129,7 @@ export default function UpsertPostDialog({
             children={(field) => (
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline">
+                  <Button variant="outline" disabled={pending}>
                     {(field.state.value === "public" && <Globe2 />) ||
                       (field.state.value === "private" && <Lock />)}
                     <ChevronDown className="text-muted-foreground" />
@@ -166,22 +169,17 @@ export default function UpsertPostDialog({
             )}
           />
 
-          <form.Subscribe
-            selector={(state) => [state.canSubmit, state.isSubmitting]}
-            children={([canSubmit, isSubmitting]) => (
-              <Button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  form.handleSubmit();
-                }}
-                disabled={!canSubmit}
-                className={`${isSubmitting && "animate-pulse cursor-progress"}`}
-              >
-                {isSubmitting ? "Posting..." : "Post"}
-              </Button>
-            )}
-          />
+          <Button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              form.handleSubmit();
+            }}
+            disabled={pending}
+            className={`${pending && "animate-pulse cursor-progress"}`}
+          >
+            {pending ? "Posting..." : "Post"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

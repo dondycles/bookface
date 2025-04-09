@@ -1,8 +1,8 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getCurrentUserNotifications } from "../server/fn/notification";
+import { getCurrentUserTenNotifications } from "../server/fn/notification";
 
-export const currentUserNotificationsQueryOptions = () =>
+export const currentUserTenNotificationsQueryOptions = () =>
   queryOptions({
-    queryKey: ["currentUserNotifications"],
-    queryFn: ({ signal }) => getCurrentUserNotifications({ signal }),
+    queryKey: ["currentUserTenNotifications"],
+    queryFn: ({ signal }) => getCurrentUserTenNotifications({ signal }),
   });

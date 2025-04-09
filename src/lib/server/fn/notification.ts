@@ -38,7 +38,7 @@ export const sendNotification = createServerFn({
     },
   );
 
-export const getCurrentUserNotifications = createServerFn({
+export const getCurrentUserTenNotifications = createServerFn({
   method: "GET",
 })
   .middleware([authMiddleware])

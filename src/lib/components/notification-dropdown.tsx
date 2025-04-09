@@ -3,7 +3,7 @@ import { useRouter } from "@tanstack/react-router";
 import { Bell, CheckCheck, Ellipsis, ExternalLink } from "lucide-react";
 import { useEffect } from "react";
 import { pusher } from "../pusher-client";
-import { currentUserNotificationsQueryOptions } from "../queries/notifications";
+import { currentUserTenNotificationsQueryOptions } from "../queries/notifications";
 import { readNotification } from "../server/fn/notification";
 import { CurrentUserInfo } from "../server/fn/user";
 import TimeInfo from "./time-info";
@@ -27,14 +27,14 @@ export default function NotificationDropdown({
 }) {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const notifications = useQuery(currentUserNotificationsQueryOptions());
+  const notifications = useQuery(currentUserTenNotificationsQueryOptions());
   const unread = notifications.data?.filter((u) => u.isRead === false);
   useEffect(() => {
     if (!currentUserInfo) return;
     pusher.subscribe(currentUserInfo.dB.id);
     pusher.bind("notification", () => {
       queryClient.invalidateQueries({
-        queryKey: ["currentUserNotifications"],
+        queryKey: ["currentUserTenNotifications"],
       });
     });
 
@@ -90,7 +90,7 @@ export default function NotificationDropdown({
                   onClick={async () => {
                     await readNotification({ data: { id: n.id } });
                     queryClient.invalidateQueries({
-                      queryKey: ["currentUserNotifications"],
+                      queryKey: ["currentUserTenNotifications"],
                     });
 
                     if (n.type === "acceptedfriendship" || n.type === "addfriendship") {

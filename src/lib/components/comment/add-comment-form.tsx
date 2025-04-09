@@ -61,7 +61,12 @@ export default function AddCommentForm({
                 placeholder="Give some of your thoughts"
               />
               <div className="flex flex-col gap-2 justify-end items-end">
-                <Button type="submit" variant={"secondary"} size={"icon"}>
+                <Button
+                  disabled={handleAddCommentToPost.isPending}
+                  type="submit"
+                  variant={"secondary"}
+                  size={"icon"}
+                >
                   <Send />
                 </Button>
                 {children}
