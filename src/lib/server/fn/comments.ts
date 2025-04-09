@@ -38,14 +38,14 @@ export const addComment = createServerFn({
       })
       .returning({ id: postComments.id });
 
-    await sendNotification({
-      data: {
-        receiverId: data.post.userId,
-        type: "comment",
-        commentId: commentData[0].id,
-      },
-    });
-    await pusher.trigger(data.post.userId, "notification", null);
+    if (data.post.userId !== user.id)
+      await sendNotification({
+        data: {
+          receiverId: data.post.userId,
+          type: "comment",
+          commentId: commentData[0].id,
+        },
+      });
   });
 
 export const editComment = createServerFn({
@@ -87,7 +87,7 @@ export const removeComment = createServerFn({
     if (comment.commenterId !== user.id && post.userId !== user.id)
       throw new Error(`[{ "message": "Not Authorized for Deletion." }]`);
     await db.delete(postComments).where(eq(postComments.id, comment.id));
-    await pusher.trigger(post.userId, "notification", null);
+    if (post.userId !== user.id) await pusher.trigger(post.userId, "notification", null);
   });
 
 export const getComments = createServerFn({

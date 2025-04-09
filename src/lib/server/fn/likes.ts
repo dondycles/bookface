@@ -28,8 +28,6 @@ export const addLikePost = createServerFn({
         likeId: likeData[0].id,
       },
     });
-
-    if (post.userId !== user.id) await pusher.trigger(post.userId, "notification", null);
   });
 
 export const removeLikePost = createServerFn({

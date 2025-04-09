@@ -34,7 +34,7 @@ export const sendNotification = createServerFn({
         commentId,
         likeId,
       });
-      await pusher.trigger(receiverId, "notification", null);
+      if (receiverId !== user.id) await pusher.trigger(receiverId, "notification", null);
     },
   );
 
@@ -46,7 +46,8 @@ export const getCurrentUserNotifications = createServerFn({
     if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
     return await db.query.notification.findMany({
       orderBy: (notification, { desc }) => desc(notification.createdAt),
-      where: (notification, { eq }) => eq(notification.receiverId, user.id),
+      where: (notification, { eq, ne, and }) =>
+        and(eq(notification.receiverId, user.id), ne(notification.notifierId, user.id)),
       with: {
         notifierData: true,
       },
