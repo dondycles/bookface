@@ -133,7 +133,8 @@ export default function NotificationDropdown({
                       {n.type === "addfriendship" && " sent your friendship request."}
                       {n.type === "acceptedfriendship" &&
                         " accepted your friendship request."}
-                      {n.type === "comment" && " commented on your post."}
+                      {n.type === "comment" &&
+                        ` commented "${n.commentData.message.slice(0, 10)}..." on your post.`}
                       {n.type === "like" && " liked on your post."}
                     </p>
                     <TimeInfo createdAt={n.createdAt} />
