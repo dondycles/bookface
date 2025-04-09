@@ -88,7 +88,7 @@ export default function UserFriendshipOptionsBtns({
     });
 
     return () => {
-      pusher.unsubscribe(`notifications${currentUserInfo?.dB.id}`);
+      pusher.unsubscribe(currentUserInfo?.dB.id);
     };
   }, [currentUserInfo, queryClient, targetedUserId]);
 

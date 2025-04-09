@@ -48,13 +48,12 @@ function RouteComponent() {
 
   useEffect(() => {
     if (!currentUserInfo) return;
-    pusher.subscribe(id);
-    pusher.bind("messages", () => {
+    pusher.subscribe(currentUserInfo.dB.id);
+    pusher.bind(id, () => {
       queryClient.refetchQueries(chatRoomChats);
     });
-
     return () => {
-      pusher.unsubscribe(`notifications${currentUserInfo?.dB.id}`);
+      pusher.unsubscribe(currentUserInfo.dB.id);
     };
   }, [currentUserInfo, id, queryClient]);
 

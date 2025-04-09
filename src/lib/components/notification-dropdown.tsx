@@ -45,7 +45,7 @@ export default function NotificationDropdown({
     });
 
     return () => {
-      pusher.unsubscribe(`notifications${currentUserInfo.dB.id}`);
+      pusher.unsubscribe(currentUserInfo.dB.id);
     };
   }, [currentUserInfo, queryClient]);
 

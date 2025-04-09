@@ -80,6 +80,6 @@ export const sendMessage = createServerFn({ method: "POST" })
       await db
         .insert(chat)
         .values({ message, receiverId, roomId: chatRoomId, senderId: user.id });
-      await pusher.trigger(chatRoomId, "messages", null);
+      await pusher.trigger(receiverId, chatRoomId, null);
     },
   );
