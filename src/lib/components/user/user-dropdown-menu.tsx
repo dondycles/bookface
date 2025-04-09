@@ -92,6 +92,9 @@ export default function UserDropdownMenu({
             await queryClient.invalidateQueries({
               queryKey: ["chatRoomChats"],
             });
+            await queryClient.invalidateQueries({
+              queryKey: ["currentUserNotificationss"],
+            });
             await router.invalidate();
           }}
         >

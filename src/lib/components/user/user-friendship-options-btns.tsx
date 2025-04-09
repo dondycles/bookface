@@ -1,12 +1,10 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Ban, Check, Ellipsis, Flag, Plus, Star, X } from "lucide-react";
-import { useEffect } from "react";
 import {
   useAcceptFriendshipRequestMutation,
   useAddFriendshipRequestMutation,
   useRemoveFriendshipMutation,
 } from "../../mutations/friendship";
-import { pusher } from "../../pusher-client";
 import { thisFriendshipQueryOptions } from "../../queries/friendship";
 import { CurrentUserInfo } from "../../server/fn/user";
 import { cn } from "../../utils";
@@ -75,22 +73,22 @@ export default function UserFriendshipOptionsBtns({
     },
   });
 
-  useEffect(() => {
-    if (!currentUserInfo) return;
-    pusher.subscribe(currentUserInfo.dB.id);
-    pusher.bind("notification", () => {
-      queryClient.resetQueries({
-        queryKey: ["friendship", `${currentUserInfo.dB.id}${targetedUserId}`],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["currentUserFriendships"],
-      });
-    });
+  // useEffect(() => {
+  //   if (!currentUserInfo) return;
+  //   pusher.subscribe(currentUserInfo.dB.id);
+  //   pusher.bind("notification", () => {
+  //     queryClient.resetQueries({
+  //       queryKey: ["friendship", `${currentUserInfo.dB.id}${targetedUserId}`],
+  //     });
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["currentUserFriendships"],
+  //     });
+  //   });
 
-    return () => {
-      pusher.unsubscribe(currentUserInfo.dB.id);
-    };
-  }, [currentUserInfo, queryClient, targetedUserId]);
+  //   return () => {
+  //     pusher.unsubscribe(currentUserInfo.dB.id);
+  //   };
+  // }, [currentUserInfo, queryClient, targetedUserId]);
 
   return (
     <div className={cn("flex rounded-md gap-[1px]", className)}>

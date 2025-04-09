@@ -7,7 +7,6 @@ import {
   useAcceptFriendshipRequestMutation,
   useRemoveFriendshipMutation,
 } from "@/lib/mutations/friendship";
-import { pusher } from "@/lib/pusher-client";
 import {
   currentUserFriendshipsQueryOptions,
   thisUserAcceptedfriendshipsQueryOptions,
@@ -16,7 +15,6 @@ import { getModifiedFriendships } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, ExternalLink, X } from "lucide-react";
-import { useEffect } from "react";
 
 export const Route = createFileRoute("/$username/friends")({
   component: RouteComponent,
@@ -101,7 +99,7 @@ function FriendshipBar({
 }: {
   friendship: ReturnType<typeof getModifiedFriendships>[0];
 }) {
-  const { queryClient, currentUserInfo } = Route.useRouteContext();
+  const { queryClient } = Route.useRouteContext();
   const handleRemoveFriendship = useRemoveFriendshipMutation({
     friendshipId: friendship.id,
     targetedUserId: friendship.info.id,
@@ -122,18 +120,18 @@ function FriendshipBar({
     },
   });
 
-  useEffect(() => {
-    if (!currentUserInfo) return;
-    pusher.subscribe(currentUserInfo.dB.id);
-    pusher.bind("notification", () => {
-      queryClient.invalidateQueries({
-        queryKey: ["currentUserFriendships"],
-      });
-    });
-    return () => {
-      pusher.unsubscribe(currentUserInfo.dB.id);
-    };
-  }, [currentUserInfo, queryClient]);
+  // useEffect(() => {
+  //   if (!currentUserInfo) return;
+  //   pusher.subscribe(currentUserInfo.dB.id);
+  //   pusher.bind("notification", () => {
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["currentUserFriendships"],
+  //     });
+  //   });
+  //   return () => {
+  //     pusher.unsubscribe(currentUserInfo.dB.id);
+  //   };
+  // }, [currentUserInfo, queryClient]);
 
   return (
     <div

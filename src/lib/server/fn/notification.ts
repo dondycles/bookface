@@ -32,3 +32,16 @@ export const sendNotification = createServerFn({
       await pusher.trigger(receiverId, "notification", null);
     },
   );
+
+export const getCurrentUserNotifications = createServerFn({
+  method: "GET",
+})
+  .middleware([authMiddleware])
+
+  .handler(async ({ context: { dB: user } }) => {
+    if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
+    return await db.query.notification.findMany({
+      orderBy: (notification, { desc }) => desc(notification.createdAt),
+      where: (notification, { eq }) => eq(notification.receiverId, user.id),
+    });
+  });

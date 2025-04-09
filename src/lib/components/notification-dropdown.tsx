@@ -1,12 +1,13 @@
 import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, BellDot, Check, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   useAcceptFriendshipRequestMutation,
   useRemoveFriendshipMutation,
 } from "../mutations/friendship";
 import { pusher } from "../pusher-client";
 import { currentUserFriendshipsQueryOptions } from "../queries/friendship";
+import { currentUserNotificationsQueryOptions } from "../queries/notifications";
 import { CurrentUserInfo } from "../server/fn/user";
 import { getPendingReceivedFriendships } from "../utils";
 import TimeInfo from "./time-info";
@@ -30,20 +31,18 @@ export default function NotificationDropdown({
   const friendships = useQuery({
     ...currentUserFriendshipsQueryOptions(),
   });
+  const notifications = useQuery(currentUserNotificationsQueryOptions());
   const _pendingFriendships = getPendingReceivedFriendships(
     friendships.data ?? [],
     currentUserInfo?.dB.username ?? "",
   );
-
-  const [unreadMessages, setUnreadMessages] = useState(0);
 
   useEffect(() => {
     if (!currentUserInfo) return;
     pusher.subscribe(currentUserInfo.dB.id);
     pusher.bind("notification", () => {
       queryClient.invalidateQueries({
-        queryKey: ["currentUserFriendships"],
-        type: "active",
+        queryKey: ["currentUserNotifications"],
       });
     });
 
@@ -85,6 +84,9 @@ export default function NotificationDropdown({
         ) : (
           <p className="p-2 text-sm text-center text-muted-foreground">Empty</p>
         )}
+        {notifications.data?.map((n) => {
+          return <p key={n.id}>{n.type}</p>;
+        })}
       </DropdownMenuContent>
     </DropdownMenu>
   );
