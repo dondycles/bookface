@@ -27,7 +27,6 @@ export const addLikePost = createServerFn({
         receiverId: post.userId,
         type: "like",
         likeId: likeData[0].id,
-        receiverUsername: post.author.username ?? post.author.name,
       },
     });
   });

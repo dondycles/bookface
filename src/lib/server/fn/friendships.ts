@@ -66,7 +66,6 @@ export const addFriendshipRequest = createServerFn({
           receiverId: data.receiverId,
           type: "addfriendship",
           friendshipId: friendshipData[0].id,
-          receiverUsername: "Someone",
         },
       });
     } else if (status.status === "pending")

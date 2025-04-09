@@ -12,7 +12,6 @@ export const sendNotification = createServerFn({
   .validator(
     (data: {
       receiverId: string;
-      receiverUsername: string;
       type: typeof notification.$inferInsert.type;
       postId?: string;
       friendshipId?: string;
@@ -23,16 +22,7 @@ export const sendNotification = createServerFn({
   )
   .handler(
     async ({
-      data: {
-        receiverId,
-        type,
-        postId,
-        friendshipId,
-        commentId,
-        likeId,
-        receiverUsername,
-        commentMessage,
-      },
+      data: { receiverId, type, postId, friendshipId, commentId, likeId, commentMessage },
       context: { dB: user },
     }) => {
       if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
@@ -48,12 +38,12 @@ export const sendNotification = createServerFn({
       if (receiverId !== user.id)
         await pusher.trigger(receiverId, "notification", {
           type,
-          receiverId,
+          notifierId: user.id,
           postId,
           friendshipId,
           commentId,
           likeId,
-          receiverUsername,
+          notifierUsername: user.username ?? user.name,
           commentMessage,
         });
     },

@@ -1,4 +1,5 @@
 import MessageBtn from "@/lib/components/message-btn";
+import { Skeleton } from "@/lib/components/ui/skeleton";
 import UserAvatar from "@/lib/components/user/user-avatar";
 import { currentUserChatRoomIdsQueryOptions } from "@/lib/queries/messages";
 import { userInfoQueryOptions } from "@/lib/queries/user";
@@ -30,9 +31,16 @@ function RouteComponent() {
         hidden={!matchRoute({ to: "/m", fuzzy: false })}
         className={`flex flex-col h-fit flex-1 gap-0 sm:gap-2`}
       >
-        {chatRoomIds.data?.map((c) => {
-          return <ChatRoomEntryBar key={c.id} chatRoom={c} />;
-        })}
+        {chatRoomIds.isLoading ? (
+          <>
+            <Skeleton className="w-full h-10" />
+            <Skeleton className="w-full h-10" />
+          </>
+        ) : (
+          chatRoomIds.data?.map((c) => {
+            return <ChatRoomEntryBar key={c.id} chatRoom={c} />;
+          })
+        )}
       </div>
       <Outlet />
     </div>

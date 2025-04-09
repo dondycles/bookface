@@ -57,8 +57,8 @@ export default function NotificationDropdown({
       "notification",
       (
         data: {
-          receiverId: string;
-          receiverUsername: string;
+          notifierId: string;
+          notifierUsername: string;
           type: typeof notification.$inferInsert.type;
           postId?: string;
           friendshipId?: string;
@@ -74,9 +74,31 @@ export default function NotificationDropdown({
           toast(
             getPhrase({
               type: data.type,
-              username: data.receiverUsername,
+              username: data.notifierUsername,
               commentMessage: data.commentMessage,
             }),
+            {
+              action: {
+                label: "View",
+                onClick: () => {
+                  if (data.type === "acceptedfriendship" || data.type === "addfriendship")
+                    router.navigate({
+                      to: "/feed/$id",
+                      params: { id: data.notifierId },
+                    });
+                  if (data.type === "comment")
+                    router.navigate({
+                      to: "/feed/$id",
+                      params: { id: data.postId! },
+                    });
+                  if (data.type === "like")
+                    router.navigate({
+                      to: "/feed/$id",
+                      params: { id: data.postId! },
+                    });
+                },
+              },
+            },
           );
       },
     );

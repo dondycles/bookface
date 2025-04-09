@@ -41,7 +41,6 @@ export const addComment = createServerFn({
           receiverId: data.post.userId,
           type: "comment",
           commentId: commentData[0].id,
-          receiverUsername: data.post.author.username ?? data.post.author.name,
           commentMessage: data.message,
         },
       });
