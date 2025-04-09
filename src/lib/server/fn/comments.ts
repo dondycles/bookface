@@ -42,6 +42,7 @@ export const addComment = createServerFn({
           type: "comment",
           commentId: commentData[0].id,
           commentMessage: data.message,
+          postId: data.post.id,
         },
       });
   });
