@@ -37,7 +37,7 @@ function RouteComponent() {
         data: { chatRoomId: id, message, receiverId: chatMateId ?? "" },
       }),
     onSuccess: () => {
-      // queryClient.refetchQueries(chatRoomChats);
+      queryClient.invalidateQueries(chatRoomChats);
       setMessage("");
     },
   });
