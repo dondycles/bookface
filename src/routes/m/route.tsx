@@ -13,7 +13,7 @@ export const Route = createFileRoute("/m")({
 function RouteComponent() {
   const chatRoomIds = useSuspenseQuery(currentUserChatRoomIdsQueryOptions());
   return (
-    <div className="flex flex-row gap-4 py-24 sm:max-w-[512px] mx-auto h-full">
+    <div className="flex flex-row gap-4 pt-24 pb-12 sm:max-w-[512px] mx-auto h-full">
       <div className="hidden sm:flex flex-col gap-2 h-fit">
         {chatRoomIds.data?.map((c) => {
           return <ChatRoomEntryBar key={c.id} chatRoom={c} />;
