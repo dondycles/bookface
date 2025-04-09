@@ -41,6 +41,7 @@ export default function NotificationDropdown({
     pusher.bind("friendships", () => {
       queryClient.invalidateQueries({
         queryKey: ["currentUserFriendships"],
+        type: "active",
       });
     });
 
