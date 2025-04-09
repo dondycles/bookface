@@ -47,7 +47,7 @@ export default function Nav({
     router.state.location.search.usersOrderBy,
   ]);
   return (
-    <nav className="gap-4  fixed w-full z-10 bg-muted shadow-xl shadow-black/5">
+    <nav className="gap-4  fixed w-full z-10 bg-muted border-b">
       <div className="sm:max-w-[512px] mx-auto flex items-center gap-2 justify-between w-full  px-2 sm:px-0  py-4 ">
         <div className="flex gap-2 flex-1 justify-start items-center">
           {searching ? (

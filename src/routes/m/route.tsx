@@ -4,7 +4,12 @@ import { currentUserChatRoomIdsQueryOptions } from "@/lib/queries/messages";
 import { userInfoQueryOptions } from "@/lib/queries/user";
 import { ChatRooms } from "@/lib/server/fn/messages";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Outlet,
+  useMatchRoute,
+  useRouterState,
+} from "@tanstack/react-router";
 
 export const Route = createFileRoute("/m")({
   component: RouteComponent,
@@ -12,9 +17,19 @@ export const Route = createFileRoute("/m")({
 
 function RouteComponent() {
   const chatRoomIds = useSuspenseQuery(currentUserChatRoomIdsQueryOptions());
+  const matchRoute = useMatchRoute();
   return (
-    <div className="flex flex-row gap-4 pt-24 pb-12 sm:max-w-[512px] mx-auto h-full">
-      <div className="hidden sm:flex flex-col gap-2 h-fit">
+    <div className="pt-20 sm:max-w-[512px] mx-auto h-full">
+      <p
+        hidden={!matchRoute({ to: "/m", fuzzy: false })}
+        className="text-2xl font-bold px-2 py-4"
+      >
+        Messages
+      </p>
+      <div
+        hidden={!matchRoute({ to: "/m", fuzzy: false })}
+        className={`flex flex-col h-fit flex-1 gap-0 sm:gap-2`}
+      >
         {chatRoomIds.data?.map((c) => {
           return <ChatRoomEntryBar key={c.id} chatRoom={c} />;
         })}
@@ -26,13 +41,15 @@ function RouteComponent() {
 
 function ChatRoomEntryBar({ chatRoom }: { chatRoom: ChatRooms[0] }) {
   const { currentUserInfo } = Route.useRouteContext();
+  const pathname = useRouterState().location.pathname;
   // const chatRoomType: "group" | "private" =
   //   chatRoom.people.length === 2 ? "private" : "group";
   const chatMateId = chatRoom.people.filter((i) => i !== currentUserInfo?.dB.id)[0];
   const chatMateData = useQuery(userInfoQueryOptions(chatMateId, chatMateId));
+  if (chatMateData.isLoading) return;
   return (
     <MessageBtn
-      className="flex-row justify-start flex-1 aspect-square md:aspect-auto"
+      className={`flex-row bg-muted p-2 justify-start flex-1 rounded-none sm:rounded-md border-b sm:border-b-0`}
       variant={"secondary"}
       targetedUserId={chatMateId}
     >
@@ -41,7 +58,9 @@ function ChatRoomEntryBar({ chatRoom }: { chatRoom: ChatRooms[0] }) {
         url={chatMateData.data?.image}
         username={chatMateData.data?.username}
       />
-      <p className="hidden md:block">{chatMateData.data?.username}</p>
+      <p className={`${pathname === "/m" ? "" : "hidden md:block"}`}>
+        {chatMateData.data?.username}
+      </p>
     </MessageBtn>
   );
 }

@@ -1,6 +1,7 @@
 import { Button } from "@/lib/components/ui/button";
-import { Input } from "@/lib/components/ui/input";
 import { ScrollArea } from "@/lib/components/ui/scroll-area";
+import { Skeleton } from "@/lib/components/ui/skeleton";
+import { Textarea } from "@/lib/components/ui/textarea";
 import UserAvatar from "@/lib/components/user/user-avatar";
 import { pusher } from "@/lib/pusher-client";
 import {
@@ -10,10 +11,10 @@ import {
 import { userInfoQueryOptions } from "@/lib/queries/user";
 import { sendMessage } from "@/lib/server/fn/messages";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
-import { Ellipsis, Send } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ChevronLeft, Ellipsis, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-export const Route = createFileRoute("/m/$id")({
+export const Route = createFileRoute("/m/$id/")({
   component: RouteComponent,
 });
 
@@ -60,25 +61,42 @@ function RouteComponent() {
     };
   }, [id, queryClient, currentUserInfo]);
 
+  if (chatRoomChats.isLoading)
+    return (
+      <Skeleton className="h-full flex-1 rounded-none">
+        <Skeleton className="h-[81px] rounded-none p-4">
+          <Skeleton className="size-12 rounded-full" />
+        </Skeleton>
+      </Skeleton>
+    );
   return (
-    <div className="grid grid-flow-row-dense grid-rows-[81px_minmax(0px,1fr)_69px]   grid-cols-none flex-1 bg-muted rounded-md overflow-hidden">
-      <div className="flex gap-2 items-start p-4 border-b h-fit">
-        <div className="flex gap-2 flex-1">
+    <div className="h-full grid grid-rows-[81px_minmax(0px,1fr)_161px]   grid-cols-none flex-1 bg-muted overflow-hidden">
+      <div className="flex gap-2 items-center justify-center px-2 py-4 border-b h-fit">
+        <div className="flex flex-row gap-2 flex-1 items-center">
+          <Link to="/m">
+            <ChevronLeft />
+          </Link>
+
           <UserAvatar
             className="size-12"
             url={chatMateData.data?.image}
             username={chatMateData.data?.username}
           />
-          <p className="font-bold overflow-hidden text-ellipsis text-xl">
-            {chatMateData.data?.name}
-          </p>
+          <div>
+            <p className="font-bold overflow-hidden text-ellipsis line-clamp-1 text-xl leading-tight h-fit">
+              {chatMateData.data?.name}
+            </p>
+            <p className="overflow-hidden text-ellipsis line-clamp-1 leading-tight h-fit text-sm text-muted-foreground">
+              @{chatMateData.data?.username}
+            </p>
+          </div>
         </div>
         <Button variant={"ghost"} size={"icon"}>
           <Ellipsis />
         </Button>
       </div>
       <ScrollArea>
-        <div className="flex-1 p-4 overflow-auto space-y-4">
+        <div className="flex-1 p-2 overflow-auto space-y-1">
           {chatRoomChats.data
             ?.map((c) => {
               return (
@@ -86,7 +104,7 @@ function RouteComponent() {
                   key={c.id}
                   className={`bg-accent rounded-md p-2 w-fit ${c.senderId === currentUserInfo?.dB.id ? "mr-0 ml-auto" : "ml-0 mr-auto"}`}
                 >
-                  <p>{c.message}</p>
+                  <p className="whitespace-pre-wrap">{c.message}</p>
                 </div>
               );
             })
@@ -94,8 +112,9 @@ function RouteComponent() {
           <div ref={chatArea} />
         </div>
       </ScrollArea>
-      <div className="flex gap-2 p-4 border-t h-fit">
-        <Input
+      <div className="flex gap-2 px-2 py-4 border-t h-fit">
+        <Textarea
+          className="resize-none field-sizing-fixed scrollbar scrollbar-thumb-accent"
           value={message}
           onChange={(e) => setMessage(e.currentTarget.value)}
           placeholder="Message"

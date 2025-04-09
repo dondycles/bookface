@@ -77,9 +77,12 @@ export const sendMessage = createServerFn({ method: "POST" })
       if (!receiverId) throw new Error(`[{ "message": "No Receiver ID." }]`);
       if (message.trim().length === 0)
         throw new Error(`[{ "message": "Message Is Empty." }]`);
-      await db
-        .insert(chat)
-        .values({ message, receiverId, roomId: chatRoomId, senderId: user.id });
+      await db.insert(chat).values({
+        message: message.trim(),
+        receiverId,
+        roomId: chatRoomId,
+        senderId: user.id,
+      });
       await pusher.trigger(receiverId, chatRoomId, null);
     },
   );

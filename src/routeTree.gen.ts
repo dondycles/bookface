@@ -18,10 +18,10 @@ import { Route as MRouteImport } from './routes/m/route'
 import { Route as UsernameRouteImport } from './routes/$username/route'
 import { Route as IndexImport } from './routes/index'
 import { Route as FeedIndexImport } from './routes/feed/index'
-import { Route as MIdImport } from './routes/m/$id'
 import { Route as FeedIdImport } from './routes/feed/$id'
 import { Route as UsernamePostsImport } from './routes/$username/posts'
 import { Route as UsernameFriendsImport } from './routes/$username/friends'
+import { Route as MIdIndexImport } from './routes/m/$id/index'
 
 // Create/Update Routes
 
@@ -67,12 +67,6 @@ const FeedIndexRoute = FeedIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const MIdRoute = MIdImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => MRouteRoute,
-} as any)
-
 const FeedIdRoute = FeedIdImport.update({
   id: '/feed/$id',
   path: '/feed/$id',
@@ -89,6 +83,12 @@ const UsernameFriendsRoute = UsernameFriendsImport.update({
   id: '/friends',
   path: '/friends',
   getParentRoute: () => UsernameRouteRoute,
+} as any)
+
+const MIdIndexRoute = MIdIndexImport.update({
+  id: '/$id/',
+  path: '/$id/',
+  getParentRoute: () => MRouteRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -158,19 +158,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeedIdImport
       parentRoute: typeof rootRoute
     }
-    '/m/$id': {
-      id: '/m/$id'
-      path: '/$id'
-      fullPath: '/m/$id'
-      preLoaderRoute: typeof MIdImport
-      parentRoute: typeof MRouteImport
-    }
     '/feed/': {
       id: '/feed/'
       path: '/feed'
       fullPath: '/feed'
       preLoaderRoute: typeof FeedIndexImport
       parentRoute: typeof rootRoute
+    }
+    '/m/$id/': {
+      id: '/m/$id/'
+      path: '/$id'
+      fullPath: '/m/$id'
+      preLoaderRoute: typeof MIdIndexImport
+      parentRoute: typeof MRouteImport
     }
   }
 }
@@ -192,11 +192,11 @@ const UsernameRouteRouteWithChildren = UsernameRouteRoute._addFileChildren(
 )
 
 interface MRouteRouteChildren {
-  MIdRoute: typeof MIdRoute
+  MIdIndexRoute: typeof MIdIndexRoute
 }
 
 const MRouteRouteChildren: MRouteRouteChildren = {
-  MIdRoute: MIdRoute,
+  MIdIndexRoute: MIdIndexRoute,
 }
 
 const MRouteRouteWithChildren =
@@ -212,8 +212,8 @@ export interface FileRoutesByFullPath {
   '/$username/friends': typeof UsernameFriendsRoute
   '/$username/posts': typeof UsernamePostsRoute
   '/feed/$id': typeof FeedIdRoute
-  '/m/$id': typeof MIdRoute
   '/feed': typeof FeedIndexRoute
+  '/m/$id': typeof MIdIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -226,8 +226,8 @@ export interface FileRoutesByTo {
   '/$username/friends': typeof UsernameFriendsRoute
   '/$username/posts': typeof UsernamePostsRoute
   '/feed/$id': typeof FeedIdRoute
-  '/m/$id': typeof MIdRoute
   '/feed': typeof FeedIndexRoute
+  '/m/$id': typeof MIdIndexRoute
 }
 
 export interface FileRoutesById {
@@ -241,8 +241,8 @@ export interface FileRoutesById {
   '/$username/friends': typeof UsernameFriendsRoute
   '/$username/posts': typeof UsernamePostsRoute
   '/feed/$id': typeof FeedIdRoute
-  '/m/$id': typeof MIdRoute
   '/feed/': typeof FeedIndexRoute
+  '/m/$id/': typeof MIdIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -257,8 +257,8 @@ export interface FileRouteTypes {
     | '/$username/friends'
     | '/$username/posts'
     | '/feed/$id'
-    | '/m/$id'
     | '/feed'
+    | '/m/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -270,8 +270,8 @@ export interface FileRouteTypes {
     | '/$username/friends'
     | '/$username/posts'
     | '/feed/$id'
-    | '/m/$id'
     | '/feed'
+    | '/m/$id'
   id:
     | '__root__'
     | '/'
@@ -283,8 +283,8 @@ export interface FileRouteTypes {
     | '/$username/friends'
     | '/$username/posts'
     | '/feed/$id'
-    | '/m/$id'
     | '/feed/'
+    | '/m/$id/'
   fileRoutesById: FileRoutesById
 }
 
@@ -343,7 +343,7 @@ export const routeTree = rootRoute
     "/m": {
       "filePath": "m/route.tsx",
       "children": [
-        "/m/$id"
+        "/m/$id/"
       ]
     },
     "/search": {
@@ -366,12 +366,12 @@ export const routeTree = rootRoute
     "/feed/$id": {
       "filePath": "feed/$id.tsx"
     },
-    "/m/$id": {
-      "filePath": "m/$id.tsx",
-      "parent": "/m"
-    },
     "/feed/": {
       "filePath": "feed/index.tsx"
+    },
+    "/m/$id/": {
+      "filePath": "m/$id/index.tsx",
+      "parent": "/m"
     }
   }
 }
