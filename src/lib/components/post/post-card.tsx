@@ -184,6 +184,7 @@ export default function PostCard({
                     <UserFriendshipOptionsBtns
                       currentUserInfo={currentUserInfo}
                       targetedUserId={post.author.id}
+                      asPopover={true}
                     />
                   </HoverCardContent>
                 ) : null}

@@ -42,7 +42,6 @@ export const getCurrentUserNotifications = createServerFn({
   method: "GET",
 })
   .middleware([authMiddleware])
-
   .handler(async ({ context: { dB: user } }) => {
     if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
     return await db.query.notification.findMany({
@@ -51,6 +50,17 @@ export const getCurrentUserNotifications = createServerFn({
       with: {
         notifierData: true,
       },
+      limit: 10,
+      extras: ({ likeId, commentId }, { sql }) => ({
+        commentPostId:
+          sql<string>`(SELECT "postId" FROM "postComments" WHERE "id" = ${commentId})`.as(
+            "commentLikePostId",
+          ),
+        likePostId:
+          sql<string>`(SELECT "postId" FROM "postLikes" WHERE "id" = ${likeId})`.as(
+            "commentLikePostId",
+          ),
+      }),
     });
   });
 

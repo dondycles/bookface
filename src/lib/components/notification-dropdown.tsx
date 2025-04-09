@@ -1,17 +1,21 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
-import { Bell } from "lucide-react";
+import { Bell, CheckCheck, Ellipsis, ExternalLink } from "lucide-react";
 import { useEffect } from "react";
 import { pusher } from "../pusher-client";
 import { currentUserNotificationsQueryOptions } from "../queries/notifications";
 import { readNotification } from "../server/fn/notification";
 import { CurrentUserInfo } from "../server/fn/user";
+import TimeInfo from "./time-info";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import UserAvatar from "./user/user-avatar";
@@ -52,9 +56,28 @@ export default function NotificationDropdown({
           </p>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[256px]">
-        <p className="p-2">Notifications ({unread?.length})</p>
-        <DropdownMenuSeparator />
+      <DropdownMenuContent
+        align="end"
+        className="max-w-96 max-h-[75dvh] flex-col flex gap-1"
+      >
+        <div className="p-2 flex items-center justify-between gap-2 text-muted-foreground ">
+          <p>Notifications ({unread?.length})</p>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger showIcon={false}>
+              <Ellipsis className="size-5" />
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuItem>
+                <CheckCheck /> Mark all as read
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <ExternalLink /> View all notifications
+              </DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+        </div>
+
+        <DropdownMenuSeparator className="my-0" />
         {notifications.data?.map((n) => {
           return (
             <DropdownMenuItem
@@ -74,29 +97,41 @@ export default function NotificationDropdown({
                     },
                   });
                 }
-                if (n.type === "comment" || n.type === "like") {
+                if (n.type === "comment") {
                   router.navigate({
                     to: "/feed/$id",
-                    params: { id: n.postId! },
+                    params: { id: n.commentPostId },
+                  });
+                }
+                if (n.type === "like") {
+                  router.navigate({
+                    to: "/feed/$id",
+                    params: { id: n.likePostId },
                   });
                 }
               }}
               key={n.id}
+              className={`${n.isRead ? "" : "bg-accent/50"} p-2 items-start`}
             >
               <UserAvatar
                 linkable={false}
                 username={n.notifierData.username}
                 url={n.notifierData.image}
+                className="size-10"
               />
-              <p
-                className={`${n.isRead === false ? "text-foreground" : "text-muted-foreground"} `}
-              >
-                {n.notifierData.username}
-                {n.type === "addfriendship" && " sent your friendship request."}
-                {n.type === "acceptedfriendship" && " accepted your friendship request."}
-                {n.type === "comment" && " commented on your post."}
-                {n.type === "like" && " liked on your post."}
-              </p>
+              <div>
+                <p
+                  className={`${n.isRead === false ? "text-foreground" : "text-muted-foreground"} `}
+                >
+                  {n.notifierData.username}
+                  {n.type === "addfriendship" && " sent your friendship request."}
+                  {n.type === "acceptedfriendship" &&
+                    " accepted your friendship request."}
+                  {n.type === "comment" && " commented on your post."}
+                  {n.type === "like" && " liked on your post."}
+                </p>
+                <TimeInfo createdAt={n.createdAt} />
+              </div>
             </DropdownMenuItem>
           );
         })}
@@ -104,83 +139,3 @@ export default function NotificationDropdown({
     </DropdownMenu>
   );
 }
-
-// function PendingFriendshipBar({
-//   f,
-//   currentUserInfo,
-//   queryClient,
-// }: {
-//   f: ReturnType<typeof getPendingReceivedFriendships>[0];
-//   currentUserInfo: NonNullable<CurrentUserInfo>;
-//   queryClient: QueryClient;
-// }) {
-//   const handleRemoveFriendship = useRemoveFriendshipMutation({
-//     friendshipId: f.id,
-//     targetedUserId: f.requester,
-//     refetch: () => {
-//       queryClient.resetQueries({
-//         queryKey: ["friendship", `${currentUserInfo?.dB.id}${f.requester}`],
-//       });
-//       queryClient.invalidateQueries({
-//         queryKey: ["currentUserFriendships"],
-//       });
-//     },
-//   });
-
-//   const handleAcceptFriendshipRequest = useAcceptFriendshipRequestMutation({
-//     friendshipId: f.id,
-//     targetedUserId: f.requester,
-//     refetch: () => {
-//       queryClient.resetQueries({
-//         queryKey: ["friendship", `${currentUserInfo?.dB.id}${f.requester}`],
-//       });
-//       queryClient.invalidateQueries({
-//         queryKey: ["currentUserFriendships"],
-//       });
-//     },
-//   });
-//   return (
-//     <div
-//       key={f.id}
-//       className={`flex  gap-2 max-w-72 hover:bg-accent/50 rounded-md p-1 ${handleRemoveFriendship.isPending || (handleAcceptFriendshipRequest.isPending && "animate-pulse")}`}
-//     >
-//       <UserAvatar
-//         username={f.requesterInfo.username}
-//         url={f.requesterInfo.image}
-//         className="size-12"
-//       />
-//       <div className="flex flex-col gap-1 mb-auto mt-0">
-//         <div>
-//           <UserLink
-//             text={f.requesterInfo.name}
-//             username={f.requesterInfo.username ?? ""}
-//             className="overflow-hidden text-ellipsis line-clamp-1"
-//           />
-//         </div>
-//         <TimeInfo createdAt={f.createdAt} />
-//       </div>
-//       <div className={`flex gap-[1px] mb-0 mt-auto`}>
-//         <Button
-//           disabled={
-//             handleRemoveFriendship.isPending || handleAcceptFriendshipRequest.isPending
-//           }
-//           onClick={() => handleAcceptFriendshipRequest.mutate()}
-//           variant={"secondary"}
-//           className="rounded-r-none"
-//         >
-//           <Check />
-//         </Button>
-//         <Button
-//           disabled={
-//             handleRemoveFriendship.isPending || handleAcceptFriendshipRequest.isPending
-//           }
-//           onClick={() => handleRemoveFriendship.mutate()}
-//           variant={"destructive"}
-//           className="rounded-l-none"
-//         >
-//           <X />
-//         </Button>
-//       </div>
-//     </div>
-//   );
-// }

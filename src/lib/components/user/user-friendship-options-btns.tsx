@@ -16,15 +16,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 export default function UserFriendshipOptionsBtns({
   currentUserInfo,
   targetedUserId,
   className,
+  asPopover = false,
 }: {
   currentUserInfo: CurrentUserInfo;
   targetedUserId: string;
   className?: string;
+  asPopover?: boolean;
 }) {
   const queryClient = useQueryClient();
 
@@ -73,44 +76,62 @@ export default function UserFriendshipOptionsBtns({
     },
   });
 
-  // useEffect(() => {
-  //   if (!currentUserInfo) return;
-  //   pusher.subscribe(currentUserInfo.dB.id);
-  //   pusher.bind("notification", () => {
-  //     queryClient.resetQueries({
-  //       queryKey: ["friendship", `${currentUserInfo.dB.id}${targetedUserId}`],
-  //     });
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["currentUserFriendships"],
-  //     });
-  //   });
-
-  //   return () => {
-  //     pusher.unsubscribe(currentUserInfo.dB.id);
-  //   };
-  // }, [currentUserInfo, queryClient, targetedUserId]);
+  const pending =
+    handleAcceptFriendshipRequest.isPending ||
+    handleRemoveFriendship.isPending ||
+    handleAddFriendshipRequest.isPending;
 
   return (
     <div className={cn("flex rounded-md gap-[1px]", className)}>
       {friendshipStatus === "accepted" ? (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button className="flex-1 rounded-r-none">
-              <Check />
-              Friends
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
-            <DropdownMenuItem onClick={() => handleRemoveFriendship.mutate()}>
-              <X />
-              Unfriend
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Star />
-              Favorite
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <>
+          {asPopover ? (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button disabled={pending} className="flex-1 rounded-r-none">
+                  <Check />
+                  Friends
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="flex flex-col gap-1 p-1 w-32">
+                <Button
+                  disabled={pending}
+                  variant={"ghost"}
+                  onClick={() => handleRemoveFriendship.mutate()}
+                >
+                  <X />
+                  Unfriend
+                </Button>
+                <Button disabled={pending} variant={"ghost"}>
+                  <Star />
+                  Favorite
+                </Button>
+              </PopoverContent>
+            </Popover>
+          ) : (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button disabled={pending} className="flex-1 rounded-r-none">
+                  <Check />
+                  Friends
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem
+                  disabled={pending}
+                  onClick={() => handleRemoveFriendship.mutate()}
+                >
+                  <X />
+                  Unfriend
+                </DropdownMenuItem>
+                <DropdownMenuItem disabled={pending}>
+                  <Star />
+                  Favorite
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </>
       ) : (
         <Button
           disabled={
@@ -162,21 +183,39 @@ export default function UserFriendshipOptionsBtns({
         variant={"secondary"}
         className="rounded-none flex-1"
       />
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant={"secondary"} className="rounded-l-none">
-            <Ellipsis />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem>
-            <Ban /> Block
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Flag /> Report
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      {asPopover ? (
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button disabled={pending} variant={"secondary"} className="rounded-l-none">
+              <Ellipsis />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="flex flex-col gap-1 p-1 w-32">
+            <Button disabled={pending} variant={"ghost"}>
+              <Ban /> Block
+            </Button>
+            <Button disabled={pending} variant={"ghost"}>
+              <Flag /> Report
+            </Button>
+          </PopoverContent>
+        </Popover>
+      ) : (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button disabled={pending} variant={"secondary"} className="rounded-l-none">
+              <Ellipsis />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem disabled={pending}>
+              <Ban /> Block
+            </DropdownMenuItem>
+            <DropdownMenuItem disabled={pending}>
+              <Flag /> Report
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
     </div>
   );
 }
