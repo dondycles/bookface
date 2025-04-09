@@ -257,7 +257,7 @@ export default function PostCard({
         <p className="whitespace-pre-wrap">{post.message}</p>
       </div>
 
-      <Collapsible open={collapseComments} onOpenChange={setCollapesComments}>
+      <Collapsible open={deepView || collapseComments} onOpenChange={setCollapesComments}>
         <div className="py-2 px-2 sm:pl-3  sm:border-t flex gap-2">
           <Button
             onClick={async () =>
@@ -271,7 +271,7 @@ export default function PostCard({
             />{" "}
             <span className="text-xs">{post.likers.length}</span>
           </Button>
-          {collapseComments ? (
+          {deepView || collapseComments ? (
             <AddCommentForm
               post={post}
               children={

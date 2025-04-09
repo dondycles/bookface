@@ -106,7 +106,7 @@ export default function NotificationDropdown({
                     if (n.type === "comment") {
                       router.navigate({
                         to: "/feed/$id",
-                        params: { id: n.commentData.postId },
+                        params: { id: n.commentPostId },
                       });
                     }
                     if (n.type === "like") {
@@ -134,7 +134,7 @@ export default function NotificationDropdown({
                       {n.type === "acceptedfriendship" &&
                         " accepted your friendship request."}
                       {n.type === "comment" &&
-                        ` commented "${n.commentData.message.slice(0, 10)}..." on your post.`}
+                        ` commented "${n.commentMessage.slice(0, 10)}..." on your post.`}
                       {n.type === "like" && " liked on your post."}
                     </p>
                     <TimeInfo createdAt={n.createdAt} />
