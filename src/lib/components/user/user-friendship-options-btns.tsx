@@ -78,7 +78,7 @@ export default function UserFriendshipOptionsBtns({
   useEffect(() => {
     if (!currentUserInfo) return;
     pusher.subscribe(currentUserInfo.dB.id);
-    pusher.bind("friendships", () => {
+    pusher.bind("notification", () => {
       queryClient.resetQueries({
         queryKey: ["friendship", `${currentUserInfo.dB.id}${targetedUserId}`],
       });

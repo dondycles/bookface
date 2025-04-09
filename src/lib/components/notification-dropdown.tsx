@@ -1,6 +1,6 @@
 import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, BellDot, Check, X } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   useAcceptFriendshipRequestMutation,
   useRemoveFriendshipMutation,
@@ -35,10 +35,12 @@ export default function NotificationDropdown({
     currentUserInfo?.dB.username ?? "",
   );
 
+  const [unreadMessages, setUnreadMessages] = useState(0);
+
   useEffect(() => {
     if (!currentUserInfo) return;
     pusher.subscribe(currentUserInfo.dB.id);
-    pusher.bind("friendships", () => {
+    pusher.bind("notification", () => {
       queryClient.invalidateQueries({
         queryKey: ["currentUserFriendships"],
         type: "active",

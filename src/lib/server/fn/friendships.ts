@@ -1,5 +1,5 @@
 import { authMiddleware } from "@/lib/middleware/auth-guard";
-import { friendship } from "@/lib/schema";
+import { friendship, notification } from "@/lib/schema";
 import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -49,7 +49,7 @@ export const addFriendshipRequest = createServerFn({
     });
 
     if (!status) {
-      await db
+      const friendshipData = await db
         .insert(friendship)
         .values({
           requester: user.id,
@@ -57,11 +57,18 @@ export const addFriendshipRequest = createServerFn({
           id: `${user.id}${data.receiverId}`,
           status: "pending",
         })
-        .returning();
-      await pusher.trigger(data.receiverId, "friendships", null);
+        .returning({ id: friendship.id });
+      await db.insert(notification).values({
+        notifierId: user.id,
+        receiverId: data.receiverId,
+        type: "addfriendship",
+        friendshipId: friendshipData[0].id,
+      });
+      await pusher.trigger(data.receiverId, "notification", null);
     } else if (status.status === "pending")
       throw new Error(`[{ "message": "Already Pending." }]`);
   });
+
 export const removeFriendship = createServerFn({
   method: "POST",
 })
@@ -76,8 +83,9 @@ export const removeFriendship = createServerFn({
     if (!status) throw new Error(`[{ "message": "Request First." }]`);
 
     await db.delete(friendship).where(eq(friendship.id, friendshipId));
-    await pusher.trigger(targetedUserId, "friendships", null);
+    await pusher.trigger(targetedUserId, "notification", null);
   });
+
 export const acceptFriendshipRequest = createServerFn({
   method: "POST",
 })
@@ -99,7 +107,13 @@ export const acceptFriendshipRequest = createServerFn({
         acceptedAt: new Date(),
       })
       .where(eq(friendship.id, friendshipId));
-    await pusher.trigger(targetedUserId, "friendships", null);
+    await db.insert(notification).values({
+      notifierId: user.id,
+      receiverId: targetedUserId,
+      type: "acceptedfriendship",
+      friendshipId,
+    });
+    await pusher.trigger(targetedUserId, "notification", null);
   });
 export const getCurrentUserFriendships = createServerFn({
   method: "GET",
