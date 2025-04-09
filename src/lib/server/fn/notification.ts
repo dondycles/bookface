@@ -56,11 +56,11 @@ export const getCurrentUserNotifications = createServerFn({
           postId: string;
           message: string;
         }>`(SELECT "postId, message" FROM "postComments" WHERE "id" = ${commentId})`.as(
-          "commentLikePostId",
+          "commentData",
         ),
         likePostId:
           sql<string>`(SELECT "postId" FROM "postLikes" WHERE "id" = ${likeId})`.as(
-            "commentLikePostId",
+            "likePostId",
           ),
       }),
     });
