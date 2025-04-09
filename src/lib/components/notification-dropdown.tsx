@@ -83,8 +83,8 @@ export default function NotificationDropdown({
                 onClick: () => {
                   if (data.type === "acceptedfriendship" || data.type === "addfriendship")
                     router.navigate({
-                      to: "/feed/$id",
-                      params: { id: data.notifierId },
+                      to: "/$username",
+                      params: { username: data.notifierUsername },
                     });
                   if (data.type === "comment")
                     router.navigate({
