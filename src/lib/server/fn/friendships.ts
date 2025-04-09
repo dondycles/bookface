@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db";
 import { pusher } from "../pusher";
+import { sendNotification } from "./notification";
 
 const friendSchema = z.object({
   receiverId: z.string(),
@@ -58,11 +59,13 @@ export const addFriendshipRequest = createServerFn({
           status: "pending",
         })
         .returning({ id: friendship.id });
-      await db.insert(notification).values({
-        notifierId: user.id,
-        receiverId: data.receiverId,
-        type: "addfriendship",
-        friendshipId: friendshipData[0].id,
+
+      await sendNotification({
+        data: {
+          receiverId: data.receiverId,
+          type: "addfriendship",
+          friendshipId: friendshipData[0].id,
+        },
       });
       await pusher.trigger(data.receiverId, "notification", null);
     } else if (status.status === "pending")

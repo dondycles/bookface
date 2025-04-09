@@ -37,8 +37,13 @@ export const addComment = createServerFn({
         postId: data.post.id,
       })
       .returning({ id: postComments.id });
+
     await sendNotification({
-      data: { receiverId: data.post.id, type: "comment", commentId: commentData[0].id },
+      data: {
+        receiverId: data.post.id,
+        type: "comment",
+        commentId: commentData[0].id,
+      },
     });
     await pusher.trigger(data.post.userId, "notification", null);
   });

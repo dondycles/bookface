@@ -13,15 +13,23 @@ export const addLikePost = createServerFn({
   .validator((data: { post: typeof post.$inferSelect }) => data)
   .handler(async ({ data: { post }, context: { dB: user } }) => {
     if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
-    await db.insert(postLikes).values({
-      likerId: user.id,
-      postId: post.id,
-      id: user.id + post.id,
-    });
+    const likeData = await db
+      .insert(postLikes)
+      .values({
+        likerId: user.id,
+        postId: post.id,
+        id: user.id + post.id,
+      })
+      .returning({ id: postLikes.id });
     await sendNotification({
-      data: { receiverId: post.userId, type: "like", postId: post.id },
+      data: {
+        receiverId: post.userId,
+        type: "like",
+        likeId: likeData[0].id,
+      },
     });
-    await pusher.trigger(post.userId, "notification", null);
+
+    if (post.userId !== user.id) await pusher.trigger(post.userId, "notification", null);
   });
 
 export const removeLikePost = createServerFn({
@@ -32,5 +40,5 @@ export const removeLikePost = createServerFn({
   .handler(async ({ data: { post }, context: { dB: user } }) => {
     if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
     await db.delete(postLikes).where(eq(postLikes.id, user.id + post.id));
-    await pusher.trigger(post.userId, "notification", null);
+    if (post.userId !== user.id) await pusher.trigger(post.userId, "notification", null);
   });
