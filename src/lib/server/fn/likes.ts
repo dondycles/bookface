@@ -4,6 +4,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { pusher } from "../pusher";
+import { sendNotification } from "./notification";
 
 export const addLikePost = createServerFn({
   method: "POST",
@@ -16,6 +17,9 @@ export const addLikePost = createServerFn({
       likerId: user.id,
       postId: post.id,
       id: user.id + post.id,
+    });
+    await sendNotification({
+      data: { receiverId: post.userId, type: "like", postId: post.id },
     });
     await pusher.trigger(post.userId, "notification", null);
   });

@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db";
 import { pusher } from "../pusher";
+import { sendNotification } from "./notification";
 import { Post } from "./posts";
 export const commentSchema = z.object({
   message: z
@@ -28,10 +29,16 @@ export const addComment = createServerFn({
     if (data.message.length === 0)
       throw new Error(`[{ "message": "Comment cannot be empty" }]`);
 
-    await db.insert(postComments).values({
-      commenterId: user.id,
-      message: data.message,
-      postId: data.post.id,
+    const commentData = await db
+      .insert(postComments)
+      .values({
+        commenterId: user.id,
+        message: data.message,
+        postId: data.post.id,
+      })
+      .returning({ id: postComments.id });
+    await sendNotification({
+      data: { receiverId: data.post.id, type: "comment", commentId: commentData[0].id },
     });
     await pusher.trigger(data.post.userId, "notification", null);
   });
