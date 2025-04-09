@@ -43,7 +43,7 @@ function MyFriends() {
   );
   if (friendships.isFetching)
     return (
-      <div className="flex flex-col gap-4 flex-1">
+      <div className="flex flex-col sm:gap-4 gap-0 flex-1 -mt-2 sm:-mt-0">
         <Skeleton className="w-full py-4 px-2 sm:px-4 sm:rounded-md rounded-none flex gap-2">
           <Skeleton className="size-14 rounded-full" />
           <div className="flex-1 space-y-2">
@@ -71,7 +71,7 @@ function MyFriends() {
       </div>
     );
   return (
-    <div className="flex flex-col gap-4 flex-1">
+    <div className="flex flex-col gap-0 sm:gap-4 flex-1 -mt-2 sm:-mt-0">
       {_friendships.map((f) => {
         return <FriendshipBar friendship={f} key={`${f.id}-friend`} />;
       })}
@@ -85,12 +85,41 @@ function OtherUserFriends() {
     ...thisUserAcceptedfriendshipsQueryOptions(username),
   });
   const _friendships = getModifiedFriendships(friendships.data ?? [], username);
+  if (friendships.isFetching)
+    return (
+      <div className="flex flex-col sm:gap-4 gap-0 flex-1 -mt-2 sm:-mt-0">
+        <Skeleton className="w-full py-4 px-2 sm:px-4 sm:rounded-md rounded-none flex gap-2">
+          <Skeleton className="size-14 rounded-full" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+          <Skeleton className="size-10 mb-0 mt-auto" />
+        </Skeleton>
+        <Skeleton className="w-full py-4 px-2 sm:px-4 sm:rounded-md rounded-none flex gap-2">
+          <Skeleton className="size-14 rounded-full" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+          <Skeleton className="size-10 mb-0 mt-auto" />
+        </Skeleton>
+        <Skeleton className="w-full py-4 px-2 sm:px-4 sm:rounded-md rounded-none flex gap-2">
+          <Skeleton className="size-14 rounded-full" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+          <Skeleton className="size-10 mb-0 mt-auto" />
+        </Skeleton>
+      </div>
+    );
   return (
-    <>
+    <div className="flex flex-col gap-0 sm:gap-4 flex-1 -mt-2 sm:-mt-0">
       {_friendships.map((f) => {
         return <UserBar u={f.info} key={`${f.info.id}-friend`} />;
       })}
-    </>
+    </div>
   );
 }
 
@@ -120,19 +149,6 @@ function FriendshipBar({
     },
   });
 
-  // useEffect(() => {
-  //   if (!currentUserInfo) return;
-  //   pusher.subscribe(currentUserInfo.dB.id);
-  //   pusher.bind("notification", () => {
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["currentUserFriendships"],
-  //     });
-  //   });
-  //   return () => {
-  //     pusher.unsubscribe(currentUserInfo.dB.id);
-  //   };
-  // }, [currentUserInfo, queryClient]);
-
   return (
     <div
       key={friendship.id}
@@ -145,16 +161,20 @@ function FriendshipBar({
           url={friendship.info.image}
         />
         <div>
-          <UserLink
-            className="font-semibold text-lg"
-            text={`@${friendship.info.name}`}
-            username={friendship.info.username ?? ""}
-          />
-          <UserLink
-            className="text-muted-foreground text-sm"
-            text={`@${friendship.info.username}`}
-            username={friendship.info.username ?? ""}
-          />
+          <div>
+            <UserLink
+              className="font-semibold text-lg"
+              text={`@${friendship.info.name}`}
+              username={friendship.info.username ?? ""}
+            />
+          </div>
+          <div>
+            <UserLink
+              className="text-muted-foreground text-sm"
+              text={`@${friendship.info.username}`}
+              username={friendship.info.username ?? ""}
+            />
+          </div>
 
           <p className="text-muted-foreground text-sm">
             Joined: {friendship.createdAt.toLocaleString()}

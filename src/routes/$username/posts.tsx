@@ -77,7 +77,9 @@ function MyPosts() {
 
   return (
     <>
-      <AddPostBar currentUserInfo={currentUserInfo} />
+      <div className="-mt-2 sm:-mt-0">
+        <AddPostBar currentUserInfo={currentUserInfo} />
+      </div>
       <PostsOptionsBar router={router} isMyProfile={isMyProfile}>
         <PostsOrderer
           router={router}
