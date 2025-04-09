@@ -82,11 +82,11 @@ function OtherUserInfo({
   const profile = useQuery(userInfoQueryOptions(username));
 
   return (
-    <div className="py-24 sm:max-w-[512px] mx-auto">
+    <div className="pt-20 sm:pt-24 pb-24 sm:max-w-[512px] mx-auto">
       {!profile.data ? (
         <p className="text-center text-muted-foreground">User not found!</p>
       ) : (
-        <div className="flex flex-col gap-4 ">
+        <div className="flex flex-col gap-2 sm:gap-4 ">
           <div className="text-muted-foreground">
             <div className="flex flex-col gap-4 bg-muted sm:rounded-md p-4">
               <div className="flex gap-4">
