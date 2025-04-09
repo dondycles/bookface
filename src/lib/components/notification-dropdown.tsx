@@ -63,7 +63,10 @@ export default function NotificationDropdown({
         <div className="p-2 flex items-center justify-between gap-2 text-muted-foreground ">
           <p>Notifications ({unread?.length})</p>
           <DropdownMenuSub>
-            <DropdownMenuSubTrigger showIcon={false}>
+            <DropdownMenuSubTrigger
+              hidden={notifications.data?.length === 0}
+              showIcon={false}
+            >
               <Ellipsis className="size-5" />
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
@@ -76,65 +79,70 @@ export default function NotificationDropdown({
             </DropdownMenuSubContent>
           </DropdownMenuSub>
         </div>
+        {notifications.data?.length === 0 ? (
+          <p className="text-center p-1 text-muted-foreground">...</p>
+        ) : (
+          <>
+            <DropdownMenuSeparator className="my-0" />
+            {notifications.data?.map((n) => {
+              return (
+                <DropdownMenuItem
+                  onClick={async () => {
+                    await readNotification({ data: { id: n.id } });
+                    queryClient.invalidateQueries({
+                      queryKey: ["currentUserNotifications"],
+                    });
 
-        <DropdownMenuSeparator className="my-0" />
-        {notifications.data?.map((n) => {
-          return (
-            <DropdownMenuItem
-              onClick={async () => {
-                await readNotification({ data: { id: n.id } });
-                queryClient.invalidateQueries({
-                  queryKey: ["currentUserNotifications"],
-                });
-
-                if (n.type === "acceptedfriendship" || n.type === "addfriendship") {
-                  router.navigate({
-                    to: "/$username/posts",
-                    params: { username: n.notifierData.username! },
-                    search: {
-                      flow: "desc",
-                      postsOrderBy: "recent",
-                    },
-                  });
-                }
-                if (n.type === "comment") {
-                  router.navigate({
-                    to: "/feed/$id",
-                    params: { id: n.commentPostId },
-                  });
-                }
-                if (n.type === "like") {
-                  router.navigate({
-                    to: "/feed/$id",
-                    params: { id: n.likePostId },
-                  });
-                }
-              }}
-              key={n.id}
-              className={`${n.isRead ? "" : "bg-accent/50"} p-2 items-start`}
-            >
-              <UserAvatar
-                linkable={false}
-                username={n.notifierData.username}
-                url={n.notifierData.image}
-                className="size-10"
-              />
-              <div>
-                <p
-                  className={`${n.isRead === false ? "text-foreground" : "text-muted-foreground"} `}
+                    if (n.type === "acceptedfriendship" || n.type === "addfriendship") {
+                      router.navigate({
+                        to: "/$username/posts",
+                        params: { username: n.notifierData.username! },
+                        search: {
+                          flow: "desc",
+                          postsOrderBy: "recent",
+                        },
+                      });
+                    }
+                    if (n.type === "comment") {
+                      router.navigate({
+                        to: "/feed/$id",
+                        params: { id: n.commentPostId },
+                      });
+                    }
+                    if (n.type === "like") {
+                      router.navigate({
+                        to: "/feed/$id",
+                        params: { id: n.likePostId },
+                      });
+                    }
+                  }}
+                  key={n.id}
+                  className={`${n.isRead ? "" : "bg-accent/50"} p-2 items-start`}
                 >
-                  {n.notifierData.username}
-                  {n.type === "addfriendship" && " sent your friendship request."}
-                  {n.type === "acceptedfriendship" &&
-                    " accepted your friendship request."}
-                  {n.type === "comment" && " commented on your post."}
-                  {n.type === "like" && " liked on your post."}
-                </p>
-                <TimeInfo createdAt={n.createdAt} />
-              </div>
-            </DropdownMenuItem>
-          );
-        })}
+                  <UserAvatar
+                    linkable={false}
+                    username={n.notifierData.username}
+                    url={n.notifierData.image}
+                    className="size-10"
+                  />
+                  <div>
+                    <p
+                      className={`${n.isRead === false ? "text-foreground" : "text-muted-foreground"} `}
+                    >
+                      {n.notifierData.username}
+                      {n.type === "addfriendship" && " sent your friendship request."}
+                      {n.type === "acceptedfriendship" &&
+                        " accepted your friendship request."}
+                      {n.type === "comment" && " commented on your post."}
+                      {n.type === "like" && " liked on your post."}
+                    </p>
+                    <TimeInfo createdAt={n.createdAt} />
+                  </div>
+                </DropdownMenuItem>
+              );
+            })}
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
