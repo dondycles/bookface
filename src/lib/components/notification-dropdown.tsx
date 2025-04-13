@@ -132,7 +132,20 @@ export default function NotificationDropdown({
               <Ellipsis className="size-5" />
             </PopoverTrigger>
             <PopoverContent className="flex flex-col gap-0 p-1 w-fit">
-              <Button variant={"ghost"} className="justify-start">
+              <Button
+                onClick={async () => {
+                  await readNotification({
+                    data: {
+                      ids: notifications.data?.map((n) => n.id as string) as [string],
+                    },
+                  });
+                  queryClient.invalidateQueries({
+                    queryKey: ["currentUserTenNotifications"],
+                  });
+                }}
+                variant={"ghost"}
+                className="justify-start"
+              >
                 <CheckCheck /> Mark all as read
               </Button>
               <Button
@@ -160,7 +173,7 @@ export default function NotificationDropdown({
               return (
                 <DropdownMenuItem
                   onClick={async () => {
-                    await readNotification({ data: { id: n.id } });
+                    await readNotification({ data: { ids: [n.id] } });
                     queryClient.invalidateQueries({
                       queryKey: ["currentUserTenNotifications"],
                     });

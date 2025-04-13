@@ -41,7 +41,7 @@ function MyFriends() {
     friendships.data ?? [],
     currentUserInfo?.dB.username ?? "",
   );
-  if (friendships.isFetching)
+  if (friendships.isLoading)
     return (
       <div className="flex flex-col sm:gap-4 gap-0 flex-1 -mt-2 sm:-mt-0">
         <Skeleton className="w-full py-4 px-2 sm:px-4 sm:rounded-md rounded-none flex gap-2">

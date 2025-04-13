@@ -84,13 +84,17 @@ export const readNotification = createServerFn({
   method: "POST",
 })
   .middleware([authMiddleware])
-  .validator((data: { id: string }) => data)
-  .handler(async ({ context: { dB: user }, data: { id } }) => {
+  .validator((data: { ids: [string] }) => data)
+  .handler(async ({ context: { dB: user }, data: { ids } }) => {
     if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
-    await db
-      .update(notification)
-      .set({
-        isRead: true,
-      })
-      .where(eq(notification.id, id));
+    await db.transaction(async (tx) => {
+      for (const id of ids) {
+        await tx
+          .update(notification)
+          .set({
+            isRead: true,
+          })
+          .where(eq(notification.id, id));
+      }
+    });
   });
