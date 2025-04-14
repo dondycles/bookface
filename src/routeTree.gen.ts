@@ -14,6 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as SignInImport } from './routes/sign-in'
 import { Route as SettingsRouteImport } from './routes/settings/route'
 import { Route as SearchRouteImport } from './routes/search/route'
+import { Route as NotificationsRouteImport } from './routes/notifications/route'
 import { Route as MRouteImport } from './routes/m/route'
 import { Route as UsernameRouteImport } from './routes/$username/route'
 import { Route as IndexImport } from './routes/index'
@@ -40,6 +41,12 @@ const SettingsRouteRoute = SettingsRouteImport.update({
 const SearchRouteRoute = SearchRouteImport.update({
   id: '/search',
   path: '/search',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const NotificationsRouteRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -114,6 +121,13 @@ declare module '@tanstack/react-router' {
       path: '/m'
       fullPath: '/m'
       preLoaderRoute: typeof MRouteImport
+      parentRoute: typeof rootRoute
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
       parentRoute: typeof rootRoute
     }
     '/search': {
@@ -206,6 +220,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$username': typeof UsernameRouteRouteWithChildren
   '/m': typeof MRouteRouteWithChildren
+  '/notifications': typeof NotificationsRouteRoute
   '/search': typeof SearchRouteRoute
   '/settings': typeof SettingsRouteRoute
   '/sign-in': typeof SignInRoute
@@ -220,6 +235,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$username': typeof UsernameRouteRouteWithChildren
   '/m': typeof MRouteRouteWithChildren
+  '/notifications': typeof NotificationsRouteRoute
   '/search': typeof SearchRouteRoute
   '/settings': typeof SettingsRouteRoute
   '/sign-in': typeof SignInRoute
@@ -235,6 +251,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/$username': typeof UsernameRouteRouteWithChildren
   '/m': typeof MRouteRouteWithChildren
+  '/notifications': typeof NotificationsRouteRoute
   '/search': typeof SearchRouteRoute
   '/settings': typeof SettingsRouteRoute
   '/sign-in': typeof SignInRoute
@@ -251,6 +268,7 @@ export interface FileRouteTypes {
     | '/'
     | '/$username'
     | '/m'
+    | '/notifications'
     | '/search'
     | '/settings'
     | '/sign-in'
@@ -264,6 +282,7 @@ export interface FileRouteTypes {
     | '/'
     | '/$username'
     | '/m'
+    | '/notifications'
     | '/search'
     | '/settings'
     | '/sign-in'
@@ -277,6 +296,7 @@ export interface FileRouteTypes {
     | '/'
     | '/$username'
     | '/m'
+    | '/notifications'
     | '/search'
     | '/settings'
     | '/sign-in'
@@ -292,6 +312,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   UsernameRouteRoute: typeof UsernameRouteRouteWithChildren
   MRouteRoute: typeof MRouteRouteWithChildren
+  NotificationsRouteRoute: typeof NotificationsRouteRoute
   SearchRouteRoute: typeof SearchRouteRoute
   SettingsRouteRoute: typeof SettingsRouteRoute
   SignInRoute: typeof SignInRoute
@@ -303,6 +324,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   UsernameRouteRoute: UsernameRouteRouteWithChildren,
   MRouteRoute: MRouteRouteWithChildren,
+  NotificationsRouteRoute: NotificationsRouteRoute,
   SearchRouteRoute: SearchRouteRoute,
   SettingsRouteRoute: SettingsRouteRoute,
   SignInRoute: SignInRoute,
@@ -323,6 +345,7 @@ export const routeTree = rootRoute
         "/",
         "/$username",
         "/m",
+        "/notifications",
         "/search",
         "/settings",
         "/sign-in",
@@ -345,6 +368,9 @@ export const routeTree = rootRoute
       "children": [
         "/m/$id/"
       ]
+    },
+    "/notifications": {
+      "filePath": "notifications/route.tsx"
     },
     "/search": {
       "filePath": "search/route.tsx"

@@ -1,24 +1,21 @@
 import { useMutation } from "@tanstack/react-query";
 import { readNotification } from "../server/fn/notification";
+import { errorHandlerWithToast } from "../utils";
 
-export const useReadNotificationsMutation = ({
-  ids,
+export const useHandleReadNotifications = ({
   refetch,
+  ids,
 }: {
-  ids: [string];
   refetch: () => void;
+  ids: [string];
 }) => {
   return useMutation({
-    mutationFn: async () => {
-      return await readNotification({
-        data: { ids },
-      });
-    },
+    mutationFn: async () => await readNotification({ data: { ids } }),
     onSuccess: () => {
       refetch();
     },
-    onError: () => {
-      refetch();
+    onError: (e: Error) => {
+      errorHandlerWithToast(e);
     },
   });
 };

@@ -1,8 +1,11 @@
+import { AnyRouter } from "@tanstack/react-router";
 import { type ClassValue, clsx } from "clsx";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { twMerge } from "tailwind-merge";
+import { notification } from "./schema";
 import { Friendships } from "./server/fn/friendships";
+import { Notification } from "./server/fn/notification";
 import { UserInfo } from "./server/fn/user";
 
 export function cn(...inputs: ClassValue[]) {
@@ -107,4 +110,49 @@ export const getPendingReceivedFriendships = (
   return friendships.filter(
     (f) => f.requesterInfo.username !== username && f.status === "pending",
   );
+};
+
+export const getPhrase = ({
+  username,
+  type,
+  commentMessage,
+}: {
+  username: string;
+  type: typeof notification.$inferInsert.type;
+  commentMessage?: string;
+}) => {
+  return `${username}
+    ${type === "addfriendship" ? " sent you friendship request." : ""}
+    ${type === "acceptedfriendship" ? " accepted you friendship request." : ""}
+    ${
+      type === "comment"
+        ? ` commented "${commentMessage?.slice(0, 10)}..." on your post.`
+        : ""
+    }
+    ${type === "like" ? " liked your post." : ""}`;
+};
+
+export const navigateToNotif = (n: Notification[0], router: AnyRouter) => {
+  if (n.type === "acceptedfriendship" || n.type === "addfriendship") {
+    router.navigate({
+      to: "/$username/posts",
+      params: { username: n.notifierData.username! },
+      search: {
+        flow: "desc",
+        postsOrderBy: "recent",
+      },
+    });
+  }
+  if (n.type === "comment") {
+    router.navigate({
+      to: "/feed/$id",
+      params: { id: n.commentPostId },
+    });
+  }
+  if (n.type === "like") {
+    router.navigate({
+      to: "/feed/$id",
+      params: { id: n.likePostId },
+    });
+  }
 };

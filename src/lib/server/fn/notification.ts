@@ -49,11 +49,12 @@ export const sendNotification = createServerFn({
     },
   );
 
-export const getCurrentUserTenNotifications = createServerFn({
+export const getCurrentUserNotifications = createServerFn({
   method: "GET",
 })
+  .validator((data: { pageParam: number }) => data)
   .middleware([authMiddleware])
-  .handler(async ({ context: { dB: user } }) => {
+  .handler(async ({ context: { dB: user }, data }) => {
     if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
     return await db.query.notification.findMany({
       orderBy: (notification, { desc }) => desc(notification.createdAt),
@@ -63,6 +64,7 @@ export const getCurrentUserTenNotifications = createServerFn({
         notifierData: true,
       },
       limit: 10,
+      offset: data.pageParam * 10,
       extras: ({ likeId, commentId }, { sql }) => ({
         commentPostId:
           sql<string>`(SELECT "postId" FROM "postComments" WHERE "id" = ${commentId})`.as(
@@ -79,6 +81,8 @@ export const getCurrentUserTenNotifications = createServerFn({
       }),
     });
   });
+
+export type Notification = Awaited<ReturnType<typeof getCurrentUserNotifications>>;
 
 export const readNotification = createServerFn({
   method: "POST",

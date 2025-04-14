@@ -56,17 +56,6 @@ function FeedIndex() {
   const _posts = posts.data?.pages.flatMap((page) => page);
   const router = useRouter();
 
-  // useEffect(() => {
-  //   if (!currentUserInfo) return;
-  //   pusher.subscribe("posts");
-
-  //   pusher.bind("addPost", () => {
-  //     posts.refetch();
-  //   });
-  //   return () => {
-  //     pusher.unsubscribe("posts");
-  //   };
-  // }, [currentUserInfo]);
   return (
     <div className="flex flex-col sm:gap-4 pt-20 sm:pt-24 pb-24 sm:max-w-[512px] mx-auto">
       <AddPostBar currentUserInfo={currentUserInfo} />

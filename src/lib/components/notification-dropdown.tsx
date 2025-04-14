@@ -1,5 +1,5 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link, useRouter } from "@tanstack/react-router";
 import { Bell, CheckCheck, Ellipsis, ExternalLink, RotateCw } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
@@ -8,7 +8,8 @@ import { currentUserTenNotificationsQueryOptions } from "../queries/notification
 import { notification } from "../schema";
 import { readNotification } from "../server/fn/notification";
 import { CurrentUserInfo } from "../server/fn/user";
-import TimeInfo from "./time-info";
+import { errorHandlerWithToast, getPhrase, navigateToNotif } from "../utils";
+import NotificationItemBar from "./notification-item-bar";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -18,7 +19,6 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import UserAvatar from "./user/user-avatar";
 
 export default function NotificationDropdown({
   currentUserInfo,
@@ -27,28 +27,20 @@ export default function NotificationDropdown({
 }) {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const notifications = useQuery({ ...currentUserTenNotificationsQueryOptions() });
+  const notifications = useQuery(currentUserTenNotificationsQueryOptions());
   const unread = notifications.data?.filter((u) => u.isRead === false);
 
-  const getPhrase = ({
-    username,
-    type,
-    commentMessage,
-  }: {
-    username: string;
-    type: typeof notification.$inferInsert.type;
-    commentMessage?: string;
-  }) => {
-    return `${username}
-    ${type === "addfriendship" ? " sent you friendship request." : ""}
-    ${type === "acceptedfriendship" ? " accepted you friendship request." : ""}
-    ${
-      type === "comment"
-        ? ` commented "${commentMessage?.slice(0, 10)}..." on your post.`
-        : ""
-    }
-    ${type === "like" ? " liked your post." : ""}`;
-  };
+  const handleReadNotifications = useMutation({
+    mutationFn: async (ids: [string]) => await readNotification({ data: { ids } }),
+    onSuccess: () => {
+      notifications.refetch();
+    },
+    onError: (e: Error) => {
+      errorHandlerWithToast(e);
+    },
+  });
+
+  const isPending = handleReadNotifications.isPending || notifications.isFetching;
 
   useEffect(() => {
     if (!currentUserInfo) return;
@@ -123,7 +115,7 @@ export default function NotificationDropdown({
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="max-w-96 max-h-[75dvh] flex-col flex gap-1"
+        className={`max-w-96 max-h-[75dvh] flex-col flex gap-1 `}
       >
         <div className="p-2 flex items-center justify-between gap-2 text-muted-foreground ">
           <p>Notifications ({unread?.length})</p>
@@ -133,15 +125,11 @@ export default function NotificationDropdown({
             </PopoverTrigger>
             <PopoverContent className="flex flex-col gap-0 p-1 w-fit">
               <Button
-                onClick={async () => {
-                  await readNotification({
-                    data: {
-                      ids: notifications.data?.map((n) => n.id as string) as [string],
-                    },
-                  });
-                  queryClient.invalidateQueries({
-                    queryKey: ["currentUserTenNotifications"],
-                  });
+                disabled={isPending || unread?.length === 0}
+                onClick={() => {
+                  handleReadNotifications.mutate(
+                    notifications.data?.map((n) => n.id as string) as [string],
+                  );
                 }}
                 variant={"ghost"}
                 className="justify-start"
@@ -149,7 +137,7 @@ export default function NotificationDropdown({
                 <CheckCheck /> Mark all as read
               </Button>
               <Button
-                disabled={notifications.isFetching}
+                disabled={isPending}
                 variant={"ghost"}
                 className="justify-start"
                 onClick={() => {
@@ -158,8 +146,10 @@ export default function NotificationDropdown({
               >
                 <RotateCw /> Refresh
               </Button>
-              <Button variant={"ghost"} className="justify-start">
-                <ExternalLink /> View all notifications
+              <Button asChild variant={"ghost"} className="justify-start">
+                <Link to="/notifications">
+                  <ExternalLink /> View all notifications
+                </Link>
               </Button>
             </PopoverContent>
           </Popover>
@@ -171,57 +161,16 @@ export default function NotificationDropdown({
             <DropdownMenuSeparator className="my-0" />
             {notifications.data?.map((n) => {
               return (
-                <DropdownMenuItem
-                  onClick={async () => {
-                    await readNotification({ data: { ids: [n.id] } });
-                    queryClient.invalidateQueries({
-                      queryKey: ["currentUserTenNotifications"],
-                    });
-
-                    if (n.type === "acceptedfriendship" || n.type === "addfriendship") {
-                      router.navigate({
-                        to: "/$username/posts",
-                        params: { username: n.notifierData.username! },
-                        search: {
-                          flow: "desc",
-                          postsOrderBy: "recent",
-                        },
-                      });
-                    }
-                    if (n.type === "comment") {
-                      router.navigate({
-                        to: "/feed/$id",
-                        params: { id: n.commentPostId },
-                      });
-                    }
-                    if (n.type === "like") {
-                      router.navigate({
-                        to: "/feed/$id",
-                        params: { id: n.likePostId },
-                      });
-                    }
-                  }}
-                  key={n.id}
-                  className={`${n.isRead ? "" : "bg-accent/50"} p-2 items-start`}
-                >
-                  <UserAvatar
-                    linkable={false}
-                    username={n.notifierData.username}
-                    url={n.notifierData.image}
-                    className="size-10"
+                <DropdownMenuItem disabled={isPending} key={n.id} asChild>
+                  <NotificationItemBar
+                    key={n.id}
+                    isPending={isPending}
+                    n={n}
+                    onClick={() => {
+                      handleReadNotifications.mutate([n.id]);
+                      navigateToNotif(n, router);
+                    }}
                   />
-                  <div>
-                    <p
-                      className={`${n.isRead === false ? "text-foreground" : "text-muted-foreground"} `}
-                    >
-                      {getPhrase({
-                        type: n.type,
-                        username: n.notifierData.username ?? n.notifierData.name,
-                        commentMessage: n.commentMessage,
-                      })}
-                    </p>
-                    <TimeInfo createdAt={n.createdAt} />
-                  </div>
                 </DropdownMenuItem>
               );
             })}
