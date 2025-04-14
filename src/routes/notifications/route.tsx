@@ -39,9 +39,32 @@ function RouteComponent() {
         {_notifications?.map((n, i) => {
           if (i === _notifications.length - 1)
             return (
+              <Button
+                key={n.id}
+                asChild
+                variant={"ghost"}
+                className="w-full justify-start h-fit rounded-none sm:rounded-md p-2"
+              >
+                <NotificationItemBar
+                  n={n}
+                  ref={ref}
+                  key={n.id}
+                  isPending={isPending}
+                  onClick={() => {
+                    handleReadNotifications.mutate([n.id]);
+                    navigateToNotif(n, router);
+                  }}
+                />
+              </Button>
+            );
+          return (
+            <Button
+              key={n.id}
+              asChild
+              variant={"ghost"}
+              className="w-full justify-start h-fit rounded-none sm:rounded-md p-2"
+            >
               <NotificationItemBar
-                ref={ref}
-                className="flex gap-2 bg-accent/10 sm:rounded-md"
                 n={n}
                 key={n.id}
                 isPending={isPending}
@@ -50,18 +73,7 @@ function RouteComponent() {
                   navigateToNotif(n, router);
                 }}
               />
-            );
-          return (
-            <NotificationItemBar
-              className="flex gap-2 bg-accent/10 sm:rounded-md"
-              n={n}
-              key={n.id}
-              isPending={isPending}
-              onClick={() => {
-                handleReadNotifications.mutate([n.id]);
-                navigateToNotif(n, router);
-              }}
-            />
+            </Button>
           );
         })}
         <Button
