@@ -105,10 +105,9 @@ export const getLatestMessage = createServerFn({ method: "GET" })
   .handler(async ({ data: { chatRoomId }, context: { dB: user } }) => {
     if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
     if (!chatRoomId) throw new Error(`[{ "message": "No Chat Room ID." }]`);
-
     return await db.query.chat.findFirst({
       where: (chat, { eq }) => eq(chat.roomId, chatRoomId),
-      orderBy: (chat, { desc }) => [desc(chat.id)],
+      orderBy: (chat, { desc }) => desc(chat.createdAt),
     });
   });
 
