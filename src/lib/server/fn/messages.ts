@@ -121,14 +121,15 @@ export const seenMessage = createServerFn({ method: "POST" })
     async ({ data: { chatRoomData, messageId, receiverId }, context: { dB: user } }) => {
       if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
       const newLastSeen = () => {
-        const notMyPart = chatRoomData.lastSeen
-          ? chatRoomData.lastSeen.find((l) => l.userId !== user.id)
-          : { lastSeenMessageId: "", userId: "" };
-        const newData = [
+        if (!chatRoomData.lastSeen)
+          return [{ lastSeenMessageId: messageId, userId: user.id }];
+
+        const notMyPart = chatRoomData.lastSeen.find((l) => l.userId !== user.id);
+
+        return [
           notMyPart ?? { lastSeenMessageId: "", userId: "" },
           { lastSeenMessageId: messageId, userId: user.id },
         ];
-        return newData;
       };
       await db
         .update(chatRoom)
