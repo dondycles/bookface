@@ -23,7 +23,7 @@ export default function ChatRoomEntryBar({
   const chatMateId = chatRoom.people.filter((i) => i !== currentUserInfo?.dB.id)[0];
   const chatMateData = useQuery(userInfoQueryOptions(chatMateId, chatMateId));
   const chatLatestMessage = useQuery(chatRoomLatestMessageQueryOptions(chatRoom.id));
-  const lastSeen = chatRoom.lastSeen?.map((l) => l.userId === chatMateData.data?.id);
+  const lastSeen = chatRoom.lastSeen?.find((l) => l.userId === chatMateData.data?.id);
 
   if (chatMateData.isLoading) return;
   return (

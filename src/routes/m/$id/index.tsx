@@ -28,17 +28,27 @@ function RouteComponent() {
   )[0];
 
   const chatMateData = useQuery(userInfoQueryOptions(chatMateId!, chatMateId));
-
+  const myLastSeen = chatRoomData.data?.lastSeen?.find(
+    (l) => l.userId === currentUserInfo?.dB.id,
+  );
+  const chatMateSeen = chatRoomData.data?.lastSeen?.find((l) => l.userId === chatMateId);
   const chatArea = useRef<HTMLDivElement>(null);
 
   const [message, setMessage] = useState("");
   const handleSubmitMessage = useMutation({
-    mutationFn: async () =>
-      await sendMessage({
-        data: { chatRoomId: id, message, receiverId: chatMateId ?? "" },
-      }),
+    mutationFn: async () => {
+      if (chatRoomData.data)
+        await sendMessage({
+          data: {
+            chatRoomData: chatRoomData.data,
+            message,
+            receiverId: chatMateId ?? "",
+          },
+        });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(chatRoomChats);
+      queryClient.invalidateQueries({ queryKey: ["chatRoom", chatRoomData.data?.id] });
       queryClient.invalidateQueries({
         queryKey: ["latestMessage", chatRoomData.data?.id],
       });
@@ -52,6 +62,29 @@ function RouteComponent() {
     }
   }, [chatRoomChats.isFetching]);
 
+  // useEffect(() => {
+  //   if (!chatRoomData.data) return;
+  //   if (!chatRoomChats.data) return;
+  //   if (!chatMateData.data) return;
+  //   if (myLastSeen?.lastSeenMessageId === chatRoomChats.data[0].id) return;
+  //   if (!chatRoomData.isFetching) {
+  //     // alert("seen my message");
+  //     seenMessage({
+  //       data: {
+  //         chatRoomData: chatRoomData.data,
+  //         messageId: chatRoomChats.data[0].id,
+  //         receiverId: chatMateData.data.id,
+  //       },
+  //     });
+  //   }
+  // }, [
+  //   chatMateData.data,
+  //   chatRoomChats.data,
+  //   chatRoomData.data,
+  //   chatRoomData.isFetching,
+  //   myLastSeen?.lastSeenMessageId,
+  // ]);
+
   useEffect(() => {
     if (!currentUserInfo) return;
     pusher.subscribe(currentUserInfo.dB.id);
@@ -59,11 +92,15 @@ function RouteComponent() {
       queryClient.invalidateQueries({
         queryKey: ["chatRoomChats", id],
       });
+      queryClient.invalidateQueries({ queryKey: ["chatRoom", chatRoomData.data?.id] });
+      queryClient.invalidateQueries({
+        queryKey: ["latestMessage", chatRoomData.data?.id],
+      });
     });
     return () => {
       pusher.unsubscribe(currentUserInfo.dB.id);
     };
-  }, [id, queryClient, currentUserInfo]);
+  }, [id, queryClient, currentUserInfo, chatRoomData.data?.id]);
 
   if (chatRoomChats.isLoading)
     return (
@@ -79,6 +116,7 @@ function RouteComponent() {
         if (!chatRoomData.data) return;
         if (!chatRoomChats.data) return;
         if (!chatMateData.data) return;
+        if (myLastSeen?.lastSeenMessageId === chatRoomChats.data[0].id) return;
         await seenMessage({
           data: {
             chatRoomData: chatRoomData.data,
@@ -121,6 +159,7 @@ function RouteComponent() {
                   key={c.id}
                   className={`bg-accent rounded-md p-2 w-fit ${c.senderId === currentUserInfo?.dB.id ? "mr-0 ml-auto" : "ml-0 mr-auto"}`}
                 >
+                  <p className="text-xs text-muted-foreground">{c.id}</p>
                   <p className="whitespace-pre-wrap">{c.message}</p>
                 </div>
               );
@@ -129,6 +168,8 @@ function RouteComponent() {
           <div ref={chatArea} />
         </div>
       </ScrollArea>
+      <p>My Last Seen: {JSON.stringify(myLastSeen)}</p>
+      <p>Chat Mate Last Seen: {JSON.stringify(chatMateSeen)}</p>
       <div className="flex gap-2 px-2 py-4 border-t h-fit">
         <Textarea
           className="resize-none field-sizing-fixed scrollbar scrollbar-thumb-accent"

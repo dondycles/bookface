@@ -69,21 +69,33 @@ export const getChatRoomChats = createServerFn({ method: "GET" })
 
 export const sendMessage = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .validator((data: { chatRoomId: string; receiverId: string; message: string }) => data)
+  .validator(
+    (data: { chatRoomData: ChatRooms[0]; receiverId: string; message: string }) => data,
+  )
   .handler(
-    async ({ data: { chatRoomId, receiverId, message }, context: { dB: user } }) => {
+    async ({ data: { chatRoomData, receiverId, message }, context: { dB: user } }) => {
       if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
-      if (!chatRoomId) throw new Error(`[{ "message": "No Chat Room ID." }]`);
+      if (!chatRoomData) throw new Error(`[{ "message": "No Chat Room ID." }]`);
       if (!receiverId) throw new Error(`[{ "message": "No Receiver ID." }]`);
       if (message.trim().length === 0)
         throw new Error(`[{ "message": "Message Is Empty." }]`);
-      await db.insert(chat).values({
-        message: message.trim(),
-        receiverId,
-        roomId: chatRoomId,
-        senderId: user.id,
+      const messageData = await db
+        .insert(chat)
+        .values({
+          message: message.trim(),
+          receiverId,
+          roomId: chatRoomData.id,
+          senderId: user.id,
+        })
+        .returning({ id: chat.id });
+      await seenMessage({
+        data: {
+          chatRoomData,
+          messageId: messageData[0].id,
+          receiverId,
+        },
       });
-      await pusher.trigger(receiverId, chatRoomId, null);
+      await pusher.trigger(receiverId, chatRoomData.id, null);
     },
   );
 
