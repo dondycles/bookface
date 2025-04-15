@@ -190,6 +190,7 @@ function RouteComponent() {
           size={"icon"}
           variant={"secondary"}
           onClick={() => handleSubmitMessage.mutate()}
+          disabled={handleSubmitMessage.isPending}
         >
           <Send />
         </Button>

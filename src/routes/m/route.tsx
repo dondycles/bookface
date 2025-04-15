@@ -9,9 +9,10 @@ export const Route = createFileRoute("/m")({
 });
 
 function RouteComponent() {
-  const chatRoomIds = useQuery(currentUserChatRoomIdsQueryOptions());
+  const chatRooms = useQuery(currentUserChatRoomIdsQueryOptions());
   const matchRoute = useMatchRoute();
   const { currentUserInfo } = Route.useRouteContext();
+
   return (
     <div className="pt-20 sm:max-w-[512px] mx-auto h-full">
       <p
@@ -24,14 +25,14 @@ function RouteComponent() {
         hidden={!matchRoute({ to: "/m", fuzzy: false })}
         className={`flex flex-col h-fit flex-1 gap-0 sm:gap-2`}
       >
-        {chatRoomIds.isLoading ? (
+        {chatRooms.isLoading ? (
           <>
             <Skeleton className="w-full h-10" />
             <Skeleton className="w-full h-10" />
             <Skeleton className="w-full h-10" />
           </>
         ) : (
-          chatRoomIds.data?.map((c) => {
+          chatRooms.data?.map((c) => {
             return (
               <ChatRoomEntryBar
                 className="rounded-none sm:rounded-md border-b sm:border-b-0"

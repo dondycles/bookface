@@ -1,6 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouterState } from "@tanstack/react-router";
-import { chatRoomLatestMessageQueryOptions } from "../queries/messages";
+import { useEffect } from "react";
+import { pusher } from "../pusher-client";
+import {
+  chatRoomDataQueryOptions,
+  chatRoomLatestMessageQueryOptions,
+} from "../queries/messages";
 import { userInfoQueryOptions } from "../queries/user";
 import { ChatRooms } from "../server/fn/messages";
 import { CurrentUserInfo } from "../server/fn/user";
@@ -18,12 +23,35 @@ export default function ChatRoomEntryBar({
   className?: string;
 }) {
   const pathname = useRouterState().location.pathname;
+  const queryClient = useQueryClient();
   // const chatRoomType: "group" | "private" =
   //   chatRoom.people.length === 2 ? "private" : "group";
+  const chatRoomData = useQuery({
+    initialData: chatRoom,
+    ...chatRoomDataQueryOptions(chatRoom.id),
+  });
+
   const chatMateId = chatRoom.people.filter((i) => i !== currentUserInfo?.dB.id)[0];
   const chatMateData = useQuery(userInfoQueryOptions(chatMateId, chatMateId));
   const chatLatestMessage = useQuery(chatRoomLatestMessageQueryOptions(chatRoom.id));
-  //   const lastSeen = chatRoom.lastSeen?.find((l) => l.userId === chatMateData.data?.id);
+  const myLatestSeen = chatRoom.lastSeen?.find(
+    (l) => l.userId === currentUserInfo?.dB.id,
+  );
+  const isSeen = myLatestSeen?.lastSeenMessageId === chatLatestMessage.data?.id;
+
+  useEffect(() => {
+    if (!currentUserInfo) return;
+    pusher.subscribe(currentUserInfo.dB.id);
+    pusher.bind(chatRoom.id, () => {
+      queryClient.invalidateQueries({ queryKey: ["chatRoom", chatRoomData.data?.id] });
+      queryClient.invalidateQueries({
+        queryKey: ["latestMessage", chatRoomData.data?.id],
+      });
+    });
+    return () => {
+      pusher.unsubscribe(currentUserInfo.dB.id);
+    };
+  }, [queryClient, currentUserInfo, chatRoomData.data?.id, chatRoom.id]);
 
   if (chatMateData.isLoading) return;
   return (
@@ -42,7 +70,7 @@ export default function ChatRoomEntryBar({
         <p className={`text-lg ${pathname === "/m" ? "" : "hidden md:block"}`}>
           {chatMateData.data?.username}
         </p>
-        <p>
+        <p className={`${isSeen ? "text-muted-foreground" : ""}`}>
           {chatLatestMessage.data?.senderId === currentUserInfo?.dB.id && "You: "}
           {chatLatestMessage?.data?.message}
         </p>
