@@ -8,7 +8,7 @@ import { currentUserInfoQueryOptions } from "@/lib/queries/user";
 import { editProfile, settingsSchema } from "@/lib/server/fn/user";
 import { errorHandlerWithToast, successHandlerWithToast } from "@/lib/utils";
 import { useForm } from "@tanstack/react-form";
-import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { z } from "zod";
 
@@ -25,7 +25,7 @@ export const Route = createFileRoute("/settings")({
 function RouteComponent() {
   const { currentUserInfo: currentUserInfoInitialData } = Route.useRouteContext();
   const queryClient = useQueryClient();
-  const { data: currentUserInfo } = useSuspenseQuery({
+  const { data: currentUserInfo } = useQuery({
     ...currentUserInfoQueryOptions(),
     initialData: currentUserInfoInitialData,
   });

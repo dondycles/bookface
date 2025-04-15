@@ -1,4 +1,4 @@
-import { pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { json, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { user } from "./user.schema";
 export const state = pgEnum("state", ["seen", "delivered"]);
 
@@ -8,6 +8,12 @@ export const chatRoom = pgTable("chatRoom", {
     .$default(() => crypto.randomUUID()),
   people: text("people").array().notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  lastSeen: json("lastSeen").$type<
+    {
+      userId: string;
+      lastSeenMessageId: string;
+    }[]
+  >(),
 });
 
 export const chat = pgTable("chat", {

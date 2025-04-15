@@ -1,7 +1,7 @@
 import { authMiddleware } from "@/lib/middleware/auth-guard";
 import { chat, chatRoom } from "@/lib/schema";
 import { createServerFn } from "@tanstack/react-start";
-import { arrayContains } from "drizzle-orm";
+import { arrayContains, eq } from "drizzle-orm";
 import { db } from "../db";
 import { pusher } from "../pusher";
 
@@ -84,5 +84,46 @@ export const sendMessage = createServerFn({ method: "POST" })
         senderId: user.id,
       });
       await pusher.trigger(receiverId, chatRoomId, null);
+    },
+  );
+
+export const getLatestMessage = createServerFn({ method: "GET" })
+  .middleware([authMiddleware])
+  .validator((data: { chatRoomId: string }) => data)
+  .handler(async ({ data: { chatRoomId }, context: { dB: user } }) => {
+    if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
+    if (!chatRoomId) throw new Error(`[{ "message": "No Chat Room ID." }]`);
+
+    return await db.query.chat.findFirst({
+      where: (chat, { eq }) => eq(chat.roomId, chatRoomId),
+      orderBy: (chat, { desc }) => [desc(chat.id)],
+    });
+  });
+
+export const seenMessage = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .validator(
+    (data: { chatRoomData: ChatRooms[0]; messageId: string; receiverId: string }) => data,
+  )
+  .handler(
+    async ({ data: { chatRoomData, messageId, receiverId }, context: { dB: user } }) => {
+      if (!user.id) throw new Error(`[{ "message": "No User ID." }]`);
+      const newLastSeen = () => {
+        const notMyPart = chatRoomData.lastSeen
+          ? chatRoomData.lastSeen.find((l) => l.userId !== user.id)
+          : { lastSeenMessageId: "", userId: "" };
+        const newData = [
+          notMyPart ?? { lastSeenMessageId: "", userId: "" },
+          { lastSeenMessageId: messageId, userId: user.id },
+        ];
+        return newData;
+      };
+      await db
+        .update(chatRoom)
+        .set({
+          lastSeen: newLastSeen(),
+        })
+        .where(eq(chatRoom.id, chatRoomData.id));
+      await pusher.trigger(receiverId, chatRoomData.id, null);
     },
   );

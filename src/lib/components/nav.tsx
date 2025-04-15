@@ -1,12 +1,13 @@
 import authClient from "@/lib/auth-client";
 import { Button } from "@/lib/components/ui/button";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Link, useRouter } from "@tanstack/react-router";
-import { LogIn, MessageCircleMore, Search, X } from "lucide-react";
+import { LogIn, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { currentUserInfoQueryOptions } from "../queries/user";
 import { CurrentUserInfo } from "../server/fn/user";
 import { useDebounce } from "../utils";
+import MessageDropdown from "./messages-dropdown";
 import NotificationDropdown from "./notification-dropdown";
 import SetUsernameDialog from "./set-username-dialog";
 import { Input } from "./ui/input";
@@ -18,7 +19,7 @@ export default function Nav({
   currentUserInfo: CurrentUserInfo;
 }) {
   const route = useRouter();
-  const { data: currentUserInfo } = useSuspenseQuery({
+  const { data: currentUserInfo } = useQuery({
     ...currentUserInfoQueryOptions(),
     initialData: currentUserInfoInitialData,
   });
@@ -100,11 +101,7 @@ export default function Nav({
         </div>
         {currentUserInfo ? (
           <>
-            <Link to="/m">
-              <Button size={"icon"} variant={"ghost"}>
-                <MessageCircleMore className="size-6" />
-              </Button>
-            </Link>
+            <MessageDropdown currentUserInfo={currentUserInfo} />
             <NotificationDropdown currentUserInfo={currentUserInfo} />
             <UserDropdownMenu currentUserInfo={currentUserInfo} />
           </>

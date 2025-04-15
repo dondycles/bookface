@@ -1,6 +1,6 @@
 import { errorHandlerWithToast, successHandlerWithToast } from "@/lib/utils";
 import { useForm } from "@tanstack/react-form";
-import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { currentUserInfoQueryOptions } from "../queries/user";
 import { CurrentUserInfo, updateUsername, usernameSchema } from "../server/fn/user";
@@ -22,7 +22,7 @@ export default function SetUsernameDialog({
   currentUserInfo: CurrentUserInfo;
 }) {
   const queryClient = useQueryClient();
-  const { data: currentUserInfo } = useSuspenseQuery({
+  const { data: currentUserInfo } = useQuery({
     ...currentUserInfoQueryOptions(),
     initialData: currentUserInfoInitialData,
   });

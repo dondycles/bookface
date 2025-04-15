@@ -9,7 +9,7 @@ import {
   chatRoomDataQueryOptions,
 } from "@/lib/queries/messages";
 import { userInfoQueryOptions } from "@/lib/queries/user";
-import { sendMessage } from "@/lib/server/fn/messages";
+import { seenMessage, sendMessage } from "@/lib/server/fn/messages";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronLeft, Ellipsis, Send } from "lucide-react";
@@ -39,13 +39,17 @@ function RouteComponent() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries(chatRoomChats);
+      queryClient.invalidateQueries({
+        queryKey: ["latestMessage", chatRoomData.data?.id],
+      });
       setMessage("");
     },
   });
 
   useEffect(() => {
-    if (!chatRoomChats.isFetching)
+    if (!chatRoomChats.isFetching) {
       chatArea.current?.scrollIntoView({ behavior: "smooth" });
+    }
   }, [chatRoomChats.isFetching]);
 
   useEffect(() => {
@@ -70,13 +74,26 @@ function RouteComponent() {
       </Skeleton>
     );
   return (
-    <div className="h-full grid grid-rows-[81px_minmax(0px,1fr)_161px]   grid-cols-none flex-1 bg-muted overflow-hidden">
+    <div
+      onClick={async () => {
+        if (!chatRoomData.data) return;
+        if (!chatRoomChats.data) return;
+        if (!chatMateData.data) return;
+        await seenMessage({
+          data: {
+            chatRoomData: chatRoomData.data,
+            messageId: chatRoomChats.data[0].id,
+            receiverId: chatMateData.data?.id,
+          },
+        });
+      }}
+      className="h-full grid grid-rows-[81px_minmax(0px,1fr)_161px]   grid-cols-none flex-1 bg-muted overflow-hidden"
+    >
       <div className="flex gap-2 items-center justify-center px-2 py-4 border-b h-fit">
         <div className="flex flex-row gap-2 flex-1 items-center">
           <Link to="/m">
             <ChevronLeft />
           </Link>
-
           <UserAvatar
             className="size-12"
             url={chatMateData.data?.image}

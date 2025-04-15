@@ -115,7 +115,7 @@ export default function NotificationDropdown({
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className={`max-w-96 max-h-[75dvh] flex-col flex gap-1 `}
+        className={`min-w-fit w-screen max-w-96 max-h-[75dvh] flex-col flex gap-1 `}
       >
         <div className="p-2 flex items-center justify-between gap-2 text-muted-foreground ">
           <p>Notifications ({unread?.length})</p>

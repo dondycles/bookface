@@ -1,5 +1,6 @@
 import NotificationItemBar from "@/lib/components/notification-item-bar";
 import { Button } from "@/lib/components/ui/button";
+import { Skeleton } from "@/lib/components/ui/skeleton";
 import useAutoLoadNextPage from "@/lib/hooks/useAutoLoadNextPage";
 import { currentUserNotificationsQueryOptions } from "@/lib/queries/notifications";
 import { readNotification } from "@/lib/server/fn/notification";
@@ -36,8 +37,34 @@ function RouteComponent() {
     <div className="pt-20 sm:max-w-[512px] mx-auto h-full">
       <p className="text-2xl font-bold px-2 py-4">Notifications</p>
       <div className="space-y-2">
-        {_notifications?.map((n, i) => {
-          if (i === _notifications.length - 1)
+        {notifications.isLoading ? (
+          <>
+            <Skeleton className="w-full h-10" />
+            <Skeleton className="w-full h-10" />
+            <Skeleton className="w-full h-10" />
+          </>
+        ) : (
+          _notifications?.map((n, i) => {
+            if (i === _notifications.length - 1)
+              return (
+                <Button
+                  key={n.id}
+                  asChild
+                  variant={"ghost"}
+                  className="w-full justify-start h-fit rounded-none sm:rounded-md p-2"
+                >
+                  <NotificationItemBar
+                    n={n}
+                    ref={ref}
+                    key={n.id}
+                    isPending={isPending}
+                    onClick={() => {
+                      handleReadNotifications.mutate([n.id]);
+                      navigateToNotif(n, router);
+                    }}
+                  />
+                </Button>
+              );
             return (
               <Button
                 key={n.id}
@@ -47,7 +74,6 @@ function RouteComponent() {
               >
                 <NotificationItemBar
                   n={n}
-                  ref={ref}
                   key={n.id}
                   isPending={isPending}
                   onClick={() => {
@@ -57,25 +83,8 @@ function RouteComponent() {
                 />
               </Button>
             );
-          return (
-            <Button
-              key={n.id}
-              asChild
-              variant={"ghost"}
-              className="w-full justify-start h-fit rounded-none sm:rounded-md p-2"
-            >
-              <NotificationItemBar
-                n={n}
-                key={n.id}
-                isPending={isPending}
-                onClick={() => {
-                  handleReadNotifications.mutate([n.id]);
-                  navigateToNotif(n, router);
-                }}
-              />
-            </Button>
-          );
-        })}
+          })
+        )}
         <Button
           className="text-xs text-muted-foreground font-light"
           hidden={!notifications.hasNextPage}

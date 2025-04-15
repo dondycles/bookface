@@ -3,6 +3,7 @@ import {
   getChatRoomChats,
   getChatRoomData,
   getCurrentUserChatRoomsId,
+  getLatestMessage,
 } from "../server/fn/messages";
 
 export const currentUserChatRoomIdsQueryOptions = () =>
@@ -21,4 +22,10 @@ export const chatRoomDataQueryOptions = (chatRoomId: string) =>
   queryOptions({
     queryKey: ["chatRoom", chatRoomId],
     queryFn: ({ signal }) => getChatRoomData({ signal, data: { chatRoomId } }),
+  });
+
+export const chatRoomLatestMessageQueryOptions = (chatRoomId: string) =>
+  queryOptions({
+    queryKey: ["latestMessage", chatRoomId],
+    queryFn: ({ signal }) => getLatestMessage({ signal, data: { chatRoomId } }),
   });
