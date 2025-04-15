@@ -155,18 +155,21 @@ function RouteComponent() {
           {chatRoomChats.data
             ?.map((c) => {
               return (
-                <div
-                  key={c.id}
-                  className={`bg-accent rounded-md p-2 w-fit ${c.senderId === currentUserInfo?.dB.id ? "mr-0 ml-auto" : "ml-0 mr-auto"}`}
-                >
-                  {/* <p className="text-xs text-muted-foreground">{c.id}</p> */}
-                  <p className="whitespace-pre-wrap">{c.message}</p>
-                  <p
-                    hidden={chatMateSeen?.lastSeenMessageId !== c.id}
-                    className="text-xs text-muted-foreground"
+                <div key={c.id}>
+                  <div
+                    key={c.id}
+                    className={`bg-accent rounded-md p-2 w-fit ${c.senderId === currentUserInfo?.dB.id ? "mr-0 ml-auto" : "ml-0 mr-auto"}`}
                   >
-                    seen
-                  </p>
+                    {/* <p className="text-xs text-muted-foreground">{c.id}</p> */}
+                    <p className="whitespace-pre-wrap">{c.message}</p>
+                  </div>
+                  {c.id === chatMateSeen?.lastSeenMessageId && (
+                    <UserAvatar
+                      className="size-3 mt-1 ml-auto mr-0 mb-4"
+                      url={chatMateData.data?.image}
+                      username={chatMateData.data?.username}
+                    />
+                  )}
                 </div>
               );
             })
